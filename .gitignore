@@ -1,5 +1,6 @@
-eAYSO.MY.reports
+eAYSO.MY.reports/
 2017*/*
 *.composite.*
-20171114.eayso2017-bscerts.csv
+*.csv
 *alias
+*.xlsx
