@@ -1,3 +1,4 @@
+UNLOCK TABLES;
 DROP TABLE IF EXISTS `crs_import`;
 
 CREATE TABLE `crs_import` (
@@ -98,7 +99,6 @@ LINES TERMINATED BY '\r\n';
 
 DELETE FROM `crs_import` WHERE `Program Name` = 'Program Name';
 
-
 DROP TABLE IF EXISTS `eAYSO.MY2017.certs`;
 
 CREATE TABLE `eAYSO.MY2017.certs` (
@@ -132,3 +132,5 @@ ESCAPED BY '"'
 LINES TERMINATED BY '\r\n';
 
 DELETE FROM `eAYSO.MY2017.certs` WHERE `Name` = 'Name';
+
+CALL `countCerts`();
