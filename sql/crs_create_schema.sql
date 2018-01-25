@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 08, 2018 at 06:15 PM
+-- Generation Time: Jan 25, 2018 at 05:30 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
--- PHP Version: 7.1.12-3+ubuntu14.04.1+deb.sury.org+1
+-- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -28,6 +28,7 @@ DELIMITER $$
 --
 -- Procedures
 --
+DROP PROCEDURE IF EXISTS `CertTweaks`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `CertTweaks` ()  BEGIN
 # rick roberts
 UPDATE `crs_certs` SET `Email` = 'ayso1sra@gmail.com' WHERE `AYSOID` = '97815888';
@@ -46,6 +47,7 @@ DELETE FROM `crs_certs` WHERE `Email` = 'mlraycraft.aysoinstructor@gmail.com';
 DELETE FROM `crs_certs` WHERE `Name` = 'Michael Raycraft' AND `CertificationDesc` LIKE 'National Referee Assessor';
 END$$
 
+DROP PROCEDURE IF EXISTS `countCerts`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `countCerts` ()  BEGIN
 SELECT 'crs_1b_certs' as `Certs`, count(*) as 'Count' FROM `crs_1b_certs`
 UNION
@@ -69,16 +71,20 @@ SELECT 'crs_1s_certs' as `Certs`, count(*) as 'Count' FROM `crs_1s_certs`
 UNION
 SELECT 'crs_1u_certs' as `Certs`, count(*) as 'Count' FROM `crs_1u_certs`
 UNION
-SELECT 'eAYSO.MY2017.certs' as `Certs`, count(*) as 'Count' FROM `eAYSO.MY2017.certs`;
+SELECT 'eAYSO.MY2017.certs' as `Certs`, count(*) as 'Count' FROM `eAYSO.MY2017.certs`
+UNION
+SELECT 'eAYSO.MY2016.certs' as `Certs`, count(*) as 'Count' FROM `eAYSO.MY2016.certs`;
 END$$
 
+DROP PROCEDURE IF EXISTS `distinctRegistrations`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `distinctRegistrations` ()  BEGIN
-SELECT DISTINCT `AYSOID`, `Name`, `First Name`, `Last Name`, `Address`, `City`, `State`, `Zip`, `Home Phone`, `Cell Phone`, `Email`, `SAR` FROM wp_ayso1ref.crs_certs
+SELECT DISTINCT `AYSOID`, `Name`, `First Name`, `Last Name`, `Address`, `City`, `State`, `Zip`, `Home Phone`, `Cell Phone`, `Email`, `Gender`,`SAR` FROM wp_ayso1ref.crs_certs
 UNION
-SELECT DISTINCT `AYSOID`, `Name`, `FirstName` AS 'First Name', `LastName` AS 'Last Name', `Street` AS 'Address', `City`, `State`, `Zip`, `HomePhone`, `BusinessPhone` AS 'Cell Phone', `Email`, CONCAT(`SectionName`, '/', `AreaName`, '/', `RegionNumber`) AS 'SAR' FROM wp_ayso1ref.`eAYSO.MY2017.certs`
+SELECT DISTINCT `AYSOID`, `Name`, `FirstName` AS 'First Name', `LastName` AS 'Last Name', `Street` AS 'Address', `City`, `State`, `Zip`, `HomePhone`, `BusinessPhone` AS 'Cell Phone', `Email`, `Gender`, CONCAT(`SectionName`, '/', `AreaName`, '/', `RegionNumber`) AS 'SAR' FROM wp_ayso1ref.`eAYSO.MY2017.certs`
 ORDER BY `SAR`, `Last Name`, `First Name`;
 END$$
 
+DROP PROCEDURE IF EXISTS `eAYSOHighestRefCert`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `eAYSOHighestRefCert` (IN `tableName` VARCHAR(128) CHARSET utf8)  MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
@@ -109,6 +115,7 @@ CREATE TABLE `", tableName, "_highestRefCert` SELECT * FROM
             `HomePhone` AS `Home Phone`,
             `BusinessPhone` AS `Cell Phone`,
             `Email`,
+            `Gender`,
             `CertificationDesc`,
             `CertDate`,
             `SectionAreaRegion` AS `SAR`,
@@ -146,6 +153,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `init_crs_certs`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `init_crs_certs` ()  BEGIN
 DROP TABLE IF EXISTS wp_ayso1ref.crs_certs;
 CREATE TABLE `crs_certs` (
@@ -163,6 +171,7 @@ CREATE TABLE `crs_certs` (
   `Home Phone` text,
   `Cell Phone` text,
   `Email` text,
+  `Gender` text,
   `CertificationDesc` text,
   `CertDate` varchar(10) CHARACTER SET utf8,
   `SAR` varchar(98) NOT NULL DEFAULT '',
@@ -174,6 +183,7 @@ CREATE TABLE `crs_certs` (
 ALTER TABLE wp_ayso1ref.crs_certs AUTO_INCREMENT = 0;
 END$$
 
+DROP PROCEDURE IF EXISTS `processBSCSV`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `processBSCSV` (`certCSV` VARCHAR(128))  BEGIN
 SET @inTable = certCSV;
 
@@ -197,6 +207,7 @@ SET @s = CONCAT(' INSERT INTO wp_ayso1ref.crs_certs SELECT
     `Volunteer Phone` AS `Home Phone`,
     `Volunteer Cell` AS `Cell Phone`,
     LCASE(`Volunteer Email`) AS Email,
+    `Gender`,
     `AYSO Certifications` AS CertificationDesc,
     IF(`Date of Last AYSO Certification Update` = "" OR `Date of Last AYSO Certification Update` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`Date of Last AYSO Certification Update`, " ", 1),"/", "."),GET_FORMAT(DATE,"USA"))) AS `CertDate`,
     IF(sar.`region` IS NULL
@@ -223,6 +234,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;  
 END$$
 
+DROP PROCEDURE IF EXISTS `processEAYSOCSV`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `processEAYSOCSV` (`certCSV` VARCHAR(128))  BEGIN
 SET @inTable = certCSV;
 
@@ -241,6 +253,7 @@ SET @s = CONCAT(' INSERT INTO wp_ayso1ref.crs_certs SELECT
     `HomePhone` AS `Home Phone`,
     `BusinessPhone` AS `Cell Phone`,
     LCASE(`Email`) AS Email,
+    `Gender`,
     `CertificationDesc`,
     IF(`CertDate` = "" OR `CertDate` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`CertDate`, " ", 1),"/", "."),GET_FORMAT(DATE,"USA"))) AS `CertDate`,
     `SectionAreaRegion` AS SAR,
@@ -256,6 +269,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;  
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshConcussionCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshConcussionCerts` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
@@ -277,6 +291,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_cdc SELECT
 	`Home Phone`,
 	`Cell Phone`,
 	`Email`,
+    `Gender`,
 	`CertificationDesc`,
 	`CertDate`,
 	`SAR`,
@@ -308,6 +323,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshHighestCertification`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshHighestCertification` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
@@ -328,6 +344,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_hrc SELECT * FROM
             `Home Phone`,
             `Cell Phone`,
             `Email`,
+            `Gender`,
             `CertificationDesc`,
             `CertDate`,
             `SAR`,
@@ -364,6 +381,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshNationalRefereeAssessors`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `RefreshNationalRefereeAssessors` ()  BEGIN
 DROP TABLE IF EXISTS wp_ayso1ref.crs_tmp_nra;
 
@@ -392,6 +410,7 @@ ORDER BY `Last Name`, SAR;
 
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshRefCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefCerts` ()  BEGIN
 DROP TABLE IF EXISTS wp_ayso1ref.crs_refcerts;
 
@@ -402,6 +421,7 @@ SELECT *
 	`CertificationDesc` LIKE '%Referee%';
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshRefConcussionCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefConcussionCerts` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
@@ -421,6 +441,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshRefereeAssessors`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeAssessors` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
@@ -474,6 +495,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_ra SELECT * FROM
     ORDER BY CertificationDesc , SAR , `Last Name` , `First Name` , AYSOID) ra;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshRefereeInstructorEvaluators`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeInstructorEvaluators` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
@@ -518,6 +540,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_rie SELECT * FROM
     ORDER BY Section , Area , Region , `Last Name` , `First Name`) rie;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshRefereeInstructors`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeInstructors` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
@@ -571,6 +594,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_ri SELECT * FROM
     ORDER BY FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor', 'Referee Instructor Evaluator') , Section , Area , Region , `Last Name` , `First Name`) ri;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshRefereeUpgradeCandidates`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeUpgradeCandidates` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
@@ -592,6 +616,7 @@ FROM
             course.`Home Phone`,
             course.`Cell Phone`,
             course.`Email`,
+            course.`Gender`,
             course.`CertificationDesc`,
             course.`CertDate`,
             course.`SAR`,
@@ -612,6 +637,7 @@ FROM
             `Home Phone`,
             `Cell Phone`,
             `Email`,
+            `Gender`,
             `CertificationDesc`,
             `CertDate`,
             `SAR`,
@@ -635,6 +661,7 @@ FROM
             `Home Phone`,
             `Cell Phone`,
             `Email`,
+            `Gender`,
             `CertificationDesc`,
             `CertDate`,
             `SAR`,
@@ -659,6 +686,7 @@ FROM
             course.`Home Phone`,
             course.`Cell Phone`,
             course.`Email`,
+            course.`Gender`,
             course.`CertificationDesc`,
             course.`CertDate`,
             course.`SAR`,
@@ -679,6 +707,7 @@ FROM
             `Home Phone`,
             `Cell Phone`,
             `Email`,
+            `Gender`,
             `CertificationDesc`,
             `CertDate`,
             `SAR`,
@@ -702,6 +731,7 @@ FROM
             `Home Phone`,
             `Cell Phone`,
             `Email`,
+            `Gender`,
             `CertificationDesc`,
             `CertDate`,
             `SAR`,
@@ -726,6 +756,7 @@ FROM
             course.`Home Phone`,
             course.`Cell Phone`,
             course.`Email`,
+            course.`Gender`,
             course.`CertificationDesc`,
             course.`CertDate`,
             course.`SAR`,
@@ -746,6 +777,7 @@ FROM
             `Home Phone`,
             `Cell Phone`,
             `Email`,
+            `Gender`,
             `CertificationDesc`,
             `CertDate`,
             `SAR`,
@@ -769,6 +801,7 @@ FROM
             `Home Phone`,
             `Cell Phone`,
             `Email`,
+            `Gender`,
             `CertificationDesc`,
             `CertDate`,
             `SAR`,
@@ -787,6 +820,7 @@ ORDER BY FIELD(`CertificationDesc`,
         'Intermediate Referee Course'), `CertDate`;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshRefNoCerts`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `RefreshRefNoCerts` ()  SQL SECURITY INVOKER
 BEGIN    
 DROP TABLE IF EXISTS wp_ayso1ref.crs_tmp_nocerts;
@@ -804,6 +838,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_nocerts SELECT * FROM
     `Home Phone`, 
     `Cell Phone`, 
     `Email`, 
+    `Gender`,
     `CertificationDesc`, 
     `CertDate`, 
     `SAR`, 
@@ -818,6 +853,7 @@ ORDER BY `SAR`) nocerts;
 
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshSafeHavenCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshSafeHavenCerts` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
@@ -839,6 +875,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_safehaven SELECT
 	`Home Phone`,
 	`Cell Phone`,
 	`Email`,
+    `Gender`,
 	`CertificationDesc`,
 	`CertDate`,
 	`SAR`,
@@ -871,6 +908,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshUnregisteredReferees`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshUnregisteredReferees` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'z-Online Regional Referee without Safe Haven', 'Z-Online Regional Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', 'Z-Online Safe Haven Referee', 'Safe Haven Referee', ''";
@@ -887,6 +925,7 @@ WHERE
 ORDER BY `SAR` , FIELD(eayso.`CertificationDesc`, @dfields);
 END$$
 
+DROP PROCEDURE IF EXISTS `rs_ar1AssignmentMap`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `rs_ar1AssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
@@ -905,6 +944,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `rs_ar2AssignmentMap`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `rs_ar2AssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
@@ -923,6 +963,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `rs_crAssignmentMap`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `rs_crAssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
@@ -941,6 +982,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `rs_r4thAssignmentMap`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `rs_r4thAssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
@@ -959,6 +1001,7 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `UpdateCompositeMYCerts`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateCompositeMYCerts` ()  BEGIN
 SET @id:= 0;
 
@@ -977,6 +1020,7 @@ CREATE TABLE `s1_composite_my_certs` SELECT * FROM
             `Home Phone`,
             `Cell Phone`,
             Email,
+            `Gender`,
             CertificationDesc,
             CertDate,
             SAR,
@@ -1005,6 +1049,7 @@ CREATE TABLE `s1_composite_my_certs` SELECT * FROM
             `Home Phone`,
             `Cell Phone`,
             Email,
+            `Gender`,
             CertificationDesc,
             CertDate,
             SAR,
@@ -1025,6 +1070,7 @@ CREATE TABLE `s1_composite_my_certs` SELECT * FROM
             `Home Phone`,
             `Cell Phone`,
             Email,
+            `Gender`,
             CertificationDesc,
             CertDate,
             SAR,
@@ -1034,12 +1080,13 @@ CREATE TABLE `s1_composite_my_certs` SELECT * FROM
             `Membership Year`
     FROM
         wp_ayso1ref.crs_tmp_hrc) hrc
-    GROUP BY `AYSOID` , FIELD(`Membership Year`, 'MY2018', 'MY2017', 'MY2016')) ordered) ranked
+    GROUP BY `AYSOID` , FIELD('MY2018', 'MY2017', 'MY2016', `Membership Year`)) ordered) ranked
     WHERE
         rank = 1
     ORDER BY SAR) composite;
 END$$
 
+DROP PROCEDURE IF EXISTS `UpdateS1CRSTables`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `UpdateS1CRSTables` ()  BEGIN
 
 CALL `init_crs_certs`();
@@ -1057,9 +1104,13 @@ CALL `processBSCSV`('crs_1r_certs');
 CALL `processBSCSV`('crs_1s_certs');
 CALL `processBSCSV`('crs_1u_certs');
 
--- Update all eAYSO My2017 cert exports
+-- Update all eAYSO MY2017 & MY2016 cert exports
 
 CALL `processEAYSOCSV`('`eAYSO.MY2017.certs`');
+CALL `eAYSOHighestRefCert`('eAYSO.MY2017.certs');
+
+CALL `processEAYSOCSV`('`eAYSO.MY2016.certs`');
+CALL `eAYSOHighestRefCert`('eAYSO.MY2016.certs');
 
 -- Apply special cases
 CALL `CertTweaks`();
@@ -1087,6 +1138,7 @@ DROP TABLE IF EXISTS `crs_lastUpdate`;
 CREATE TABLE `crs_lastUpdate` SELECT NOW() AS timestamp;
 END$$
 
+DROP PROCEDURE IF EXISTS `UpdateS1CRSTablesFromImport`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `UpdateS1CRSTablesFromImport` ()  BEGIN
 
 CALL `wp_ayso1ref`.`init_crs_certs`();
@@ -1131,19 +1183,24 @@ DROP TABLE IF EXISTS `crs_lastUpdate`;
 CREATE TABLE `crs_lastUpdate` SELECT NOW() AS timestamp;
 END$$
 
+DROP PROCEDURE IF EXISTS `zUpdate_MasterScript`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `zUpdate_MasterScript` ()  BEGIN
 
 CALL `wp_ayso1ref`.`UpdateS1CRSTables`();
 
 CALL `wp_ayso1ref`.`UpdateCompositeMYCerts`();
 
-SELECT * FROM `s1_composite_my_certs`;
+SELECT 
+    *
+FROM
+    `s1_composite_my_certs`;
 
 END$$
 
 --
 -- Functions
 --
+DROP FUNCTION IF EXISTS `PROPER_CASE`$$
 CREATE DEFINER=`root`@`%` FUNCTION `PROPER_CASE` (`str` VARCHAR(255)) RETURNS VARCHAR(255) CHARSET utf8 BEGIN 
   DECLARE c CHAR(1); 
   DECLARE s VARCHAR(255); 
@@ -1174,6 +1231,7 @@ CREATE DEFINER=`root`@`%` FUNCTION `PROPER_CASE` (`str` VARCHAR(255)) RETURNS VA
   RETURN s; 
 END$$
 
+DROP FUNCTION IF EXISTS `SPLIT_STRING`$$
 CREATE DEFINER=`root`@`%` FUNCTION `SPLIT_STRING` (`str` VARCHAR(255), `delim` VARCHAR(12), `pos` INT) RETURNS VARCHAR(255) CHARSET utf8 BEGIN
 RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(str, delim, pos),
        LENGTH(SUBSTRING_INDEX(str, delim, pos-1)) + 1),
@@ -1182,6 +1240,384 @@ RETURN 1;
 END$$
 
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `certCount`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `certCount`;
+CREATE TABLE `certCount` (
+`Area` varchar(3)
+,`NumCerts` bigint(21)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1b_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1b_certs`;
+CREATE TABLE `crs_1b_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1c_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1c_certs`;
+CREATE TABLE `crs_1c_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1d_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1d_certs`;
+CREATE TABLE `crs_1d_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1f_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1f_certs`;
+CREATE TABLE `crs_1f_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1g_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1g_certs`;
+CREATE TABLE `crs_1g_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1h_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1h_certs`;
+CREATE TABLE `crs_1h_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1n_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1n_certs`;
+CREATE TABLE `crs_1n_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1p_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1p_certs`;
+CREATE TABLE `crs_1p_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1r_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1r_certs`;
+CREATE TABLE `crs_1r_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1s_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1s_certs`;
+CREATE TABLE `crs_1s_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crs_1u_certs`
+--
+
+DROP TABLE IF EXISTS `crs_1u_certs`;
+CREATE TABLE `crs_1u_certs` (
+  `Program Name` text,
+  `Program AYSO Membership Year` int(11) DEFAULT NULL,
+  `Volunteer Role` text,
+  `AYSO Volunteer ID` int(11) DEFAULT NULL,
+  `Volunteer First Name` text,
+  `Volunteer Last Name` text,
+  `Volunteer Address` text,
+  `Volunteer City` text,
+  `Volunteer State` text,
+  `Volunteer Zip` int(11) DEFAULT NULL,
+  `Volunteer Phone` text,
+  `Volunteer Cell` text,
+  `Volunteer Email` text,
+  `Gender` text,
+  `AYSO Certifications` text,
+  `Date of Last AYSO Certification Update` text,
+  `Portal Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `eAYSO.MY2016.certs`
+--
+
+DROP TABLE IF EXISTS `eAYSO.MY2016.certs`;
+CREATE TABLE `eAYSO.MY2016.certs` (
+  `AYSOID` int(11) DEFAULT NULL,
+  `Name` text,
+  `Street` text,
+  `City` text,
+  `State` text,
+  `Zip` text,
+  `HomePhone` text,
+  `BusinessPhone` text,
+  `Email` text,
+  `CertificationDesc` text,
+  `Gender` text,
+  `SectionAreaRegion` text,
+  `CertDate` text,
+  `ReCertDate` text,
+  `FirstName` text,
+  `LastName` text,
+  `SectionName` int(11) DEFAULT NULL,
+  `AreaName` text,
+  `RegionNumber` int(11) DEFAULT NULL,
+  `Membership Year` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `eAYSO.MY2017.certs`
+--
+
+DROP TABLE IF EXISTS `eAYSO.MY2017.certs`;
+CREATE TABLE `eAYSO.MY2017.certs` (
+  `AYSOID` int(11) DEFAULT NULL,
+  `Name` text,
+  `Street` text,
+  `City` text,
+  `State` text,
+  `Zip` text,
+  `HomePhone` text,
+  `BusinessPhone` text,
+  `Email` text,
+  `CertificationDesc` text,
+  `Gender` text,
+  `SectionAreaRegion` text,
+  `CertDate` text,
+  `ReCertDate` text,
+  `FirstName` text,
+  `LastName` text,
+  `SectionName` int(11) DEFAULT NULL,
+  `AreaName` text,
+  `RegionNumber` int(11) DEFAULT NULL,
+  `Membership Year` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `certCount`
+--
+DROP TABLE IF EXISTS `certCount`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `certCount`  AS  select '1B' AS `Area`,count(0) AS `NumCerts` from `crs_1b_certs` union select '1C' AS `Area`,count(0) AS `NumCerts` from `crs_1c_certs` union select '1D' AS `Area`,count(0) AS `NumCerts` from `crs_1d_certs` union select '1F' AS `Area`,count(0) AS `NumCerts` from `crs_1f_certs` union select '1G' AS `Area`,count(0) AS `NumCerts` from `crs_1g_certs` union select '1H' AS `Area`,count(0) AS `NumCerts` from `crs_1h_certs` union select '1N' AS `Area`,count(0) AS `NumCerts` from `crs_1n_certs` union select '1P' AS `Area`,count(0) AS `NumCerts` from `crs_1p_certs` union select '1R' AS `Area`,count(0) AS `NumCerts` from `crs_1r_certs` union select '1S' AS `Area`,count(0) AS `NumCerts` from `crs_1s_certs` union select '1U' AS `Area`,count(0) AS `NumCerts` from `crs_1u_certs` union select 'All' AS `Total`,count(0) AS `NumCerts` from `crs_certs` ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
