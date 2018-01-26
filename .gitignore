@@ -7,3 +7,4 @@ eAYSO.MY.reports/
 scripts/.idea/
 *.xml
 *update.wp_ayso1ref.sql
+wp_ayso1ref.update.sql

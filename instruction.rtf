@@ -7,7 +7,7 @@
 \margl1440\margr1440\vieww17740\viewh19420\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\sl360\slmult1\pardirnatural\partightenfactor0
 
-\f0\b\fs28 \cf0 Creating Section 1 Volunteer Certification Report*
+\f0\b\fs28 \cf0 Creating Section 1 Volunteer Certification Report
 \b0 \
 \
 \pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\sl360\slmult1\pardirnatural\partightenfactor0
@@ -17,21 +17,24 @@
 {\listtext	b.	}In eAYSO, run Volunteer Certification Report (Reports | Volunteer Certifications) for all certs in Section for MY2017.  Save in working folder: e.g., eAYSO.MY2017.csv\
 {\listtext	c.	}In eAYSO, run Volunteer Certification Report (Reports | Volunteer Certifications) for all certs in Section for MY2016.  Save in working folder: e.g., eAYSO.MY2016.csv\
 {\listtext	d.	}Login to {\field{\*\fldinst{HYPERLINK "http://www.aysosection1.org/"}}{\fldrslt http://www.aysosection1.org/}}\
-{\listtext	e.	}Use BS Report link to access saved report Verification Certification Report with Portal Names:\
+{\listtext	e.	}Access BS Section 1 saved report Verification Certification Report with Portal Names:\
 \pard\tx1660\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li2160\fi-2160\sl360\slmult1\pardirnatural\partightenfactor0
 \ls1\ilvl2\cf0 {\listtext	i.	}Select entire Portal Group\
-{\listtext	ii.	}Export to CSV. Save in working folder: e.g., 20171116.1.csv  \
+{\listtext	ii.	}Export to CSV. \
+{\listtext	iii.	}Save in working folder: e.g., 20171116.1.csv  \
 \pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\sl360\slmult1\pardirnatural\partightenfactor0
-\ls1\ilvl0\cf0 {\listtext	3.	}Update all tables with new data:\
+\ls1\ilvl0\cf0 {\listtext	2.	}Update all tables with new data:\
 \pard\tx940\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li1440\fi-1440\sl360\slmult1\pardirnatural\partightenfactor0
-\ls1\ilvl1\cf0 {\listtext	a.	}In MySQLWorkbench, load ~/reports/sql/crs_MasterUpdateScript and run.
+\ls1\ilvl1\cf0 {\listtext	a.	}In MySQLWorkbench, load ~/reports/sql/crs_MasterUpdateScript \
+{\listtext	b.	}Update working folder name on lines 54, 86, 116 and run.
 \f1\i \
 \ls1\ilvl1
-\f0\i0 {\listtext	b.	}Save the result to Excel XML to the working folder.\
-{\listtext	c.	}Open this file and save as Excel xlsx to the ~/reports/composites folder.\
-{\listtext	d.	}In {\field{\*\fldinst{HYPERLINK "https://phpmyadmin.vhx.host/"}}{\fldrslt https://phpmyadmin.vhx.host/}} on Vagrant server, select database wp_ayso1ref & export template crs_update\
-{\listtext	e.	}Compress the update file if > 50MB\
-{\listtext	f.	}In {\field{\*\fldinst{HYPERLINK "https://phpmyadmin.wpengine.com/"}}{\fldrslt https://phpmyadmin.wpengine.com/}}, select wp_ayso1ref and Import the compressed update file.\
+\f0\i0 {\listtext	c.	}Save the result to Excel XML to the working folder.\
+{\listtext	d.	}Open this file and save as Excel xlsx to the ~/reports/composites folder.\
+{\listtext	e.	}In {\field{\*\fldinst{HYPERLINK "https://phpmyadmin.vhx.host/"}}{\fldrslt https://phpmyadmin.vhx.host/}} on Vagrant server, select database wp_ayso1ref & export template crs_update\
+{\listtext	f.	}Compress the update file if > 50MB\
+{\listtext	g.	}In {\field{\*\fldinst{HYPERLINK "https://phpmyadmin.wpengine.com/"}}{\fldrslt https://phpmyadmin.wpengine.com/}}, select wp_ayso1ref and Import the compressed update file.\
 \pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\sl360\slmult1\pardirnatural\partightenfactor0
-\ls1\ilvl0\cf0 {\listtext	4.	}At {\field{\*\fldinst{HYPERLINK "https://ayso1ref.com/crs/"}}{\fldrslt https://ayso1ref.com/crs/}}, export each report to the working folder and spot check results.\
+\ls1\ilvl0\cf0 {\listtext	3.	}At {\field{\*\fldinst{HYPERLINK "https://ayso1ref.com/crs/"}}{\fldrslt https://ayso1ref.com/crs/}}, export each report to the working folder and check exports.\
+{\listtext	4.	}CALL `wp_ayso1ref`.`countCerts`() and save results in ~/reports/countCerts.xlsx \
 }
