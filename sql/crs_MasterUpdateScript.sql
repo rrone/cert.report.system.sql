@@ -29,7 +29,7 @@ CREATE TABLE `crs_certs` (
 
 ALTER TABLE wp_ayso1ref.crs_certs AUTO_INCREMENT = 0; 
 
--- init import table `crs_1_certs`
+-- Refresh Section BS data table `crs_1_certs`
 DROP TABLE IF EXISTS `crs_1_certs`;   
 
 CREATE TABLE `crs_1_certs` (
@@ -51,7 +51,7 @@ CREATE TABLE `crs_1_certs` (
   `Date of Last AYSO Certification Update` text,
   `Portal Name` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-  LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/20180126/1.csv'  
+  LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/data/1.csv'  
   INTO TABLE `crs_1_certs`   
   FIELDS TERMINATED BY ','   
   ENCLOSED BY '"'  
@@ -60,71 +60,33 @@ CREATE TABLE `crs_1_certs` (
 
 CALL `processBSCSV`('crs_1_certs');  
 
-DROP TABLE `eAYSO.MY2017.certs`;
-CREATE TABLE `eAYSO.MY2017.certs` (
-  `AYSOID` int(11) DEFAULT NULL,
-  `Name` text,
-  `Street` text,
-  `City` text,
-  `State` text,
-  `Zip` text,
-  `HomePhone` text,
-  `BusinessPhone` text,
-  `Email` text,
-  `CertificationDesc` text,
-  `Gender` text,
-  `SectionAreaRegion` text,
-  `CertDate` text,
-  `ReCertDate` text,
-  `FirstName` text,
-  `LastName` text,
-  `SectionName` int(11) DEFAULT NULL,
-  `AreaName` text,
-  `RegionNumber` int(11) DEFAULT NULL,
-  `Membership Year` text
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-  LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/20180126/eAYSO.MY2017.csv'  
-  INTO TABLE `eAYSO.MY2017.certs`   
+--  Refresh `eAYSO.MY2016.certs`
+CALL `prepEAYSOCSVTable`('eAYSO.MY2016.certs');
+
+LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2016.csv'
+  INTO TABLE `eAYSO.MY2016.certs`   
   FIELDS TERMINATED BY ','   
   ENCLOSED BY '"'  
   LINES TERMINATED BY '\r'
   IGNORE 1 ROWS;   
 
-DROP TABLE `eAYSO.MY2016.certs`;
-CREATE TABLE `eAYSO.MY2016.certs` (
-  `AYSOID` int(11) DEFAULT NULL,
-  `Name` text,
-  `Street` text,
-  `City` text,
-  `State` text,
-  `Zip` text,
-  `HomePhone` text,
-  `BusinessPhone` text,
-  `Email` text,
-  `CertificationDesc` text,
-  `Gender` text,
-  `SectionAreaRegion` text,
-  `CertDate` text,
-  `ReCertDate` text,
-  `FirstName` text,
-  `LastName` text,
-  `SectionName` int(11) DEFAULT NULL,
-  `AreaName` text,
-  `RegionNumber` int(11) DEFAULT NULL,
-  `Membership Year` text
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-  LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/20180126/eAYSO.MY2016.csv'  
-  INTO TABLE `eAYSO.MY2017.certs`   
-  FIELDS TERMINATED BY ','   
-  ENCLOSED BY '"'  
-  LINES TERMINATED BY '\r'
-  IGNORE 1 ROWS;   
-
--- Update all eAYSO MY2017 & MY2016 cert exports   
-CALL `processEAYSOCSV`('`eAYSO.MY2017.certs`');  
-CALL `eAYSOHighestRefCert`('eAYSO.MY2017.certs');   
-CALL `processEAYSOCSV`('`eAYSO.MY2016.certs`');  
+UPDATE `eAYSO.MY2016.certs` SET `AYSOID` = REPLACE(`AYSOID`,'"','');
+CALL `processEAYSOCSV`('eAYSO.MY2016.certs');  
 CALL `eAYSOHighestRefCert`('eAYSO.MY2016.certs');   
+
+--  Refresh `eAYSO.MY2017.certs`
+CALL `prepEAYSOCSVTable`('eAYSO.MY2017.certs');
+
+LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2017.csv'
+  INTO TABLE `eAYSO.MY2017.certs`   
+  FIELDS TERMINATED BY ','   
+  ENCLOSED BY '"'  
+  LINES TERMINATED BY '\r'
+  IGNORE 1 ROWS;   
+  
+UPDATE `eAYSO.MY2017.certs` SET `AYSOID` = REPLACE(`AYSOID`,'"','');
+CALL `processEAYSOCSV`('eAYSO.MY2017.certs');  
+CALL `eAYSOHighestRefCert`('eAYSO.MY2017.certs');   
 
 -- Apply special cases  
 CALL `CertTweaks`();   
@@ -135,12 +97,13 @@ CALL `RefreshRefCerts`();
 -- Delete regional records duplicated at Area & Section Portals  
 -- DELETE n1 FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.`Name` = n2.`Name` AND n1.`Region` = '';  
 DELETE n1 
-FROM crs_refcerts n1, crs_refcerts n2  
-WHERE n1.`Name` = n2.`Name` AND n1.`Area` = '';   
+	FROM crs_refcerts n1, crs_refcerts n2  
+	WHERE n1.`Name` = n2.`Name` AND n1.`Area` = '';   
 
 CALL `RefreshHighestCertification`();  
-CALL `RefreshNationalRefereeAssessors`();  
 CALL `RefreshRefereeAssessors`();  
+-- Must CaLL `RefreshRefereeAssessors` before `RefreshNationalRefereeAssessors`
+CALL `RefreshNationalRefereeAssessors`();  
 CALL `RefreshRefereeInstructors`();  
 CALL `RefreshRefereeInstructorEvaluators`();  
 CALL `RefreshRefNoCerts`();  
@@ -152,8 +115,9 @@ CALL `RefreshRefConcussionCerts`();
 
 -- Update timestamp table  
 DROP TABLE IF EXISTS `crs_lastUpdate`;  
-CREATE TABLE `crs_lastUpdate` SELECT NOW() AS timestamp;   
-CALL `wp_ayso1ref`.`UpdateCompositeMYCerts`();   
+CREATE TABLE `crs_lastUpdate` SELECT NOW() AS timestamp;
+   
+CALL `UpdateCompositeMYCerts`();   
 
 SELECT 
     *
