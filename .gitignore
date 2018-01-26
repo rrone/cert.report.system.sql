@@ -5,3 +5,5 @@ eAYSO.MY.reports/
 *alias
 *.xlsx
 scripts/.idea/
+*.xml
+*update.wp_ayso1ref.sql
