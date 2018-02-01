@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.6
+-- version 4.7.7
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 26, 2018 at 11:02 PM
+-- Generation Time: Feb 01, 2018 at 09:05 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
 -- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
 
@@ -31,31 +31,62 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS `CertTweaks`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `CertTweaks` ()  BEGIN
 # rick roberts
-UPDATE `crs_certs` SET `Email` = 'ayso1sra@gmail.com' WHERE `AYSOID` = '97815888';
+UPDATE `crs_certs` SET `Email` = 'ayso1sra@gmail.com' WHERE `AYSOID` = 97815888;
 
 # Chris Call
-UPDATE `crs_certs` SET `AYSOID` = '66280719' WHERE `AYSOID` ='200284566';
+UPDATE `crs_certs` SET `AYSOID` = 66280719 WHERE `AYSOID` ='200284566';
 
 # Jon Swasey
-UPDATE `crs_certs` SET `AYSOID` = '70161548' WHERE `AYSOID` ='202650542';
+UPDATE `crs_certs` SET `AYSOID` = 70161548 WHERE `AYSOID` ='202650542';
 
 # Michael Wolff
-DELETE FROM `crs_certs` WHERE `AYSOID` = '56234203' AND `SAR` LIKE '1/D/%';
+DELETE FROM `crs_certs` WHERE `AYSOID` = 56234203 AND `SAR` LIKE '1/D/%';
 
 # Michael Raycraft
 DELETE FROM `crs_certs` WHERE `Email` = 'mlraycraft.aysoinstructor@gmail.com';
 DELETE FROM `crs_certs` WHERE `Name` = 'Michael Raycraft' AND `CertificationDesc` LIKE 'National Referee Assessor';
 
+# Robert Osborne duplicate eAYSO record
+DELETE FROM `eAYSO.MY2016.certs` WHERE `AYSOID` = 79403530;
+DELETE FROM `crs_certs` WHERE `AYSOID` = 79403530;
+ 
 # Invalid National Referee Assessors
 # Yui-Bin	Chen
-DELETE FROM `crs_certs` WHERE `AYSOID` = '57071121' AND `CertificationDesc` LIKE 'National Referee Assessor';
+DELETE FROM `crs_certs` WHERE `AYSOID` = 57071121 AND `CertificationDesc` LIKE 'National Referee Assessor';
 # Geoffrey	Falk
-DELETE FROM `crs_certs` WHERE `AYSOID` = '59244326' AND `CertificationDesc` LIKE 'National Referee Assessor';
+DELETE FROM `crs_certs` WHERE `AYSOID` = 59244326 AND `CertificationDesc` LIKE 'National Referee Assessor';
 # Jody	Kinsey
-DELETE FROM `crs_certs` WHERE `AYSOID` = '96383441' AND `CertificationDesc` LIKE 'National Referee Assessor';
+DELETE FROM `crs_certs` WHERE `AYSOID` = 96383441 AND `CertificationDesc` LIKE 'National Referee Assessor';
 # Bruce	Hancock
-DELETE FROM `crs_certs` WHERE `AYSOID` = '99871834' AND `CertificationDesc` LIKE 'National Referee Assessor';
+DELETE FROM `crs_certs` WHERE `AYSOID` = 99871834 AND `CertificationDesc` LIKE 'National Referee Assessor';
 
+
+END$$
+
+DROP PROCEDURE IF EXISTS `compileVolIDs`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `compileVolIDs` ()  BEGIN
+	DROP TABLE IF EXISTS `crs_vol_ids`;
+
+	CREATE TABLE `crs_vol_ids` SELECT * FROM
+		(SELECT DISTINCT
+			`AYSO Volunteer ID` AS `AYSOID`
+		FROM
+			`crs_1_certs` 
+		WHERE NOT `AYSO Volunteer ID` IS NULL    
+			UNION SELECT DISTINCT
+			`AYSOID`
+		FROM
+			`eAYSO.MY2017.certs` 
+		WHERE length(`AYSOID`) > 3
+			UNION SELECT DISTINCT
+			`AYSOID`
+		FROM
+			`eAYSO.MY2016.certs`
+		WHERE length(`AYSOID`) > 3
+		) a
+	ORDER BY `AYSOID`;
+
+	SELECT * FROM `crs_vol_ids`;
 END$$
 
 DROP PROCEDURE IF EXISTS `countCerts`$$
@@ -354,51 +385,52 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
 SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'z-Online Regional Referee without Safe Haven', 'Z-Online Regional Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', 'Z-Online Safe Haven Referee', 'Safe Haven Referee', ''";
 
-DROP TABLE IF EXISTS wp_ayso1ref.crs_tmp_hrc;
+DROP TABLE IF EXISTS crs_tmp_hrc;
 SET @s = CONCAT("
-CREATE TABLE wp_ayso1ref.crs_tmp_hrc SELECT * FROM
-    (SELECT 
-        `AYSOID`,
-            `Name`,
-            `First Name`,
-            `Last Name`,
-            `Address`,
-            `City`,
-            `State`,
-            `Zip`,
-            `Home Phone`,
-            `Cell Phone`,
-            `Email`,
-            `Gender`,
-            `CertificationDesc`,
-            `CertDate`,
-            `SAR`,
-            `Section`,
-            `Area`,
-            `Region`,
-            `Membership Year`
-    FROM
-        (SELECT 
-        *,
-            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
-            @id:=`AYSOID`
-    FROM
-        (SELECT 
-        *
-    FROM
-        `crs_refcerts`
-    WHERE
-        NOT `CertificationDesc` LIKE '%Assessor%'
-            AND NOT `CertificationDesc` LIKE '%Instructor%'
-            AND NOT `CertificationDesc` LIKE '%Administrator%'
-            AND NOT `CertificationDesc` LIKE '%VIP%'
-            AND NOT `CertificationDesc` LIKE '%Course%'
-            AND NOT `CertificationDesc` LIKE '%Scheduler%'
-    GROUP BY `AYSOID` , FIELD(`CertificationDesc`, ", @dfields, ")) ordered) ranked
-    WHERE
-        rank = 1
-    ORDER BY FIELD(`CertificationDesc`, ", @dfields, ") , SAR, `Last Name` , `First Name` , AYSOID) hrc;");
-    
+	CREATE TABLE wp_ayso1ref.crs_tmp_hrc SELECT * FROM (
+		SELECT 
+			`AYSOID`,
+				`Name`,
+				`First Name`,
+				`Last Name`,
+				`Address`,
+				`City`,
+				`State`,
+				`Zip`,
+				`Home Phone`,
+				`Cell Phone`,
+				`Email`,
+				`Gender`,
+				`CertificationDesc`,
+				`CertDate`,
+				`SAR`,
+				`Section`,
+				`Area`,
+				`Region`,
+				`Membership Year`
+		FROM
+			(SELECT 
+			*,
+				@rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+				@id:=`AYSOID`
+		FROM
+			(SELECT 
+			*
+		FROM
+			`crs_refcerts`
+		WHERE
+			NOT `CertificationDesc` LIKE '%Assessor%'
+				AND NOT `CertificationDesc` LIKE '%Instructor%'
+				AND NOT `CertificationDesc` LIKE '%Administrator%'
+				AND NOT `CertificationDesc` LIKE '%VIP%'
+				AND NOT `CertificationDesc` LIKE '%Course%'
+				AND NOT `CertificationDesc` LIKE '%Scheduler%'
+		GROUP BY `AYSOID` , FIELD(`CertificationDesc`, ", @dfields, ")) ordered) ranked
+		WHERE
+			rank = 1
+		ORDER BY FIELD(`CertificationDesc`, ", @dfields, "), SAR, `Last Name` , `First Name` , AYSOID) hrc;
+");
+
 PREPARE stmt FROM @s;
 
 EXECUTE stmt;
@@ -416,7 +448,8 @@ SELECT DISTINCT
 FROM
     crs_tmp_ra
 WHERE
-    `CertificationDesc` = 'National Referee Assessor'
+    `CertificationDesc` = 'National Referee Assessor' AND
+    `Membership Year` = 'MY 2017'
 ORDER BY `Last Name`, SAR;
 
 END$$
@@ -425,9 +458,9 @@ DROP PROCEDURE IF EXISTS `RefreshRefCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefCerts` ()  BEGIN
 DROP TABLE IF EXISTS wp_ayso1ref.crs_refcerts;
 
-CREATE TABLE wp_ayso1ref.crs_refcerts
+CREATE TABLE crs_refcerts
 SELECT * 
-	FROM wp_ayso1ref.crs_certs 
+	FROM crs_certs 
 	WHERE 
 	`CertificationDesc` LIKE '%Referee%';
 END$$
@@ -950,13 +983,14 @@ SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', '
 
 DROP TABLE IF EXISTS crs_tmp_unregistered_refs;
 
-CREATE TABLE crs_tmp_unregistered_refs SELECT eayso.* FROM
-    `eAYSO.MY2016.certs_highestRefCert` eayso
-        LEFT JOIN
-    `crs_tmp_hrc` bs ON eayso.`AYSOID` = bs.`AYSOID`
-WHERE
-    bs.`AYSOID` IS NULL
-ORDER BY `SAR` , FIELD(eayso.`CertificationDesc`, @dfields);
+CREATE TABLE crs_tmp_unregistered_refs SELECT * FROM
+    (SELECT 
+        *
+    FROM
+        crs_tmp_hrc
+    WHERE
+        `Membership Year` <> 'MY2017') unreg
+ORDER BY `SAR`, FIELD(`CertificationDesc`, @dfields);
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_ar1AssignmentMap`$$
@@ -1038,110 +1072,118 @@ END$$
 DROP PROCEDURE IF EXISTS `UpdateCompositeMYCerts`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateCompositeMYCerts` ()  BEGIN
 SET @id:= 0;
+SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'z-Online Regional Referee without Safe Haven', 'Z-Online Regional Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', 'Z-Online Safe Haven Referee', 'Safe Haven Referee', ''";
 
 DROP TABLE IF EXISTS `s1_composite_my_certs`;
+	SET @s = CONCAT("
+	CREATE TABLE `s1_composite_my_certs` SELECT * FROM
+		(SELECT 
+			AYSOID,
+				`Name`,
+				`First Name`,
+				`Last Name`,
+				Address,
+				City,
+				State,
+				Zip,
+				`Home Phone`,
+				`Cell Phone`,
+				Email,
+				`Gender`,
+				CertificationDesc,
+				CertDate,
+				SAR,
+				Section,
+				Area,
+				Region,
+				`Membership Year`
+		FROM
+			(SELECT 
+			*,
+				@rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+				@id:=`AYSOID`
+		FROM
+			(SELECT 
+			*
+		FROM (
+		
+		SELECT 
+			AYSOID,
+				`Name`,
+				`First Name`,
+				`Last Name`,
+				Address,
+				City,
+				State,
+				REPLACE(`Zip`, '\'', '') AS Zip,
+				`Home Phone`,
+				`Cell Phone`,
+				Email,
+				`Gender`,
+				CertificationDesc,
+				CertDate,
+				SAR,
+				Section,
+				Area,
+				Region,
+				`Membership Year`
+		FROM
+			wp_ayso1ref.`eAYSO.MY2017.certs_highestRefCert` 
+	UNION SELECT 
+			AYSOID,
+				`Name`,
+				`First Name`,
+				`Last Name`,
+				Address,
+				City,
+				State,
+				REPLACE(`Zip`, '\'', '') AS Zip,
+				`Home Phone`,
+				`Cell Phone`,
+				Email,
+				`Gender`,
+				CertificationDesc,
+				CertDate,
+				SAR,
+				Section,
+				Area,
+				Region,
+				`Membership Year`
+		FROM
+			wp_ayso1ref.`eAYSO.MY2016.certs_highestRefCert` 
+	UNION SELECT 
+			AYSOID,
+				`Name`,
+				`First Name`,
+				`Last Name`,
+				Address,
+				City,
+				State,
+				Zip,
+				`Home Phone`,
+				`Cell Phone`,
+				Email,
+				`Gender`,
+				CertificationDesc,
+				CertDate,
+				SAR,
+				Section,
+				Area,
+				Region,
+				`Membership Year`
+		FROM
+			wp_ayso1ref.crs_tmp_hrc) hrc
+		GROUP BY `AYSOID` , FIELD(`CertificationDesc`, @dfields, 'MY2018', 'MY2017', 'MY2016', `Membership Year`)) ordered) ranked
+		WHERE
+			rank = 1
+		ORDER BY SAR) composite;
+");
 
-CREATE TABLE `s1_composite_my_certs` SELECT * FROM
-    (SELECT 
-        AYSOID,
-            `Name`,
-            `First Name`,
-            `Last Name`,
-            Address,
-            City,
-            State,
-            Zip,
-            `Home Phone`,
-            `Cell Phone`,
-            Email,
-            `Gender`,
-            CertificationDesc,
-            CertDate,
-            SAR,
-            Section,
-            Area,
-            Region,
-            `Membership Year`
-    FROM
-        (SELECT 
-        *,
-            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
-            @id:=`AYSOID`
-    FROM
-        (SELECT 
-        *
-    FROM (
-    
-    SELECT 
-        AYSOID,
-            `Name`,
-            `First Name`,
-            `Last Name`,
-            Address,
-            City,
-            State,
-            REPLACE(`Zip`, '\'', '') AS Zip,
-            `Home Phone`,
-            `Cell Phone`,
-            Email,
-            `Gender`,
-            CertificationDesc,
-            CertDate,
-            SAR,
-            Section,
-            Area,
-            Region,
-            `Membership Year`
-    FROM
-        wp_ayso1ref.`eAYSO.MY2017.certs_highestRefCert` 
-UNION SELECT 
-        AYSOID,
-            `Name`,
-            `First Name`,
-            `Last Name`,
-            Address,
-            City,
-            State,
-            REPLACE(`Zip`, '\'', '') AS Zip,
-            `Home Phone`,
-            `Cell Phone`,
-            Email,
-            `Gender`,
-            CertificationDesc,
-            CertDate,
-            SAR,
-            Section,
-            Area,
-            Region,
-            `Membership Year`
-    FROM
-        wp_ayso1ref.`eAYSO.MY2016.certs_highestRefCert` 
-UNION SELECT 
-        AYSOID,
-            `Name`,
-            `First Name`,
-            `Last Name`,
-            Address,
-            City,
-            State,
-            Zip,
-            `Home Phone`,
-            `Cell Phone`,
-            Email,
-            `Gender`,
-            CertificationDesc,
-            CertDate,
-            SAR,
-            Section,
-            Area,
-            Region,
-            `Membership Year`
-    FROM
-        wp_ayso1ref.crs_tmp_hrc) hrc
-    GROUP BY `AYSOID` , FIELD('MY2018', 'MY2017', 'MY2016', `Membership Year`)) ordered) ranked
-    WHERE
-        rank = 1
-    ORDER BY SAR) composite;
+PREPARE stmt FROM @s;
+
+EXECUTE stmt;
+
+DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `UpdateS1CRSTables`$$
@@ -1215,6 +1257,21 @@ END$$
 --
 -- Functions
 --
+DROP FUNCTION IF EXISTS `multiTrim`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `multiTrim` (`string` TEXT, `remove` CHAR(63)) RETURNS TEXT CHARSET latin1 BEGIN
+  -- Remove trailing chars
+  WHILE length(string)>0 and remove LIKE concat('%',substring(string,-1),'%') DO
+    set string = substring(string,1,length(string)-1);
+  END WHILE;
+
+  -- Remove leading chars
+  WHILE length(string)>0 and remove LIKE concat('%',left(string,1),'%') DO
+    set string = substring(string,2);
+  END WHILE;
+
+  RETURN string;
+END$$
+
 DROP FUNCTION IF EXISTS `PROPER_CASE`$$
 CREATE DEFINER=`root`@`%` FUNCTION `PROPER_CASE` (`str` VARCHAR(255)) RETURNS VARCHAR(255) CHARSET utf8 BEGIN 
   DECLARE c CHAR(1); 
@@ -1274,7 +1331,7 @@ CREATE TABLE `certCount` (
 
 DROP TABLE IF EXISTS `eAYSO.MY2016.certs`;
 CREATE TABLE `eAYSO.MY2016.certs` (
-  `AYSOID` text,
+  `AYSOID` int(11) DEFAULT NULL,
   `Name` text,
   `Street` text,
   `City` text,
@@ -1304,7 +1361,7 @@ CREATE TABLE `eAYSO.MY2016.certs` (
 
 DROP TABLE IF EXISTS `eAYSO.MY2017.certs`;
 CREATE TABLE `eAYSO.MY2017.certs` (
-  `AYSOID` text,
+  `AYSOID` int(11) DEFAULT NULL,
   `Name` text,
   `Street` text,
   `City` text,
