@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 01, 2018 at 09:05 PM
+-- Generation Time: Feb 02, 2018 at 06:28 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
 -- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
 
@@ -46,6 +46,9 @@ DELETE FROM `crs_certs` WHERE `AYSOID` = 56234203 AND `SAR` LIKE '1/D/%';
 DELETE FROM `crs_certs` WHERE `Email` = 'mlraycraft.aysoinstructor@gmail.com';
 DELETE FROM `crs_certs` WHERE `Name` = 'Michael Raycraft' AND `CertificationDesc` LIKE 'National Referee Assessor';
 
+# Peter Fink
+DELETE FROM `crs_certs` WHERE `AYSOID` = 203686950;
+
 # Robert Osborne duplicate eAYSO record
 DELETE FROM `eAYSO.MY2016.certs` WHERE `AYSOID` = 79403530;
 DELETE FROM `crs_certs` WHERE `AYSOID` = 79403530;
@@ -59,6 +62,8 @@ DELETE FROM `crs_certs` WHERE `AYSOID` = 59244326 AND `CertificationDesc` LIKE '
 DELETE FROM `crs_certs` WHERE `AYSOID` = 96383441 AND `CertificationDesc` LIKE 'National Referee Assessor';
 # Bruce	Hancock
 DELETE FROM `crs_certs` WHERE `AYSOID` = 99871834 AND `CertificationDesc` LIKE 'National Referee Assessor';
+# Donald Ramsay
+DELETE FROM `crs_certs` WHERE `AYSOID` = 204673909 AND `CertificationDesc` LIKE 'Referee Instructor Evaluator';
 
 
 END$$
@@ -449,7 +454,7 @@ FROM
     crs_tmp_ra
 WHERE
     `CertificationDesc` = 'National Referee Assessor' AND
-    `Membership Year` = 'MY 2017'
+    `Membership Year` = 'MY2017'
 ORDER BY `Last Name`, SAR;
 
 END$$
@@ -543,7 +548,7 @@ SET @id:= 0;
 
 DROP TABLE IF EXISTS wp_ayso1ref.crs_tmp_rie;
 
-CREATE TABLE wp_ayso1ref.crs_tmp_rie SELECT * FROM
+CREATE TABLE wp_ayso1ref.crs_tmp_rie SELECT DISTINCT * FROM
     (SELECT 
         `AYSOID`,
 		`Name`,
@@ -556,8 +561,10 @@ CREATE TABLE wp_ayso1ref.crs_tmp_rie SELECT * FROM
 		`Home Phone`,
 		`Cell Phone`,
 		`Email`,
-		`CertificationDesc`,
-		`CertDate`,
+		`CertificationDesc` AS 'InstructorEvaluatorCert',
+		`CertDate` AS 'InstructorEvaluatorCertDate',
+		`ARCert` AS 'RefereeInstructorCert',
+        `ARCertDate` AS 'RefereeInstructorCertDate',
 		`SAR`,
 		`Section`,
 		`Area`,
@@ -570,15 +577,20 @@ CREATE TABLE wp_ayso1ref.crs_tmp_rie SELECT * FROM
             @id:=`AYSOID`
     FROM
         (SELECT 
-        *
+        rc.*,
+		ar.`CertificationDesc` AS 'ARCert',
+        ar.`CertDate` AS 'ARCertDate'
     FROM
-        `crs_refcerts`
+        `crs_refcerts` rc INNER JOIN `crs_refcerts` ar ON rc.AYSOID = ar.AYSOID
     WHERE
-        `CertificationDesc` = 'Referee Instructor Evaluator'
-    ORDER BY `CertDate` DESC) ordered) ranked
+        rc.`CertificationDesc` = 'Referee Instructor Evaluator'
+            AND rc.`Membership Year` = 'MY2017'
+            AND ar.`CertificationDesc` LIKE '%Referee Instructor'
+    ORDER BY rc.`CertDate` DESC) ordered) ranked
     WHERE
         rank = 1
-    ORDER BY Section , Area , Region , `Last Name` , `First Name`) rie;
+    ORDER BY `Section`, `Area`, `Region`, `Last Name`, `First Name`) rie;
+
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefereeInstructors`$$
