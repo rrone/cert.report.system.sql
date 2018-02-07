@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 02, 2018 at 06:28 PM
+-- Generation Time: Feb 07, 2018 at 06:51 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
 -- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
 
@@ -653,78 +653,57 @@ DROP TABLE IF EXISTS tmp_ref_upgrades;
 -- Select National Referee Candidates / Course but not Referee
 DROP TABLE IF EXISTS tmp_NatRC;
 
-CREATE TABLE tmp_NatRC SELECT `Membership Year`,
-    `AYSOID`,
-    `Name`,
-    `First Name`,
-    `Last Name`,
-    `Address`,
-    `City`,
-    `State`,
-    `Zip`,
-    `Home Phone`,
-    `Cell Phone`,
-    `Email`,
-    `Gender`,
-    `CertificationDesc`,
-    `CertDate`,
-    `SAR`,
-    `Section`,
-    `Area`,
-    `Region` FROM
-    crs_refcerts
-WHERE
-    `CertificationDesc` = 'National Referee Course';
+CREATE TABLE tmp_NatRC SELECT * 
+		FROM
+        (SELECT 
+			*,
+			@rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+			@id:=`AYSOID`
+		FROM
+			(SELECT 
+			*
+		FROM
+			`crs_refcerts`
+		WHERE
+			`CertificationDesc` = 'National Referee Course'
+		GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+		WHERE
+			rank = 1;
 
 DROP TABLE IF EXISTS tmp_NatR;
 
-CREATE TABLE tmp_NatR SELECT `Membership Year`,
+CREATE TABLE tmp_NatR SELECT 
     `AYSOID`,
-    `Name`,
-    `First Name`,
-    `Last Name`,
-    `Address`,
-    `City`,
-    `State`,
-    `Zip`,
-    `Home Phone`,
-    `Cell Phone`,
-    `Email`,
-    `Gender`,
-    `CertificationDesc`,
-    `CertDate`,
-    `SAR`,
-    `Section`,
-    `Area`,
-    `Region` FROM
+    `CertDate`
+FROM
     crs_refcerts
 WHERE
     `CertificationDesc` = 'National Referee';
 
-CREATE TABLE tmp_ref_upgrades SELECT DISTINCT course.`Membership Year`,
-    course.`AYSOID`,
-    course.`Name`,
-    course.`First Name`,
-    course.`Last Name`,
-    course.`Address`,
-    course.`City`,
-    course.`State`,
-    course.`Zip`,
-    course.`Home Phone`,
-    course.`Cell Phone`,
-    course.`Email`,
-    course.`Gender`,
-    course.`CertificationDesc`,
-    course.`CertDate`,
-    course.`SAR`,
-    course.`Section`,
-    course.`Area`,
-    course.`Region` FROM
-    tmp_NatRC course
-        LEFT JOIN
-    tmp_NatR upgraded ON course.`AYSOID` = upgraded.`AYSOID`
-WHERE
-    upgraded.`CertDate` IS NULL;
+CREATE TABLE tmp_ref_upgrades SELECT DISTINCT
+		course.`AYSOID`,
+		course.`Name`,
+		course.`First Name`,
+		course.`Last Name`,
+		course.`Address`,
+		course.`City`,
+		course.`State`,
+		course.`Zip`,
+		course.`Home Phone`,
+		course.`Cell Phone`,
+		course.`Email`,
+		course.`Gender`,
+		course.`CertificationDesc`,
+		course.`CertDate`,
+		course.`SAR`,
+		course.`Section`,
+		course.`Area`,
+		course.`Region`, 
+		course.`Membership Year`
+    FROM
+        tmp_NatRC course LEFT JOIN tmp_NatR upgraded ON course.`AYSOID` = upgraded.`AYSOID`
+    WHERE
+        upgraded.`CertDate` IS NULL;
         
 DROP TABLE IF EXISTS tmp_NatRC;
 DROP TABLE IF EXISTS tmp_NatR;
@@ -732,75 +711,53 @@ DROP TABLE IF EXISTS tmp_NatR;
 -- Select Advanced Referee Candidates / Course but not Referee
 DROP TABLE IF EXISTS tmp_AdvRC;
 
-CREATE TABLE tmp_AdvRC SELECT `Membership Year`,
-    `AYSOID`,
-    `Name`,
-    `First Name`,
-    `Last Name`,
-    `Address`,
-    `City`,
-    `State`,
-    `Zip`,
-    `Home Phone`,
-    `Cell Phone`,
-    `Email`,
-    `Gender`,
-    `CertificationDesc`,
-    `CertDate`,
-    `SAR`,
-    `Section`,
-    `Area`,
-    `Region` FROM
-    crs_refcerts
-WHERE
-    `CertificationDesc` = 'Advanced Referee Course';
-
+CREATE TABLE tmp_AdvRC SELECT * 
+		FROM
+        (SELECT 
+			*,
+			@rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+			@id:=`AYSOID`
+		FROM
+			(SELECT 
+			*
+		FROM
+			`crs_refcerts`
+		WHERE
+			`CertificationDesc` = 'Advanced Referee Course'
+		GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+		WHERE
+			rank = 1;
 
 DROP TABLE IF EXISTS tmp_AdvR;
 
-CREATE TABLE tmp_AdvR SELECT `Membership Year`,
+CREATE TABLE tmp_AdvR SELECT 
     `AYSOID`,
-    `Name`,
-    `First Name`,
-    `Last Name`,
-    `Address`,
-    `City`,
-    `State`,
-    `Zip`,
-    `Home Phone`,
-    `Cell Phone`,
-    `Email`,
-    `Gender`,
-    `CertificationDesc`,
-    `CertDate`,
-    `SAR`,
-    `Section`,
-    `Area`,
-    `Region` FROM
+    `CertDate`
+FROM
     crs_refcerts
 WHERE
-    `CertificationDesc` = 'Advanced Referee';        
+    `CertificationDesc` = 'Advanced Referee';
 
 INSERT INTO tmp_ref_upgrades SELECT DISTINCT
-        course.`Membership Year`,
-            course.`AYSOID`,
-            course.`Name`,
-            course.`First Name`,
-            course.`Last Name`,
-            course.`Address`,
-            course.`City`,
-            course.`State`,
-            course.`Zip`,
-            course.`Home Phone`,
-            course.`Cell Phone`,
-            course.`Email`,
-            course.`Gender`,
-            course.`CertificationDesc`,
-            course.`CertDate`,
-            course.`SAR`,
-            course.`Section`,
-            course.`Area`,
-            course.`Region`
+		course.`AYSOID`,
+		course.`Name`,
+		course.`First Name`,
+		course.`Last Name`,
+		course.`Address`,
+		course.`City`,
+		course.`State`,
+		course.`Zip`,
+		course.`Home Phone`,
+		course.`Cell Phone`,
+		course.`Email`,
+		course.`Gender`,
+		course.`CertificationDesc`,
+		course.`CertDate`,
+		course.`SAR`,
+		course.`Section`,
+		course.`Area`,
+		course.`Region`, 
+		course.`Membership Year`
     FROM
         tmp_AdvRC course LEFT JOIN tmp_AdvR upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -812,75 +769,53 @@ DROP TABLE IF EXISTS tmp_AdvR;
 -- Select Intermediate Referee Candidates / Course but not Referee
 DROP TABLE IF EXISTS tmp_IntRC;
 
-CREATE TABLE tmp_IntRC SELECT `Membership Year`,
-    `AYSOID`,
-    `Name`,
-    `First Name`,
-    `Last Name`,
-    `Address`,
-    `City`,
-    `State`,
-    `Zip`,
-    `Home Phone`,
-    `Cell Phone`,
-    `Email`,
-    `Gender`,
-    `CertificationDesc`,
-    `CertDate`,
-    `SAR`,
-    `Section`,
-    `Area`,
-    `Region` FROM
-    crs_refcerts
-WHERE
-    `CertificationDesc` = 'Intermediate Referee Course';
-
+CREATE TABLE tmp_IntRC SELECT * 
+		FROM
+        (SELECT 
+			*,
+			@rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+			@id:=`AYSOID`
+		FROM
+			(SELECT 
+			*
+		FROM
+			`crs_refcerts`
+		WHERE
+			`CertificationDesc` = 'Intermediate Referee Course'
+		GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+		WHERE
+			rank = 1;
 
 DROP TABLE IF EXISTS tmp_IntR;
 
-CREATE TABLE tmp_IntR SELECT `Membership Year`,
+CREATE TABLE tmp_IntR SELECT 
     `AYSOID`,
-    `Name`,
-    `First Name`,
-    `Last Name`,
-    `Address`,
-    `City`,
-    `State`,
-    `Zip`,
-    `Home Phone`,
-    `Cell Phone`,
-    `Email`,
-    `Gender`,
-    `CertificationDesc`,
-    `CertDate`,
-    `SAR`,
-    `Section`,
-    `Area`,
-    `Region` FROM
+    `CertDate`
+FROM
     crs_refcerts
 WHERE
-    `CertificationDesc` = 'Intermediate Referee';        
+    `CertificationDesc` = 'Intermediate Referee';
 
 INSERT INTO tmp_ref_upgrades SELECT DISTINCT
-        course.`Membership Year`,
-            course.`AYSOID`,
-            course.`Name`,
-            course.`First Name`,
-            course.`Last Name`,
-            course.`Address`,
-            course.`City`,
-            course.`State`,
-            course.`Zip`,
-            course.`Home Phone`,
-            course.`Cell Phone`,
-            course.`Email`,
-            course.`Gender`,
-            course.`CertificationDesc`,
-            course.`CertDate`,
-            course.`SAR`,
-            course.`Section`,
-            course.`Area`,
-            course.`Region`
+		course.`AYSOID`,
+		course.`Name`,
+		course.`First Name`,
+		course.`Last Name`,
+		course.`Address`,
+		course.`City`,
+		course.`State`,
+		course.`Zip`,
+		course.`Home Phone`,
+		course.`Cell Phone`,
+		course.`Email`,
+		course.`Gender`,
+		course.`CertificationDesc`,
+		course.`CertDate`,
+		course.`SAR`,
+		course.`Section`,
+		course.`Area`,
+		course.`Region`, 
+		course.`Membership Year`
     FROM
         tmp_IntRC course LEFT JOIN tmp_IntR upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -889,9 +824,9 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 DROP TABLE IF EXISTS tmp_IntRC;
 DROP TABLE IF EXISTS tmp_IntR;     
 
-DROP TABLE IF EXISTS crs_tmp_ref_upgrades;
+DROP TABLE IF EXISTS crs_ref_upgrades;
 
-CREATE TABLE crs_tmp_ref_upgrades SELECT DISTINCT * FROM
+CREATE TABLE crs_ref_upgrades SELECT DISTINCT * FROM
     tmp_ref_upgrades
 ORDER BY FIELD(`CertificationDesc`,
         'National Referee Course',
@@ -899,6 +834,8 @@ ORDER BY FIELD(`CertificationDesc`,
         'Intermediate Referee Course') , `CertDate`;
         
 DROP TABLE IF EXISTS tmp_ref_upgrades;
+
+
 
 END$$
 
