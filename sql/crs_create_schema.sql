@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 07, 2018 at 07:40 PM
+-- Generation Time: Feb 07, 2018 at 08:04 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
 -- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
 
@@ -335,9 +335,9 @@ DROP PROCEDURE IF EXISTS `RefreshConcussionCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshConcussionCerts` ()  BEGIN
 SET @id:= 0;
 
-DROP TABLE IF EXISTS wp_ayso1ref.tmp_ref_cdc;
+DROP TABLE IF EXISTS crs_tmp_cdc;
 SET @s = CONCAT("
-CREATE TABLE wp_ayso1ref.tmp_ref_cdc SELECT 
+CREATE TABLE crs_tmp_cdc SELECT 
 	`Program Name`,
 	`Membership Year`,
 	`Volunteer Role`,
@@ -368,7 +368,7 @@ FROM
             @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
             @id:=`AYSOID`
     FROM (SELECT * FROM 
-        wp_ayso1ref.crs_certs
+        crs_certs
     WHERE
         `CertificationDesc` LIKE '%Concussion%' 
     GROUP BY `AYSOID`, `CertDate` DESC, 
@@ -867,9 +867,6 @@ SET @id:= 0;
 DROP TABLE IF EXISTS crs_tmp_safehaven;
 SET @s = CONCAT("
 CREATE TABLE crs_tmp_safehaven SELECT 
-	`Program Name`,
-	`Membership Year`,
-	`Volunteer Role`,
 	`AYSOID`,
 	`Name`,
 	`First Name`,
@@ -887,7 +884,8 @@ CREATE TABLE crs_tmp_safehaven SELECT
 	`SAR`,
 	`Section`,
 	`Area`,
-	`Region`
+	`Region`,
+	`Membership Year`
 FROM
     (SELECT 
         *
@@ -899,13 +897,13 @@ FROM
     FROM (SELECT * FROM 
         crs_certs
     WHERE
-        `CertificationDesc` LIKE '%Safe Haven%' AND `CertificationDesc` LIKE '%Referee'
+        `CertificationDesc` LIKE '%Safe Haven%' AND `CertificationDesc` LIKE '%Referee%'
     GROUP BY `AYSOID`, `CertDate` DESC, 
     FIELD(`CertificationDesc`, 'Z-Online AYSOs Safe Haven', 'Safe Haven Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official & Safe Haven Referee'),
     FIELD(`Program Name`, 'Volunteer Registration - MY17', 'National Volunteer Application (MY2017)', '2017 Fall Core', '2017 Fall Soccer') ) ordered) ranked
 WHERE
     rank = 1
-ORDER BY `Section`, `Area`, `Region`, `Last Name`) sh;");
+ORDER BY `Section`, `Area`, `Region`, `Last Name`, `First Name`) sh;");
     
 PREPARE stmt FROM @s;
 
