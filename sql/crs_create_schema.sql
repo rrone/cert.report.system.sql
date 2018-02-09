@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 07, 2018 at 08:04 PM
+-- Generation Time: Feb 09, 2018 at 10:33 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
 -- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
 
@@ -29,7 +29,7 @@ DELIMITER $$
 -- Procedures
 --
 DROP PROCEDURE IF EXISTS `CertTweaks`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `CertTweaks` ()  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `CertTweaks` ()  BEGIN
 # rick roberts
 UPDATE `crs_certs` SET `Email` = 'ayso1sra@gmail.com' WHERE `AYSOID` = 97815888;
 
@@ -69,7 +69,7 @@ DELETE FROM `crs_certs` WHERE `AYSOID` = 204673909 AND `CertificationDesc` LIKE 
 END$$
 
 DROP PROCEDURE IF EXISTS `compileVolIDs`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `compileVolIDs` ()  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `compileVolIDs` ()  BEGIN
 	DROP TABLE IF EXISTS `crs_vol_ids`;
 
 	CREATE TABLE `crs_vol_ids` SELECT * FROM
@@ -95,7 +95,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `compileVolIDs` ()  BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `countCerts`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `countCerts` ()  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `countCerts` ()  BEGIN
 SELECT 'crs_1b_certs' as `Certs`, count(*) as 'Count' FROM `crs_certs` WHERE `Area` = 'B'
 UNION
 SELECT 'crs_1c_certs' as `Certs`, count(*) as 'Count' FROM `crs_certs` WHERE `Area` = 'C'
@@ -124,7 +124,7 @@ SELECT 'eAYSO.MY2016.certs' as `Certs`, count(*) as 'Count' FROM `eAYSO.MY2016.c
 END$$
 
 DROP PROCEDURE IF EXISTS `distinctRegistrations`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `distinctRegistrations` ()  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `distinctRegistrations` ()  BEGIN
 SELECT DISTINCT `AYSOID`, `Name`, `First Name`, `Last Name`, `Address`, `City`, `State`, `Zip`, `Home Phone`, `Cell Phone`, `Email`, `Gender`,`SAR` FROM wp_ayso1ref.crs_certs
 UNION
 SELECT DISTINCT `AYSOID`, `Name`, `FirstName` AS 'First Name', `LastName` AS 'Last Name', `Street` AS 'Address', `City`, `State`, `Zip`, `HomePhone`, `BusinessPhone` AS 'Cell Phone', `Email`, `Gender`, CONCAT(`SectionName`, '/', `AreaName`, '/', `RegionNumber`) AS 'SAR' FROM wp_ayso1ref.`eAYSO.MY2017.certs`
@@ -331,6 +331,169 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshCertDateErrors`$$
+CREATE DEFINER=`root`@`%` PROCEDURE `RefreshCertDateErrors` ()  BEGIN
+DROP TABLE IF EXISTS `crs_tmp_cert_date_errors`;
+SET @s = CONCAT("CREATE TABLE `crs_tmp_cert_date_errors`
+SELECT 
+    *
+FROM
+    (SELECT DISTINCT
+        c.`Membership Year`,
+		c.`AYSOID`,
+		c.`Name`,
+		c.`CertificationDesc` AS `Course Desc`,
+		c.`CertDate` AS `Course Date`,
+		u.`CertificationDesc` AS `Upgrade Desc`,
+		u.`CertDate` AS `Upgrade Date`,
+		c.`Section`,
+		c.`Area`,
+		c.`Region`
+    FROM
+        crs_refcerts c
+    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
+        AND c.`CertDate` = u.`CertDate`
+    WHERE
+        c.`CertificationDesc` LIKE 'National Referee Course'
+            AND u.`CertificationDesc` LIKE 'National Referee' UNION SELECT DISTINCT
+        c.`Membership Year`,
+		c.`AYSOID`,
+		c.`Name`,
+		c.`CertificationDesc` AS `Course Desc`,
+		c.`CertDate` AS `Course Date`,
+		u.`CertificationDesc` AS `Upgrade Date`,
+		u.`CertDate` AS `Upgrade Desc`,
+		c.`Section`,
+		c.`Area`,
+		c.`Region`
+    FROM
+        crs_refcerts c
+    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
+        AND c.`CertDate` = u.`CertDate`
+    WHERE
+        c.`CertificationDesc` LIKE 'Advanced Referee Course'
+            AND u.`CertificationDesc` LIKE 'Avanced Referee' UNION SELECT DISTINCT
+        c.`Membership Year`,
+            c.`AYSOID`,
+            c.`Name`,
+            c.`CertificationDesc` AS `Course Desc`,
+            c.`CertDate` AS `Course Date`,
+            u.`CertificationDesc` AS `Upgrade Date`,
+            u.`CertDate` AS `Upgrade Desc`,
+            c.`Section`,
+            c.`Area`,
+            c.`Region`
+    FROM
+        crs_refcerts c
+    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
+        AND c.`CertDate` = u.`CertDate`
+    WHERE
+        c.`CertificationDesc` LIKE 'Intermediate Referee Course'
+            AND u.`CertificationDesc` LIKE 'Intermediate Referee' UNION SELECT DISTINCT
+        c.`Membership Year`,
+		c.`AYSOID`,
+		c.`Name`,
+		c.`CertificationDesc` AS `Course Desc`,
+		c.`CertDate` AS `Course Date`,
+		u.`CertificationDesc` AS `Upgrade Date`,
+		u.`CertDate` AS `Upgrade Desc`,
+		c.`Section`,
+		c.`Area`,
+		c.`Region`
+    FROM
+        crs_refcerts c
+    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
+        AND c.`CertDate` = u.`CertDate`
+    WHERE
+        c.`CertificationDesc` LIKE 'National Referee Assessor Course'
+            AND u.`CertificationDesc` LIKE 'National Referee Assessor' UNION SELECT DISTINCT
+        c.`Membership Year`,
+		c.`AYSOID`,
+		c.`Name`,
+		c.`CertificationDesc` AS `Course Desc`,
+		c.`CertDate` AS `Course Date`,
+		u.`CertificationDesc` AS `Upgrade Desc`,
+		u.`CertDate` AS `Upgrade Desc`,
+		c.`Section`,
+		c.`Area`,
+		c.`Region`
+    FROM
+        crs_refcerts c
+    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
+        AND c.`CertDate` = u.`CertDate`
+    WHERE
+        c.`CertificationDesc` LIKE 'Referee Assessor Course'
+            AND u.`CertificationDesc` LIKE 'Referee Assessor' UNION SELECT DISTINCT
+        c.`Membership Year`,
+            c.`AYSOID`,
+            c.`Name`,
+            c.`CertificationDesc` AS `Course Desc`,
+            c.`CertDate` AS `Course Date`,
+            u.`CertificationDesc` AS `Upgrade Date`,
+            u.`CertDate` AS `Upgrade Desc`,
+            c.`Section`,
+            c.`Area`,
+            c.`Region`
+    FROM
+        crs_refcerts c
+    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
+        AND c.`CertDate` = u.`CertDate`
+    WHERE
+        c.`CertificationDesc` LIKE 'Advanced Referee Instructor Course'
+            AND u.`CertificationDesc` LIKE 'Advanced Referee Instructor' UNION SELECT DISTINCT
+        c.`Membership Year`,
+		c.`AYSOID`,
+		c.`Name`,
+		c.`CertificationDesc` AS `Course Desc`,
+		c.`CertDate` AS `Course Date`,
+		u.`CertificationDesc` AS `Upgrade Date`,
+		u.`CertDate` AS `Upgrade Desc`,
+		c.`Section`,
+		c.`Area`,
+		c.`Region`
+    FROM
+        crs_refcerts c
+    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
+        AND c.`CertDate` = u.`CertDate`
+    WHERE
+        c.`CertificationDesc` LIKE 'Referee Instructor Course'
+            AND u.`CertificationDesc` LIKE 'Referee Instructor' UNION SELECT DISTINCT
+        c.`Membership Year`,
+		c.`AYSOID`,
+		c.`Name`,
+		c.`CertificationDesc` AS `Course Desc`,
+		c.`CertDate` AS `Course Date`,
+		u.`CertificationDesc` AS `Upgrade Date`,
+		u.`CertDate` AS `Upgrade Desc`,
+		c.`Section`,
+		c.`Area`,
+		c.`Region`
+    FROM
+        crs_refcerts c
+    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
+        AND c.`CertDate` = u.`CertDate`
+    WHERE
+        c.`CertificationDesc` LIKE 'Referee Instructor Evaluator Course'
+            AND u.`CertificationDesc` LIKE 'Referee Instructor Evaluator') a
+GROUP BY `Name`
+ORDER BY FIELD(`Upgrade Desc`,
+        'National Referee',
+        'Advanced Referee',
+        'Intermediate Referee',
+        'National Referee Assessor',
+        'Referee Assessor',
+        'Referee Instructor',
+        'Advanced Referee Instructor',
+        'Referee Instructor Evaluator') , `Section` , `Area` , `Region`");
+
+PREPARE stmt FROM @s;
+
+EXECUTE stmt;
+
+DEALLOCATE PREPARE stmt;
+
+END$$
+
 DROP PROCEDURE IF EXISTS `RefreshConcussionCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshConcussionCerts` ()  BEGIN
 SET @id:= 0;
@@ -444,19 +607,49 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshNationalRefereeAssessors`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `RefreshNationalRefereeAssessors` ()  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `RefreshNationalRefereeAssessors` ()  BEGIN
+SET @id:= 0;
+
 DROP TABLE IF EXISTS wp_ayso1ref.crs_tmp_nra;
 
-CREATE TABLE wp_ayso1ref.crs_tmp_nra 
-SELECT DISTINCT 
-	*
-FROM
-    crs_tmp_ra
-WHERE
-    `CertificationDesc` = 'National Referee Assessor' AND
-    `Membership Year` = 'MY2017'
-ORDER BY `Last Name`, `Section` , `Area` , `Region`;
-
+CREATE TABLE wp_ayso1ref.crs_tmp_nra SELECT * FROM
+    (SELECT 
+        `AYSOID`,
+		`Name`,
+		`First Name`,
+		`Last Name`,
+		`Address`,
+		`City`,
+		`State`,
+		`Zip`,
+		`Home Phone`,
+		`Cell Phone`,
+		`Email`,
+		`CertificationDesc`,
+		`CertDate`,
+		`SAR`,
+		`Section`,
+		`Area`,
+		`Region`,
+		`Membership Year`
+    FROM
+        (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `crs_refcerts`
+    WHERE
+        `CertificationDesc` LIKE 'National Referee Assessor' AND
+        `Membership Year` = 'MY2017'
+    GROUP BY `AYSOID` ) ordered) ranked
+    WHERE
+        rank = 1
+	GROUP BY `Email`
+    ORDER BY CertificationDesc , `Section` , `Area` , `Region` , `Last Name` , `First Name` , AYSOID) ra;
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefCerts`$$
@@ -828,7 +1021,7 @@ DROP TABLE IF EXISTS tmp_ref_upgrades;
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefNoCerts`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `RefreshRefNoCerts` ()  SQL SECURITY INVOKER
+CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefNoCerts` ()  SQL SECURITY INVOKER
 BEGIN    
 DROP TABLE IF EXISTS wp_ayso1ref.crs_tmp_nocerts;
 
@@ -929,7 +1122,7 @@ ORDER BY `Section`, `Area`, `Region`, FIELD(`CertificationDesc`, @dfields);
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_ar1AssignmentMap`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `rs_ar1AssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `rs_ar1AssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @s = CONCAT("
@@ -948,7 +1141,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_ar2AssignmentMap`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `rs_ar2AssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `rs_ar2AssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @s = CONCAT("
@@ -1005,7 +1198,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `UpdateCompositeMYCerts`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateCompositeMYCerts` ()  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `UpdateCompositeMYCerts` ()  BEGIN
 SET @id:= 0;
 SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'z-Online Regional Referee without Safe Haven', 'Z-Online Regional Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', 'Z-Online Safe Haven Referee', 'Safe Haven Referee', ''";
 
@@ -1176,7 +1369,7 @@ CREATE TABLE `crs_lastUpdate` SELECT NOW() AS timestamp;
 END$$
 
 DROP PROCEDURE IF EXISTS `zUpdate_MasterScript`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `zUpdate_MasterScript` ()  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `zUpdate_MasterScript` ()  BEGIN
 
 CALL `wp_ayso1ref`.`UpdateS1CRSTables`();
 

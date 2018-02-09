@@ -27,7 +27,7 @@ CREATE TABLE `crs_certs` (
   `Region` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE wp_ayso1ref.crs_certs AUTO_INCREMENT = 0; 
+ALTER TABLE crs_certs AUTO_INCREMENT = 0; 
 
 -- Refresh Section BS data table `crs_1_certs`
 DROP TABLE IF EXISTS `crs_1_certs`;   
@@ -105,16 +105,16 @@ CALL `eAYSOHighestRefCert`('eAYSO.MY2017.certs');
 -- Apply special cases  
 CALL `CertTweaks`();   
 
--- Refresh all temporary tables  
+-- Refresh all referee certificates  
 CALL `RefreshRefCerts`();  
 
 -- Delete regional records duplicated at Area & Section Portals  
 DELETE n2.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` = '' and n2.`Region` <> '';
 DELETE n2.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` = ''and n2.`Area` <> '';
 
+-- Refresh all temporary tables
 CALL `RefreshHighestCertification`();  
 CALL `RefreshRefereeAssessors`();  
--- Must CaLL `RefreshRefereeAssessors` before `RefreshNationalRefereeAssessors`
 CALL `RefreshNationalRefereeAssessors`();  
 CALL `RefreshRefereeInstructors`();  
 CALL `RefreshRefereeInstructorEvaluators`();  
@@ -124,6 +124,7 @@ CALL `RefreshUnregisteredReferees`();
 CALL `RefreshSafeHavenCerts`();  
 CALL `RefreshConcussionCerts`();  
 CALL `RefreshRefConcussionCerts`();   
+CALL `wp_ayso1ref`.`RefreshCertDateErrors`();
 
 -- Update timestamp table  
 DROP TABLE IF EXISTS `crs_lastUpdate`;  
