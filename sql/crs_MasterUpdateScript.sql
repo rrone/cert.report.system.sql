@@ -108,9 +108,10 @@ CALL `CertTweaks`();
 -- Refresh all referee certificates  
 CALL `RefreshRefCerts`();  
 
--- Delete regional records duplicated at Area & Section Portals  
-DELETE n2.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` = '' and n2.`Region` <> '';
-DELETE n2.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` = ''and n2.`Area` <> '';
+-- Delete regional records duplicated at Area Portals  
+DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` = '' and n2.`Region` <> '';
+-- Delete regional records duplicated at Section Portals  
+DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` = ''and n2.`Area` <> '';
 
 -- Refresh all temporary tables
 CALL `RefreshHighestCertification`();  
@@ -124,7 +125,7 @@ CALL `RefreshUnregisteredReferees`();
 CALL `RefreshSafeHavenCerts`();  
 CALL `RefreshConcussionCerts`();  
 CALL `RefreshRefConcussionCerts`();   
-CALL `wp_ayso1ref`.`RefreshCertDateErrors`();
+CALL `RefreshCertDateErrors`();
 
 -- Update timestamp table  
 DROP TABLE IF EXISTS `crs_lastUpdate`;  

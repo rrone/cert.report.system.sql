@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 09, 2018 at 10:33 PM
+-- Generation Time: Feb 12, 2018 at 04:07 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
 -- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
 
@@ -350,9 +350,9 @@ FROM
 		c.`Area`,
 		c.`Region`
     FROM
-        crs_refcerts c
-    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
-        AND c.`CertDate` = u.`CertDate`
+        crs_certs c
+    INNER JOIN crs_certs u ON c.AYSOID = u.AYSOID
+        AND ABS(DATEDIFF(c.`CertDate`, u.`CertDate`)) < 7
     WHERE
         c.`CertificationDesc` LIKE 'National Referee Course'
             AND u.`CertificationDesc` LIKE 'National Referee' UNION SELECT DISTINCT
@@ -367,9 +367,9 @@ FROM
 		c.`Area`,
 		c.`Region`
     FROM
-        crs_refcerts c
-    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
-        AND c.`CertDate` = u.`CertDate`
+        crs_certs c
+    INNER JOIN crs_certs u ON c.AYSOID = u.AYSOID
+        AND ABS(DATEDIFF(c.`CertDate`, u.`CertDate`)) < 7
     WHERE
         c.`CertificationDesc` LIKE 'Advanced Referee Course'
             AND u.`CertificationDesc` LIKE 'Avanced Referee' UNION SELECT DISTINCT
@@ -384,9 +384,9 @@ FROM
             c.`Area`,
             c.`Region`
     FROM
-        crs_refcerts c
-    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
-        AND c.`CertDate` = u.`CertDate`
+        crs_certs c
+    INNER JOIN crs_certs u ON c.AYSOID = u.AYSOID
+        AND ABS(DATEDIFF(c.`CertDate`, u.`CertDate`)) < 7
     WHERE
         c.`CertificationDesc` LIKE 'Intermediate Referee Course'
             AND u.`CertificationDesc` LIKE 'Intermediate Referee' UNION SELECT DISTINCT
@@ -401,9 +401,9 @@ FROM
 		c.`Area`,
 		c.`Region`
     FROM
-        crs_refcerts c
-    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
-        AND c.`CertDate` = u.`CertDate`
+        crs_certs c
+    INNER JOIN crs_certs u ON c.AYSOID = u.AYSOID
+        AND ABS(DATEDIFF(c.`CertDate`, u.`CertDate`)) < 7
     WHERE
         c.`CertificationDesc` LIKE 'National Referee Assessor Course'
             AND u.`CertificationDesc` LIKE 'National Referee Assessor' UNION SELECT DISTINCT
@@ -418,9 +418,9 @@ FROM
 		c.`Area`,
 		c.`Region`
     FROM
-        crs_refcerts c
-    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
-        AND c.`CertDate` = u.`CertDate`
+        crs_certs c
+    INNER JOIN crs_certs u ON c.AYSOID = u.AYSOID
+        AND ABS(DATEDIFF(c.`CertDate`, u.`CertDate`)) < 7
     WHERE
         c.`CertificationDesc` LIKE 'Referee Assessor Course'
             AND u.`CertificationDesc` LIKE 'Referee Assessor' UNION SELECT DISTINCT
@@ -435,9 +435,9 @@ FROM
             c.`Area`,
             c.`Region`
     FROM
-        crs_refcerts c
-    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
-        AND c.`CertDate` = u.`CertDate`
+        crs_certs c
+    INNER JOIN crs_certs u ON c.AYSOID = u.AYSOID
+        AND ABS(DATEDIFF(c.`CertDate`, u.`CertDate`)) < 7
     WHERE
         c.`CertificationDesc` LIKE 'Advanced Referee Instructor Course'
             AND u.`CertificationDesc` LIKE 'Advanced Referee Instructor' UNION SELECT DISTINCT
@@ -452,9 +452,9 @@ FROM
 		c.`Area`,
 		c.`Region`
     FROM
-        crs_refcerts c
-    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
-        AND c.`CertDate` = u.`CertDate`
+        crs_certs c
+    INNER JOIN crs_certs u ON c.AYSOID = u.AYSOID
+        AND ABS(DATEDIFF(c.`CertDate`, u.`CertDate`)) < 7
     WHERE
         c.`CertificationDesc` LIKE 'Referee Instructor Course'
             AND u.`CertificationDesc` LIKE 'Referee Instructor' UNION SELECT DISTINCT
@@ -469,9 +469,9 @@ FROM
 		c.`Area`,
 		c.`Region`
     FROM
-        crs_refcerts c
-    INNER JOIN crs_refcerts u ON c.AYSOID = u.AYSOID
-        AND c.`CertDate` = u.`CertDate`
+        crs_certs c
+    INNER JOIN crs_certs u ON c.AYSOID = u.AYSOID
+        AND ABS(DATEDIFF(c.`CertDate`, u.`CertDate`)) < 7
     WHERE
         c.`CertificationDesc` LIKE 'Referee Instructor Evaluator Course'
             AND u.`CertificationDesc` LIKE 'Referee Instructor Evaluator') a
