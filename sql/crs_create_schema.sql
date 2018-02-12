@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 12, 2018 at 04:07 PM
+-- Generation Time: Feb 12, 2018 at 04:58 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
 -- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
 
@@ -534,11 +534,10 @@ FROM
         crs_certs
     WHERE
         `CertificationDesc` LIKE '%Concussion%' 
-    GROUP BY `AYSOID`, `CertDate` DESC, 
-    FIELD(`Program Name`, 'Volunteer Registration - MY17', 'National Volunteer Application (MY2017)', '2017 Fall Core', '2017 Fall Soccer') ) ordered) ranked
+    GROUP BY `AYSOID`, `CertDate` DESC, `Membership Year` DESC) con ) ordered) ranked
 WHERE
     rank = 1
-ORDER BY `Section` , `Area` , `Region` , `Last Name`) sh;");
+ORDER BY `Section` , `Area` , `Region` , `Last Name`;");
     
 PREPARE stmt FROM @s;
 
@@ -644,7 +643,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_nra SELECT * FROM
         `crs_refcerts`
     WHERE
         `CertificationDesc` LIKE 'National Referee Assessor' AND
-        `Membership Year` = 'MY2017'
+        (`Membership Year` = 'MY2018' OR `Membership Year` = 'MY2017')
     GROUP BY `AYSOID` ) ordered) ranked
     WHERE
         rank = 1
@@ -777,7 +776,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_rie SELECT DISTINCT * FROM
         `crs_refcerts` rc INNER JOIN `crs_refcerts` ar ON rc.AYSOID = ar.AYSOID
     WHERE
         rc.`CertificationDesc` = 'Referee Instructor Evaluator'
-            AND rc.`Membership Year` = 'MY2017'
+            AND (rc.`Membership Year` = 'MY2018' OR rc.`Membership Year` = 'MY2017')
             AND ar.`CertificationDesc` LIKE '%Referee Instructor'
     ORDER BY rc.`CertDate` DESC) ordered) ranked
     WHERE
@@ -1093,7 +1092,7 @@ FROM
         `CertificationDesc` LIKE '%Safe Haven%' AND `CertificationDesc` LIKE '%Referee%'
     GROUP BY `AYSOID`, `CertDate` DESC, 
     FIELD(`CertificationDesc`, 'Z-Online AYSOs Safe Haven', 'Safe Haven Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official & Safe Haven Referee'),
-    FIELD(`Program Name`, 'Volunteer Registration - MY17', 'National Volunteer Application (MY2017)', '2017 Fall Core', '2017 Fall Soccer') ) ordered) ranked
+    `Membership Year` DESC ) ordered) ranked
 WHERE
     rank = 1
 ORDER BY `Section`, `Area`, `Region`, `Last Name`, `First Name`) sh;");
@@ -1117,7 +1116,7 @@ CREATE TABLE crs_tmp_unregistered_refs SELECT * FROM
     FROM
         crs_tmp_hrc
     WHERE
-        `Membership Year` <> 'MY2017') unreg
+        `Membership Year` <> 'MY2018' AND `Membership Year` <> 'MY2017') unreg
 ORDER BY `Section`, `Area`, `Region`, FIELD(`CertificationDesc`, @dfields);
 END$$
 
