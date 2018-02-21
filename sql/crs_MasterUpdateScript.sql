@@ -108,13 +108,85 @@ CALL `CertTweaks`();
 -- Refresh all referee certificates  
 CALL `RefreshRefCerts`();  
 
+-- Delete records duplicated across Membership Years
+DROP TABLE IF EXISTS tmp_dupmy;
+
+CREATE TABLE tmp_dupmy SELECT 
+    AYSOID, `Membership Year`
+FROM
+    (SELECT 
+        *,
+		@rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+		@id:=`AYSOID`
+    FROM
+        (SELECT DISTINCT
+        `AYSOID`, `Membership Year`
+    FROM
+        crs_refcerts
+    GROUP BY AYSOID , `Membership Year` DESC) ranked) uno
+WHERE
+    rank = 1;
+
+DROP TABLE IF EXISTS tmp_refcerts;
+
+CREATE TABLE tmp_refcerts SELECT DISTINCT n1.* FROM
+    crs_refcerts n1
+        INNER JOIN
+    tmp_dupmy d ON n1.`AYSOID` = d.`AYSOID`
+        AND n1.`Membership Year` = d.`Membership Year`;
+
+DROP TABLE IF EXISTS crs_refcerts;
+
+CREATE TABLE crs_refcerts SELECT * FROM
+    tmp_refcerts;
+    
+DROP TABLE IF EXISTS tmp_refcerts;
+
+DROP TABLE IF EXISTS tmp_dupmy;
+    
 -- Delete regional records duplicated at Area Portals  
 DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` = '' and n2.`Region` <> '';
 -- Delete regional records duplicated at Section Portals  
 DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` = ''and n2.`Area` <> '';
 
--- Refresh all temporary tables
+-- Refresh Highest Certification table
 CALL `RefreshHighestCertification`();  
+
+-- remove refcerts with multiple IDs in eAYSO and BS based on Highest Certification
+-- not perfect / fails if volunteer registers with new email or new last name or regisgters multiple times in BS
+DROP TABLE IF EXISTS tmp_duprefcerts;
+
+CREATE TABLE tmp_duprefcerts SELECT 
+    *
+FROM
+    (SELECT 
+        e.`AYSOID`,
+        bs.`AYSOID` AS `bsAYSOID`,
+		bs.`Name`,
+		bs.`First Name`,
+		bs.`Last Name`,
+		bs.`Address`,
+		bs.`City`,
+		bs.`Email`
+
+    FROM
+        crs_tmp_hrc e
+    LEFT JOIN crs_tmp_hrc bs USING (`Last Name`, `Email`)
+ ) g
+WHERE
+    `AYSOID` - `bsAYSOID` < 0
+        AND `AYSOID` <= 99999999
+        AND `bsAYSOID` > 99999999;
+
+DELETE FROM crs_refcerts
+WHERE `AYSOID` in (SELECT DISTINCT `AYSOID` FROM tmp_duprefcerts);
+
+DELETE FROM crs_tmp_hrc
+WHERE `AYSOID` in (SELECT DISTINCT `AYSOID` FROM tmp_duprefcerts);
+
+-- DROP TABLE IF EXISTS tmp_duprefcerts;
+
+-- Refresh all temporary tables
 CALL `RefreshRefereeAssessors`();  
 CALL `RefreshNationalRefereeAssessors`();  
 CALL `RefreshRefereeInstructors`();  
