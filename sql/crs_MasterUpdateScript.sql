@@ -89,23 +89,45 @@ LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/d
   LINES TERMINATED BY '\r'
   IGNORE 1 ROWS;   
   
+--  Refresh `eAYSO.MY2018.certs`
+CALL `prepEAYSOCSVTable`('eAYSO.MY2018.certs');
+
+LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2018.certs.csv'
+  INTO TABLE `eAYSO.MY2018.certs`   
+  FIELDS TERMINATED BY ','   
+  ENCLOSED BY '"'  
+  LINES TERMINATED BY '\r'
+  IGNORE 1 ROWS;   
+
+-- UPDATE `eAYSO.certs` SET `AYSOID` = REPLACE(`AYSOID`,'"','');
+-- MY2016
+UPDATE `eAYSO.MY2016.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
+UPDATE `eAYSO.MY2016.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
+ALTER TABLE `eAYSO.MY2016.certs` 
+CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
+CALL `processEAYSOCSV`('eAYSO.MY2016.certs');
+CALL `eAYSOHighestRefCert`('eAYSO.MY2016.certs');   
+
+-- MY2017
 UPDATE `eAYSO.MY2017.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
 UPDATE `eAYSO.MY2017.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
 ALTER TABLE `eAYSO.MY2017.certs` 
 CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
-
--- UPDATE `eAYSO.certs` SET `AYSOID` = REPLACE(`AYSOID`,'"','');
-CALL `processEAYSOCSV`('eAYSO.MY2016.certs');
-
-CALL `processEAYSOCSV`('eAYSO.MY2017.certs');  
-  
-CALL `eAYSOHighestRefCert`('eAYSO.MY2016.certs');   
+CALL `processEAYSOCSV`('eAYSO.MY2017.certs');    
 CALL `eAYSOHighestRefCert`('eAYSO.MY2017.certs');   
+
+-- MY2018
+UPDATE `eAYSO.MY2018.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
+UPDATE `eAYSO.MY2018.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
+ALTER TABLE `eAYSO.MY2018.certs` 
+CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
+CALL `processEAYSOCSV`('eAYSO.MY2018.certs');    
+CALL `eAYSOHighestRefCert`('eAYSO.MY2018.certs');   
 
 -- Apply special cases  
 CALL `CertTweaks`();   
 
--- Refresh all referee certificates  
+-- Refresh all referee certificates - requried to remove duplicate records  
 CALL `RefreshRefCerts`();  
 
 -- Delete records duplicated across Membership Years
@@ -149,7 +171,8 @@ DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AN
 -- Delete regional records duplicated at Section Portals  
 DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` = ''and n2.`Area` <> '';
 
--- Refresh Highest Certification table
+
+-- Refresh Highest Certification table after deletion of duplicate records
 CALL `RefreshHighestCertification`();  
 
 -- remove refcerts with multiple IDs in eAYSO and BS based on Highest Certification

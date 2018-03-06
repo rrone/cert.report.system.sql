@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.7
+-- version 4.7.9
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 12, 2018 at 04:58 PM
+-- Generation Time: Mar 06, 2018 at 05:05 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
--- PHP Version: 7.1.13-1+ubuntu14.04.1+deb.sury.org+1
+-- PHP Version: 7.1.14-1+ubuntu14.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -65,6 +65,8 @@ DELETE FROM `crs_certs` WHERE `AYSOID` = 99871834 AND `CertificationDesc` LIKE '
 # Donald Ramsay
 DELETE FROM `crs_certs` WHERE `AYSOID` = 204673909 AND `CertificationDesc` LIKE 'Referee Instructor Evaluator';
 
+# Matt Kilroy
+DELETE FROM `crs_certs` WHERE `Name` = 'Regional Commissioner';
 
 END$$
 
@@ -653,7 +655,7 @@ END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefCerts` ()  BEGIN
-DROP TABLE IF EXISTS wp_ayso1ref.crs_refcerts;
+DROP TABLE IF EXISTS crs_refcerts;
 
 CREATE TABLE crs_refcerts
 SELECT * 
@@ -731,6 +733,7 @@ CREATE TABLE wp_ayso1ref.crs_tmp_ra SELECT * FROM
     GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor')) ordered) ranked
     WHERE
         rank = 1
+    GROUP BY `Email`
     ORDER BY CertificationDesc , `Section` , `Area` , `Region` , `Last Name` , `First Name` , AYSOID) ra;
 END$$
 
@@ -1140,7 +1143,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_ar2AssignmentMap`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `rs_ar2AssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `rs_ar2AssignmentMap` (IN `projectKey` VARCHAR(45), IN `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @s = CONCAT("
@@ -1159,7 +1162,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_crAssignmentMap`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `rs_crAssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `rs_crAssignmentMap` (IN `projectKey` VARCHAR(45), IN `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @s = CONCAT("
@@ -1311,74 +1314,6 @@ PREPARE stmt FROM @s;
 EXECUTE stmt;
 
 DEALLOCATE PREPARE stmt;
-END$$
-
-DROP PROCEDURE IF EXISTS `UpdateS1CRSTables`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `UpdateS1CRSTables` ()  BEGIN
-
-CALL `init_crs_certs`();
-
--- Update all Area BS cert exports
--- CALL `processBSCSV`('crs_1b_certs');
--- CALL `processBSCSV`('crs_1c_certs');
--- CALL `processBSCSV`('crs_1d_certs');
--- CALL `processBSCSV`('crs_1f_certs');
--- CALL `processBSCSV`('crs_1g_certs');
--- CALL `processBSCSV`('crs_1h_certs');
--- CALL `processBSCSV`('crs_1n_certs');
--- CALL `processBSCSV`('crs_1p_certs');
--- CALL `processBSCSV`('crs_1r_certs');
--- CALL `processBSCSV`('crs_1s_certs');
--- CALL `processBSCSV`('crs_1u_certs');
-CALL `processBSCSV`('crs_1_certs');
-
-
--- Update all eAYSO MY2017 & MY2016 cert exports
-
-CALL `processEAYSOCSV`('`eAYSO.MY2017.certs`');
-CALL `eAYSOHighestRefCert`('eAYSO.MY2017.certs');
-
-CALL `processEAYSOCSV`('`eAYSO.MY2016.certs`');
-CALL `eAYSOHighestRefCert`('eAYSO.MY2016.certs');
-
--- Apply special cases
-CALL `CertTweaks`();
-
--- Refresh all temporary tables
-CALL `RefreshRefCerts`();
--- Delete regional records duplicated at Area & Section Portals
--- DELETE n1 FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.`Name` = n2.`Name` AND n1.`Region` = '';
-DELETE n1 FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.`Name` = n2.`Name` AND n1.`Area` = '';
-
-CALL `RefreshHighestCertification`();
-CALL `RefreshNationalRefereeAssessors`();
-CALL `RefreshRefereeAssessors`();
-CALL `RefreshRefereeInstructors`();
-CALL `RefreshRefereeInstructorEvaluators`();
-CALL `RefreshRefNoCerts`();
-CALL `RefreshRefereeUpgradeCandidates`();
-CALL `RefreshUnregisteredReferees`();
-CALL `RefreshSafeHavenCerts`();
-CALL `RefreshConcussionCerts`();
-CALL `RefreshRefConcussionCerts`();
-
--- Update timestamp table
-DROP TABLE IF EXISTS `crs_lastUpdate`;
-CREATE TABLE `crs_lastUpdate` SELECT NOW() AS timestamp;
-END$$
-
-DROP PROCEDURE IF EXISTS `zUpdate_MasterScript`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `zUpdate_MasterScript` ()  BEGIN
-
-CALL `wp_ayso1ref`.`UpdateS1CRSTables`();
-
-CALL `wp_ayso1ref`.`UpdateCompositeMYCerts`();
-
-SELECT 
-    *
-FROM
-    `s1_composite_my_certs`;
-
 END$$
 
 --
