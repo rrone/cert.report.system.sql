@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.9
+-- version 4.8.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 06, 2018 at 05:05 PM
+-- Generation Time: May 10, 2018 at 08:33 PM
 -- Server version: 5.6.33-0ubuntu0.14.04.1
--- PHP Version: 7.1.14-1+ubuntu14.04.1+deb.sury.org+1
+-- PHP Version: 7.2.5-1+ubuntu14.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -34,10 +34,13 @@ CREATE DEFINER=`root`@`%` PROCEDURE `CertTweaks` ()  BEGIN
 UPDATE `crs_certs` SET `Email` = 'ayso1sra@gmail.com' WHERE `AYSOID` = 97815888;
 
 # Chris Call
-UPDATE `crs_certs` SET `AYSOID` = 66280719 WHERE `AYSOID` ='200284566';
+UPDATE `crs_certs` SET `AYSOID` = 66280719 WHERE `AYSOID` = 200284566;
 
 # Jon Swasey
-UPDATE `crs_certs` SET `AYSOID` = 70161548 WHERE `AYSOID` ='202650542';
+UPDATE `crs_certs` SET `AYSOID` = 70161548 WHERE `AYSOID` = 202650542;
+
+# Philip Maki
+UPDATE `crs_certs` SET `AYSOID` = 65397057 WHERE `AYSOID` = 201245499;
 
 # Michael Wolff
 DELETE FROM `crs_certs` WHERE `AYSOID` = 56234203 AND `SAR` LIKE '1/D/%';
@@ -67,7 +70,6 @@ DELETE FROM `crs_certs` WHERE `AYSOID` = 204673909 AND `CertificationDesc` LIKE 
 
 # Matt Kilroy
 DELETE FROM `crs_certs` WHERE `Name` = 'Regional Commissioner';
-
 END$$
 
 DROP PROCEDURE IF EXISTS `compileVolIDs`$$
@@ -120,6 +122,8 @@ SELECT 'crs_1s_certs' as `Certs`, count(*) as 'Count' FROM `crs_certs` WHERE `Ar
 UNION
 SELECT 'crs_1u_certs' as `Certs`, count(*) as 'Count' FROM `crs_certs` WHERE `Area` = 'U'
 UNION
+SELECT 'eAYSO.MY2017.certs' as `Certs`, count(*) as 'Count' FROM `eAYSO.MY2018.certs`
+UNION
 SELECT 'eAYSO.MY2017.certs' as `Certs`, count(*) as 'Count' FROM `eAYSO.MY2017.certs`
 UNION
 SELECT 'eAYSO.MY2016.certs' as `Certs`, count(*) as 'Count' FROM `eAYSO.MY2016.certs`;
@@ -137,7 +141,7 @@ DROP PROCEDURE IF EXISTS `eAYSOHighestRefCert`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `eAYSOHighestRefCert` (`tableName` VARCHAR(128))  BEGIN
 
 SET @id:= 0;
-SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'z-Online Regional Referee without Safe Haven', 'Z-Online Regional Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', 'Z-Online Safe Haven Referee', 'Safe Haven Referee', ''";
+SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', ''";
 SET @fromTableName = CONCAT("`", tableName, "`");
 SET @newTableName = CONCAT("`", tableName, '_highestRefCert`');
 
@@ -189,6 +193,10 @@ CREATE TABLE ", @newTableName, " SELECT * FROM
         AND NOT `CertificationDesc` LIKE '%VIP%'
         AND NOT `CertificationDesc` LIKE '%Course%'
         AND NOT `CertificationDesc` LIKE '%Scheduler%'
+        AND NOT `CertificationDesc` = 'z-Online Regional Referee without Safe Haven' 
+        AND NOT `CertificationDesc` = 'Z-Online Safe Haven Referee' 
+        AND NOT `CertificationDesc` = 'Safe Haven Referee'
+        AND NOT `CertificationDesc` = 'Z-Online Regional Referee'
     GROUP BY `AYSOID` , FIELD(`CertificationDesc`, ", @dfields, ")) ordered) ranked
     WHERE
         rank = 1
@@ -256,7 +264,7 @@ SET @space = ' ';
 SET @delimTS = '/';
 SET @delimDate = '/';
 
-SET @s = CONCAT(' INSERT INTO wp_ayso1ref.crs_certs SELECT 
+SET @s = CONCAT(' INSERT INTO crs_certs SELECT 
     `Program Name`,
     CONCAT("MY",`Program AYSO Membership Year`) AS `Membership Year`,
     `Volunteer Role`,
@@ -296,13 +304,61 @@ PREPARE stmt FROM @s;
 EXECUTE stmt;  
 
 DEALLOCATE PREPARE stmt;  
+
+SET @s = CONCAT(' INSERT INTO crs_shcerts SELECT 
+    `Program Name`,
+    CONCAT("MY",`Program AYSO Membership Year`) AS `Membership Year`,
+    `Volunteer Role`,
+    `AYSO Volunteer ID` AS AYSOID,
+	PROPER_CASE(CONCAT(`Volunteer First Name`, @space, `Volunteer Last Name`)) AS `Name`,
+    PROPER_CASE(`Volunteer First Name`) AS `First Name`,
+    PROPER_CASE(`Volunteer Last Name`) AS `Last Name`,
+    PROPER_CASE(`Volunteer Address`) AS Address,
+    PROPER_CASE(`Volunteer City`) AS City,
+    `Volunteer State` AS State,
+    `Volunteer Zip` AS Zip,
+    `Volunteer Phone` AS `Home Phone`,
+    `Volunteer Cell` AS `Cell Phone`,
+    LCASE(`Volunteer Email`) AS Email,
+    `Gender`,
+    `AYSO Certifications` AS CertificationDesc,
+    IF(`Date of Last AYSO Certification Update` = "" OR `Date of Last AYSO Certification Update` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`Date of Last AYSO Certification Update`, " ", 1),"/", "."),GET_FORMAT(DATE,"USA"))) AS `CertDate`,
+    IF(sar.`region` IS NULL
+            OR sar.`region` = @empty,
+        CONCAT(sar.`section`, @delimTS, sar.`area`),
+        CONCAT(sar.`section`,
+                @delimTS,
+                sar.`area`,
+                @delimTS,
+                sar.`region`)) AS SAR,
+    sar.`section` AS Section,
+    sar.`area` AS Area,
+    sar.`region` AS Region
+FROM ',
+    @inTable,
+    ' csv
+        INNER JOIN
+    rs_sar sar ON csv.`Portal Name` = sar.`portalName`
+WHERE `AYSO Certifications` LIKE \'%Safe Haven%\' AND NOT `AYSO Certifications` LIKE \'%without Safe Haven%\''
+    );
+
+PREPARE stmt FROM @s;  
+EXECUTE stmt;  
+
+DEALLOCATE PREPARE stmt;  
 END$$
 
 DROP PROCEDURE IF EXISTS `processEAYSOCSV`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `processEAYSOCSV` (`certTable` VARCHAR(128))  BEGIN
 SET @inTable = CONCAT("`", certTable, "`");
 
-SET @s = CONCAT(' INSERT INTO wp_ayso1ref.crs_certs SELECT 
+SET @s = CONCAT('DELETE FROM ', @inTable, ' WHERE AYSOID = 0');
+PREPARE stmt FROM @s;  
+EXECUTE stmt;  
+
+DEALLOCATE PREPARE stmt;
+
+SET @s = CONCAT(' INSERT INTO crs_certs SELECT 
 	`Membership Year` AS `Program Name`,
     `Membership Year`,
     "Volunteer" AS `Volunteer Role`,
@@ -326,6 +382,38 @@ SET @s = CONCAT(' INSERT INTO wp_ayso1ref.crs_certs SELECT
     `RegionNumber` AS Region
 FROM ',
     @inTable);
+
+PREPARE stmt FROM @s;  
+EXECUTE stmt;  
+
+DEALLOCATE PREPARE stmt;
+
+SET @s = CONCAT(' INSERT INTO crs_shcerts SELECT 
+	`Membership Year` AS `Program Name`,
+    `Membership Year`,
+    "Volunteer" AS `Volunteer Role`,
+    `AYSOID`,
+	PROPER_CASE(`Name`) AS `Name`,
+    PROPER_CASE(`FirstName`) AS `First Name`,
+    PROPER_CASE(`LastName`) AS `Last Name`,
+    PROPER_CASE(`Street`) AS Address,
+    PROPER_CASE(`City`) AS `City`,
+    `State`,
+    REPLACE(`Zip`,"\'", "") AS `Zip`,
+    `HomePhone` AS `Home Phone`,
+    `BusinessPhone` AS `Cell Phone`,
+    LCASE(`Email`) AS Email,
+    `Gender`,
+    `CertificationDesc`,
+    IF(`CertDate` = "" OR `CertDate` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`CertDate`, " ", 1),"/", "."),GET_FORMAT(DATE,"USA"))) AS `CertDate`,
+    `SectionAreaRegion` AS SAR,
+    `SectionName` AS Section,
+    `AreaName` AS Area,
+    `RegionNumber` AS Region
+FROM ',
+    @inTable,
+'WHERE `CertificationDesc` LIKE "%Safe Haven%" AND NOT `CertificationDesc` LIKE "%without Safe Haven%"
+');
 
 PREPARE stmt FROM @s;  
 EXECUTE stmt;  
@@ -548,11 +636,42 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshDupicateRefCerts`$$
+CREATE DEFINER=`root`@`%` PROCEDURE `RefreshDupicateRefCerts` ()  BEGIN
+-- remove refcerts with multiple IDs in eAYSO and BS based on Highest Certification
+-- not perfect / fails if volunteer registers with new email or new last name or regisgters multiple times in BS
+DROP TABLE IF EXISTS tmp_duprefcerts;
+
+CREATE TABLE tmp_duprefcerts SELECT 
+    *
+FROM
+    (SELECT 
+        e.`AYSOID`,
+        bs.`AYSOID` AS `bsAYSOID`,
+		bs.`Name`,
+		bs.`First Name`,
+		bs.`Last Name`,
+		bs.`Address`,
+		bs.`City`,
+		bs.`Email`,
+        bs.`Gender`,
+        bs.`CertDate`
+
+    FROM
+        crs_tmp_hrc e
+    LEFT JOIN crs_tmp_hrc bs USING (`Email`, `Gender`, `CertDate`)
+ ) g
+WHERE
+    `AYSOID` - `bsAYSOID` < 0
+        AND `AYSOID` <= 99999999
+        AND `bsAYSOID` > 99999999;
+END$$
+
 DROP PROCEDURE IF EXISTS `RefreshHighestCertification`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshHighestCertification` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 SET @id:= 0;
-SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'z-Online Regional Referee without Safe Haven', 'Z-Online Regional Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', 'Z-Online Safe Haven Referee', 'Safe Haven Referee', ''";
+SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', ''";
 
 DROP TABLE IF EXISTS crs_tmp_hrc;
 SET @s = CONCAT("
@@ -594,6 +713,10 @@ SET @s = CONCAT("
 				AND NOT `CertificationDesc` LIKE '%VIP%'
 				AND NOT `CertificationDesc` LIKE '%Course%'
 				AND NOT `CertificationDesc` LIKE '%Scheduler%'
+                AND `CertificationDesc` <> 'z-Online Regional Referee without Safe Haven' 
+                AND `CertificationDesc` <> 'Z-Online Regional Referee' 
+                AND `CertificationDesc` <> 'Z-Online Safe Haven Referee' 
+                AND `CertificationDesc` <> 'Safe Haven Referee'
 		GROUP BY `AYSOID` , FIELD(`CertificationDesc`, ", @dfields, ")) ordered) ranked
 		WHERE
 			rank = 1
@@ -605,6 +728,7 @@ PREPARE stmt FROM @s;
 EXECUTE stmt;
 
 DEALLOCATE PREPARE stmt;
+
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshNationalRefereeAssessors`$$
@@ -657,11 +781,31 @@ DROP PROCEDURE IF EXISTS `RefreshRefCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefCerts` ()  BEGIN
 DROP TABLE IF EXISTS crs_refcerts;
 
-CREATE TABLE crs_refcerts
-SELECT * 
-	FROM crs_certs 
-	WHERE 
-	`CertificationDesc` LIKE '%Referee%';
+CREATE TABLE crs_refcerts SELECT * FROM
+    crs_certs
+WHERE
+    `CertificationDesc` LIKE '%Referee%'
+    OR `CertificationDesc` LIKE '%Official%'
+        AND `CertificationDesc` <> 'Z-Online Regional Referee%'
+        AND `CertificationDesc` <> 'Regional Referee online%';
+    
+UPDATE `crs_refcerts` 
+SET 
+    `CertificationDesc` = 'Regional Referee'
+WHERE
+    `CertificationDesc` = 'Regional Referee & Safe Haven Referee';
+
+UPDATE `crs_refcerts` 
+SET 
+    `CertificationDesc` = 'Assistant Referee'
+WHERE
+    `CertificationDesc` = 'Assistant Referee & Safe Haven Referee';
+
+UPDATE `crs_refcerts` 
+SET 
+    `CertificationDesc` = 'U-8 Official'
+WHERE
+    `CertificationDesc` = 'U-8 Official & Safe Haven Referee';
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefConcussionCerts`$$
@@ -859,7 +1003,7 @@ CREATE TABLE tmp_NatRC SELECT * FROM
     FROM
         `crs_refcerts`
     WHERE
-        `CertificationDesc` = 'National Referee Course'
+        LOWER(`CertificationDesc`) = LOWER('National Referee Course')
     GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
 WHERE
     rank = 1;
@@ -869,7 +1013,7 @@ DROP TABLE IF EXISTS tmp_NatR;
 CREATE TABLE tmp_NatR SELECT `AYSOID`, `CertDate` FROM
     crs_refcerts
 WHERE
-    `CertificationDesc` = 'National Referee';
+    LOWER(`CertificationDesc`) = LOWER('National Referee');
 
 CREATE TABLE tmp_ref_upgrades SELECT DISTINCT course.`AYSOID`,
     course.`Name`,
@@ -913,7 +1057,7 @@ CREATE TABLE tmp_AdvRC SELECT * FROM
     FROM
         `crs_refcerts`
     WHERE
-        `CertificationDesc` = 'Advanced Referee Course'
+        LOWER(`CertificationDesc`) = LOWER('Advanced Referee Course')
     GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
 WHERE
     rank = 1;
@@ -923,7 +1067,7 @@ DROP TABLE IF EXISTS tmp_AdvR;
 CREATE TABLE tmp_AdvR SELECT `AYSOID`, `CertDate` FROM
     crs_refcerts
 WHERE
-    `CertificationDesc` = 'Advanced Referee';
+    LOWER(`CertificationDesc`) = LOWER('Advanced Referee');
 
 INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`AYSOID`,
@@ -967,7 +1111,7 @@ CREATE TABLE tmp_IntRC SELECT * FROM
     FROM
         `crs_refcerts`
     WHERE
-        `CertificationDesc` = 'Intermediate Referee Course'
+        LOWER(`CertificationDesc`) = LOWER('Intermediate Referee Course')
     GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
 WHERE
     rank = 1;
@@ -977,7 +1121,7 @@ DROP TABLE IF EXISTS tmp_IntR;
 CREATE TABLE tmp_IntR SELECT `AYSOID`, `CertDate` FROM
     crs_refcerts
 WHERE
-    `CertificationDesc` = 'Intermediate Referee';
+    LOWER(`CertificationDesc`) = LOWER('Intermediate Referee');
 
 INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`AYSOID`,
@@ -1004,8 +1148,281 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
     WHERE
         upgraded.`CertDate` IS NULL;
         
-DROP TABLE IF EXISTS tmp_IntRC;
-DROP TABLE IF EXISTS tmp_IntR;     
+DROP TABLE IF EXISTS tmp_IntR;
+DROP TABLE IF EXISTS tmp_IntRC;     
+
+-- Select Referee Assessor Candidates / Course but not Referee
+DROP TABLE IF EXISTS tmp_RAC;
+
+CREATE TABLE tmp_RAC SELECT * FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `crs_refcerts`
+    WHERE
+        LOWER(`CertificationDesc`) = LOWER('Referee Assessor Course')
+    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+WHERE
+    rank = 1;
+
+DROP TABLE IF EXISTS tmp_RA;
+
+CREATE TABLE tmp_RA SELECT `AYSOID`, `CertDate` FROM
+    crs_refcerts
+WHERE
+    LOWER(`CertificationDesc`) = LOWER('Referee Assessor');
+
+INSERT INTO tmp_ref_upgrades SELECT DISTINCT
+		course.`AYSOID`,
+		course.`Name`,
+		course.`First Name`,
+		course.`Last Name`,
+		course.`Address`,
+		course.`City`,
+		course.`State`,
+		course.`Zip`,
+		course.`Home Phone`,
+		course.`Cell Phone`,
+		course.`Email`,
+		course.`Gender`,
+		course.`CertificationDesc`,
+		course.`CertDate`,
+		course.`SAR`,
+		course.`Section`,
+		course.`Area`,
+		course.`Region`, 
+		course.`Membership Year`
+    FROM
+        tmp_RAC course LEFT JOIN tmp_RA upgraded ON course.`AYSOID` = upgraded.`AYSOID`
+    WHERE
+        upgraded.`CertDate` IS NULL;
+        
+DROP TABLE IF EXISTS tmp_RAC;
+DROP TABLE IF EXISTS tmp_RA;
+
+-- Select National Referee Assessor Candidates / Course but not Referee
+DROP TABLE IF EXISTS tmp_NRAC;
+
+CREATE TABLE tmp_NRAC SELECT * FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `crs_refcerts`
+    WHERE
+        LOWER(`CertificationDesc`) = ('National Referee Assessor Course')
+    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+WHERE
+    rank = 1;
+
+DROP TABLE IF EXISTS tmp_NRA;
+
+CREATE TABLE tmp_NRA SELECT `AYSOID`, `CertDate` FROM
+    crs_refcerts
+WHERE
+    LOWER(`CertificationDesc`) = LOWER('National Referee Assessor');
+
+INSERT INTO tmp_ref_upgrades SELECT DISTINCT
+		course.`AYSOID`,
+		course.`Name`,
+		course.`First Name`,
+		course.`Last Name`,
+		course.`Address`,
+		course.`City`,
+		course.`State`,
+		course.`Zip`,
+		course.`Home Phone`,
+		course.`Cell Phone`,
+		course.`Email`,
+		course.`Gender`,
+		course.`CertificationDesc`,
+		course.`CertDate`,
+		course.`SAR`,
+		course.`Section`,
+		course.`Area`,
+		course.`Region`, 
+		course.`Membership Year`
+    FROM
+        tmp_NRAC course LEFT JOIN tmp_NRA upgraded ON course.`AYSOID` = upgraded.`AYSOID`
+    WHERE
+        upgraded.`CertDate` IS NULL;
+        
+DROP TABLE IF EXISTS tmp_NRAC;
+DROP TABLE IF EXISTS tmp_NRA;
+
+
+-- Select Referee Instructor Candidates / Course but not Referee
+DROP TABLE IF EXISTS tmp_RIC;
+
+CREATE TABLE tmp_RIC SELECT * FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `crs_refcerts`
+    WHERE
+        LOWER(`CertificationDesc`) = LOWER('Referee Instructor Course')
+    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+WHERE
+    rank = 1;
+
+DROP TABLE IF EXISTS tmp_RI;
+
+CREATE TABLE tmp_RI SELECT `AYSOID`, `CertDate` FROM
+    crs_refcerts
+WHERE
+    LOWER(`CertificationDesc`) = LOWER('Referee Instructor');
+
+INSERT INTO tmp_ref_upgrades SELECT DISTINCT
+		course.`AYSOID`,
+		course.`Name`,
+		course.`First Name`,
+		course.`Last Name`,
+		course.`Address`,
+		course.`City`,
+		course.`State`,
+		course.`Zip`,
+		course.`Home Phone`,
+		course.`Cell Phone`,
+		course.`Email`,
+		course.`Gender`,
+		course.`CertificationDesc`,
+		course.`CertDate`,
+		course.`SAR`,
+		course.`Section`,
+		course.`Area`,
+		course.`Region`, 
+		course.`Membership Year`
+    FROM
+        tmp_RIC course LEFT JOIN tmp_RI upgraded ON course.`AYSOID` = upgraded.`AYSOID`
+    WHERE
+        upgraded.`CertDate` IS NULL;
+        
+DROP TABLE IF EXISTS tmp_RIC;
+DROP TABLE IF EXISTS tmp_RI;
+   
+
+-- Select Advanced Referee Instructor Candidates / Course but not Referee
+DROP TABLE IF EXISTS tmp_ARIC;
+
+CREATE TABLE tmp_ARIC SELECT * FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `crs_refcerts`
+    WHERE
+        LOWER(`CertificationDesc`) = ('Advanced Referee Instructor Course')
+    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+WHERE
+    rank = 1;
+
+DROP TABLE IF EXISTS tmp_ARI;
+
+CREATE TABLE tmp_ARI SELECT `AYSOID`, `CertDate` FROM
+    crs_refcerts
+WHERE
+    (`CertificationDesc`) = ('Advanced Referee Instructor');
+
+INSERT INTO tmp_ref_upgrades SELECT DISTINCT
+		course.`AYSOID`,
+		course.`Name`,
+		course.`First Name`,
+		course.`Last Name`,
+		course.`Address`,
+		course.`City`,
+		course.`State`,
+		course.`Zip`,
+		course.`Home Phone`,
+		course.`Cell Phone`,
+		course.`Email`,
+		course.`Gender`,
+		course.`CertificationDesc`,
+		course.`CertDate`,
+		course.`SAR`,
+		course.`Section`,
+		course.`Area`,
+		course.`Region`, 
+		course.`Membership Year`
+    FROM
+        tmp_ARIC course LEFT JOIN tmp_ARI upgraded ON course.`AYSOID` = upgraded.`AYSOID`
+    WHERE
+        upgraded.`CertDate` IS NULL;
+        
+DROP TABLE IF EXISTS tmp_ARIC;
+DROP TABLE IF EXISTS tmp_ARI;
+
+-- Select Referee Instructor Evaluator Candidates / Course but not Referee
+DROP TABLE IF EXISTS tmp_RIEC;
+
+CREATE TABLE tmp_RIEC SELECT * FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `crs_refcerts`
+    WHERE
+        (`CertificationDesc`) = ('Advanced Referee Instructor Course')
+    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+WHERE
+    rank = 1;
+
+DROP TABLE IF EXISTS tmp_RIE;
+
+CREATE TABLE tmp_RIE SELECT `AYSOID`, `CertDate` FROM
+    crs_refcerts
+WHERE
+    (`CertificationDesc`) = ('Advanced Referee Instructor');
+
+INSERT INTO tmp_ref_upgrades SELECT DISTINCT
+		course.`AYSOID`,
+		course.`Name`,
+		course.`First Name`,
+		course.`Last Name`,
+		course.`Address`,
+		course.`City`,
+		course.`State`,
+		course.`Zip`,
+		course.`Home Phone`,
+		course.`Cell Phone`,
+		course.`Email`,
+		course.`Gender`,
+		course.`CertificationDesc`,
+		course.`CertDate`,
+		course.`SAR`,
+		course.`Section`,
+		course.`Area`,
+		course.`Region`, 
+		course.`Membership Year`
+    FROM
+        tmp_RIEC course LEFT JOIN tmp_RIE upgraded ON course.`AYSOID` = upgraded.`AYSOID`
+    WHERE
+        upgraded.`CertDate` IS NULL;
+        
+DROP TABLE IF EXISTS tmp_RIEC;
+DROP TABLE IF EXISTS tmp_RIE;
+
 
 DROP TABLE IF EXISTS crs_tmp_ref_upgrades;
 
@@ -1014,7 +1431,12 @@ CREATE TABLE crs_tmp_ref_upgrades SELECT DISTINCT * FROM
 ORDER BY FIELD(`CertificationDesc`,
         'National Referee Course',
         'Advanced Referee Course',
-        'Intermediate Referee Course'), `Section` , `Area` , `Region` , `CertDate`;
+        'Intermediate Referee Course',
+        'Referee Assessor Course',
+        'National Referee Assessor Course',
+        'Referee Instructor Course',
+        'Advanced Referee Instructor Course',
+        'Referee Instructor Evaluator Course'), `Section` , `Area` , `Region` , `CertDate`;
         
 DROP TABLE IF EXISTS tmp_ref_upgrades;
 
@@ -1027,31 +1449,47 @@ CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefNoCerts` ()  SQL SECURITY INVOKER
 BEGIN    
 DROP TABLE IF EXISTS wp_ayso1ref.crs_tmp_nocerts;
 
-CREATE TABLE wp_ayso1ref.crs_tmp_nocerts SELECT * FROM
-    (SELECT DISTINCT 
-	`AYSOID`, 
-	`Name`, 
-    `First Name`, 
-    `Last Name`, 
-    `Address`, 
-    `City`, 
-    `State`, 
-    `Zip`, 
-    `Home Phone`, 
-    `Cell Phone`, 
-    `Email`, 
-    `Gender`,
-    `CertificationDesc`, 
-    `CertDate`, 
-    `SAR`, 
-    `Section`, 
-    `Area`, 
-    `Region`, 
-    `Membership Year` 
-FROM `crs_certs` 
+CREATE TABLE wp_ayso1ref.crs_tmp_nocerts SELECT 
+    *
+FROM
+    (SELECT DISTINCT
+        `AYSOID`,
+            `Name`,
+            `First Name`,
+            `Last Name`,
+            `Address`,
+            `City`,
+            `State`,
+            `Zip`,
+            `Home Phone`,
+            `Cell Phone`,
+            `Email`,
+            `Gender`,
+            `Volunteer Role`,
+            `CertificationDesc`,
+            `CertDate`,
+            `SAR`,
+            `Section`,
+            `Area`,
+            `Region`,
+            `Membership Year`
+    FROM
+        (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `crs_certs`
+    GROUP BY `AYSOID` , `Membership Year` DESC) ranked
+    ) ordered
+    WHERE
+        rank = 1) s1
 WHERE `Volunteer Role` LIKE '%Referee%' 
 	AND `CertificationDesc` = '' 
-ORDER BY `Section`, `Area`, `Region`) nocerts;
+ORDER BY `Section`, `Area`, `Region`;
 
 END$$
 
@@ -1062,43 +1500,62 @@ SET @id:= 0;
 DROP TABLE IF EXISTS crs_tmp_safehaven;
 SET @s = CONCAT("
 CREATE TABLE crs_tmp_safehaven SELECT 
-	`AYSOID`,
-	`Name`,
-	`First Name`,
-	`Last Name`,
-	`Address`,
-	`City`,
-	`State`,
-	`Zip`,
-	`Home Phone`,
-	`Cell Phone`,
-	`Email`,
-    `Gender`,
-	`CertificationDesc`,
-	`CertDate`,
-	`SAR`,
-	`Section`,
-	`Area`,
-	`Region`,
-	`Membership Year`
-FROM
-    (SELECT 
-        *
+		`Program Name`,
+		`Membership Year`,
+		`Volunteer Role`,
+		`AYSOID`,
+		`Name`,
+		`First Name`,
+		`Last Name`,
+		`Address`,
+		`City`,
+		`State`,
+		`Zip`,
+		`Home Phone`,
+		`Cell Phone`,
+		`Email`,
+		`Gender`,
+		`CertificationDesc`,
+		`CertDate`,
+		`SAR`,
+		`Section`,
+		`Area`,
+		`Region`
     FROM
         (SELECT 
-        *,
+			*,
             @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
             @id:=`AYSOID`
-    FROM (SELECT * FROM 
-        crs_certs
-    WHERE
-        `CertificationDesc` LIKE '%Safe Haven%' AND `CertificationDesc` LIKE '%Referee%'
-    GROUP BY `AYSOID`, `CertDate` DESC, 
-    FIELD(`CertificationDesc`, 'Z-Online AYSOs Safe Haven', 'Safe Haven Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official & Safe Haven Referee'),
-    `Membership Year` DESC ) ordered) ranked
+    FROM (SELECT 
+    	sh.`Program Name`,
+		sh.`Membership Year`,
+		sh.`Volunteer Role`,
+		sh.`AYSOID`,
+		sh.`Name`,
+		sh.`First Name`,
+		sh.`Last Name`,
+		sh.`Address`,
+		sh.`City`,
+		sh.`State`,
+		sh.`Zip`,
+		sh.`Home Phone`,
+		sh.`Cell Phone`,
+		sh.`Email`,
+		sh.`Gender`,
+		sh.`CertificationDesc`,
+		sh.`CertDate`,
+		sh.`SAR`,
+		sh.`Section`,
+		sh.`Area`,
+		sh.`Region`
+    FROM 
+        crs_shcerts sh RIGHT JOIN crs_tmp_hrc hrc USING (`AYSOID`)
+    GROUP BY sh.`AYSOID`, sh.`CertDate` DESC, 
+    FIELD(sh.`CertificationDesc`, 'Z-Online AYSOs Safe Haven', 'Webinar-AYSOs Safe Haven','Safe Haven Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official & Safe Haven Referee'),
+    sh.`Membership Year` DESC ) ordered) ranked
 WHERE
     rank = 1
-ORDER BY `Section`, `Area`, `Region`, `Last Name`, `First Name`) sh;");
+ORDER BY `Section`, `Area`, `Region`, `Last Name`, `First Name`");
     
 PREPARE stmt FROM @s;
 
@@ -1303,7 +1760,7 @@ DROP TABLE IF EXISTS `s1_composite_my_certs`;
 				`Membership Year`
 		FROM
 			wp_ayso1ref.crs_tmp_hrc) hrc
-		GROUP BY `AYSOID` , FIELD(`CertificationDesc`, @dfields, 'MY2018', 'MY2017', 'MY2016', `Membership Year`)) ordered) ranked
+		GROUP BY `AYSOID` , FIELD(`CertificationDesc`, @dfields), Field(`Membership Year`, 'MY2018', 'MY2017', 'MY2016')) ordered) ranked
 		WHERE
 			rank = 1
 		ORDER BY SAR) composite;
@@ -1423,7 +1880,37 @@ CREATE TABLE `eAYSO.MY2016.certs` (
 
 DROP TABLE IF EXISTS `eAYSO.MY2017.certs`;
 CREATE TABLE `eAYSO.MY2017.certs` (
-  `AYSOID` int(11) DEFAULT NULL,
+  `AYSOID` text,
+  `Name` text,
+  `Street` text,
+  `City` text,
+  `State` text,
+  `Zip` text,
+  `HomePhone` text,
+  `BusinessPhone` text,
+  `Email` text,
+  `CertificationDesc` text,
+  `Gender` text,
+  `SectionAreaRegion` text,
+  `CertDate` text,
+  `ReCertDate` text,
+  `FirstName` text,
+  `LastName` text,
+  `SectionName` text,
+  `AreaName` text,
+  `RegionNumber` text,
+  `Membership Year` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `eAYSO.MY2018.certs`
+--
+
+DROP TABLE IF EXISTS `eAYSO.MY2018.certs`;
+CREATE TABLE `eAYSO.MY2018.certs` (
+  `AYSOID` text,
   `Name` text,
   `Street` text,
   `City` text,
