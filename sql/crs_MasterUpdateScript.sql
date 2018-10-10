@@ -1,13 +1,13 @@
-USE `wp_ayso1ref`;
+USE `ayso1ref_services`;
 
 -- init table crs_certs
 DROP TABLE IF EXISTS crs_certs;
 
 CREATE TABLE `crs_certs` (
   `Program Name` text,
-  `Membership Year` text,
+  `Membership Year` varchar(200),
   `Volunteer Role` text,
-  `AYSOID` text,
+  `AYSOID` varchar(20),
   `Name` longtext,
   `First Name` text,
   `Last Name` text,
@@ -28,6 +28,8 @@ CREATE TABLE `crs_certs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 ALTER TABLE crs_certs AUTO_INCREMENT = 0; 
+ALTER TABLE crs_certs ADD INDEX (`aysoid`);
+ALTER TABLE crs_certs ADD INDEX (`Membership Year`);
 
 -- init table crs_shcerts
 DROP TABLE IF EXISTS crs_shcerts;
@@ -36,7 +38,7 @@ CREATE TABLE `crs_shcerts` (
   `Program Name` text,
   `Membership Year` text,
   `Volunteer Role` text,
-  `AYSOID` text,
+  `AYSOID` varchar(20),
   `Name` longtext,
   `First Name` text,
   `Last Name` text,
@@ -57,6 +59,7 @@ CREATE TABLE `crs_shcerts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 ALTER TABLE crs_shcerts AUTO_INCREMENT = 0; 
+ALTER TABLE crs_shcerts ADD INDEX (`aysoid`);
 
 -- Refresh Section BS data table `crs_1_certs`
 DROP TABLE IF EXISTS `crs_1_certs`;   
@@ -78,7 +81,7 @@ CREATE TABLE `crs_1_certs` (
   `Gender` text,
   `AYSO Certifications` text,
   `Date of Last AYSO Certification Update` text,
-  `Portal Name` text
+  `Portal Name` varchar(250)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/data/1.txt'  
@@ -94,6 +97,9 @@ UPDATE `crs_1_certs` SET `Volunteer Role` = REPLACE(`Volunteer Role`, '"', '');
 UPDATE `crs_1_certs` SET `Volunteer Address` = REPLACE(`Volunteer Address`, '"', '');
 UPDATE `crs_1_certs` SET `Volunteer City` = REPLACE(`Volunteer City`, '"', '');
 UPDATE `crs_1_certs` SET `Portal Name` = REPLACE(`Portal Name`, '"', '');
+
+ALTER TABLE crs_1_certs ADD INDEX (`AYSO Volunteer ID`);
+ALTER TABLE crs_1_certs ADD INDEX (`Portal Name`);
 
 CALL `processBSCSV`('crs_1_certs');  
 
@@ -131,29 +137,30 @@ LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/d
 -- MY2016
 UPDATE `eAYSO.MY2016.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
 UPDATE `eAYSO.MY2016.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
-ALTER TABLE `eAYSO.MY2016.certs` 
-CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
+DELETE FROM `eAYSO.MY2016.certs` WHERE `AYSOID` = '';
+ALTER TABLE `eAYSO.MY2016.certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
 CALL `processEAYSOCSV`('eAYSO.MY2016.certs');
 CALL `eAYSOHighestRefCert`('eAYSO.MY2016.certs');   
 
 -- MY2017
 UPDATE `eAYSO.MY2017.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
 UPDATE `eAYSO.MY2017.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
-ALTER TABLE `eAYSO.MY2017.certs` 
-CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
+DELETE FROM `eAYSO.MY2017.certs` WHERE `AYSOID` = '';
+ALTER TABLE `eAYSO.MY2017.certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
 CALL `processEAYSOCSV`('eAYSO.MY2017.certs');    
 CALL `eAYSOHighestRefCert`('eAYSO.MY2017.certs');   
 
 -- MY2018
 UPDATE `eAYSO.MY2018.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
 UPDATE `eAYSO.MY2018.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
-ALTER TABLE `eAYSO.MY2018.certs` 
-CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
+DELETE FROM `eAYSO.MY2018.certs` WHERE `AYSOID` = '';
+ALTER TABLE `eAYSO.MY2018.certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
 CALL `processEAYSOCSV`('eAYSO.MY2018.certs');    
 CALL `eAYSOHighestRefCert`('eAYSO.MY2018.certs');   
 
 -- Apply special cases  
 CALL `CertTweaks`();   
+ALTER TABLE `crs_certs` ADD INDEX (`aysoid`);
 
 -- Refresh all referee certificates - requried to remove duplicate records  
 CALL `RefreshRefCerts`();  
@@ -161,7 +168,7 @@ CALL `RefreshRefCerts`();
 -- Delete records duplicated across Membership Years
 DROP TABLE IF EXISTS tmp_dupmy;
 
-CREATE TABLE tmp_dupmy SELECT 
+CREATE TEMPORARY TABLE tmp_dupmy SELECT 
     AYSOID, `Membership Year`
 FROM
     (SELECT 
@@ -177,9 +184,12 @@ FROM
 WHERE
     rank = 1;
 
+ALTER TABLE tmp_dupmy ADD INDEX (`AYSOID`);
+ALTER TABLE tmp_dupmy ADD INDEX (`Membership Year`);
+
 DROP TABLE IF EXISTS tmp_refcerts;
--- 
-CREATE TABLE tmp_refcerts SELECT DISTINCT n1.* FROM
+
+CREATE TEMPORARY TABLE tmp_refcerts SELECT DISTINCT n1.* FROM
     crs_refcerts n1
         INNER JOIN
     tmp_dupmy d ON n1.`AYSOID` = d.`AYSOID`
@@ -190,15 +200,11 @@ DROP TABLE IF EXISTS crs_refcerts;
 CREATE TABLE crs_refcerts SELECT * FROM
     tmp_refcerts;
     
-DROP TABLE IF EXISTS tmp_refcerts;
-
-DROP TABLE IF EXISTS tmp_dupmy;
-    
 -- Delete regional records duplicated at Area Portals  
 DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` = '' and n2.`Region` <> '';
 -- Delete regional records duplicated at Section Portals  
 DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` = ''and n2.`Area` <> '';
-
+ALTER TABLE `crs_refcerts` ADD INDEX (`aysoid`);
 
 -- Refresh Highest Certification table after deletion of duplicate records
 CALL `RefreshHighestCertification`();  
@@ -210,8 +216,6 @@ WHERE `AYSOID` in (SELECT DISTINCT `AYSOID` FROM tmp_duprefcerts);
 
 DELETE FROM crs_tmp_hrc
 WHERE `AYSOID` in (SELECT DISTINCT `AYSOID` FROM tmp_duprefcerts);
-
-DROP TABLE IF EXISTS tmp_duprefcerts;
 
 -- Refresh all temporary tables
 CALL `RefreshRefereeAssessors`();  
@@ -225,17 +229,38 @@ CALL `RefreshSafeHavenCerts`();
 CALL `RefreshConcussionCerts`();  
 CALL `RefreshRefConcussionCerts`();   
 CALL `RefreshCertDateErrors`();
+CALL `RefreshCompositeRefCerts`();
+
+-- Update Tables for Referee Scheduler
+DROP TABLE IF EXISTS tmp_refUpdate;
+CREATE TEMPORARY TABLE tmp_refUpdate SELECT 
+    *
+FROM
+    (SELECT 
+        hrc.*
+    FROM
+        crs_tmp_hrc hrc
+    LEFT JOIN rs_s1_refs s1 ON s1.AYSOID = hrc.AYSOID
+    WHERE
+        s1.AYSOID IS NULL) new;
+        
+INSERT INTO rs_s1_refs
+SELECT * FROM tmp_refUpdate;
+
+INSERT INTO rs_refNicknames
+SELECT AYSOID, Name, concat('"',Name,'"') FROM tmp_refUpdate;
 
 -- Update timestamp table  
 DROP TABLE IF EXISTS `crs_lastUpdate`;  
 CREATE TABLE `crs_lastUpdate` SELECT NOW() AS timestamp;
-   
+ 
 CALL `UpdateCompositeMYCerts`();  
 
 ALTER TABLE `s1_composite_my_certs` 
 CHANGE COLUMN `AYSOID` `AYSOID` INT(11); 
 UPDATE `s1_composite_my_certs` SET `Zip` = REPLACE(`Zip`, "'", '');
 
+-- Get the composite results
 SELECT 
     *
 FROM
