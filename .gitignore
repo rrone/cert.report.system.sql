@@ -14,3 +14,5 @@ composites
 *.pdf
 *.html
 *.zip
+*update.ayso1ref_services.sql
+*update.*
