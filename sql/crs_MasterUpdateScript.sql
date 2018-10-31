@@ -171,7 +171,7 @@ CALL `RefreshRefCerts`();
 DROP TABLE IF EXISTS tmp_dupmy;
 
 CREATE TEMPORARY TABLE tmp_dupmy SELECT 
-		AYSOID, `Membership Year`
+	AYSOID, `Membership Year`
 FROM
 	(SELECT 
 			*,
@@ -192,15 +192,15 @@ ALTER TABLE tmp_dupmy ADD INDEX (`Membership Year`);
 DROP TABLE IF EXISTS tmp_refcerts;
 
 CREATE TEMPORARY TABLE tmp_refcerts SELECT DISTINCT n1.* FROM
-		crs_refcerts n1
-				INNER JOIN
-		tmp_dupmy d ON n1.`AYSOID` = d.`AYSOID`
-				AND n1.`Membership Year` = d.`Membership Year`;
+	crs_refcerts n1
+			INNER JOIN
+	tmp_dupmy d ON n1.`AYSOID` = d.`AYSOID`
+			AND n1.`Membership Year` = d.`Membership Year`;
 
 DROP TABLE IF EXISTS crs_refcerts;
 
 CREATE TABLE crs_refcerts SELECT * FROM
-		tmp_refcerts;
+	tmp_refcerts;
 		
 -- Delete regional records duplicated at Area Portals  
 DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` = '' and n2.`Region` <> '';
@@ -234,21 +234,24 @@ CALL `RefreshCertDateErrors`();
 CALL `RefreshCompositeRefCerts`();
 
 -- Update Tables for Referee Scheduler
+DROP TABLE IF EXISTS rs_s1_refs;
+CREATE TABLE rs_s1_refs SELECT 
+	* 
+FROM crs_rpt_hrc;
+ALTER TABLE rs_s1_refs ADD INDEX (`AYSOID`);
+
 DROP TABLE IF EXISTS tmp_refUpdate;
 CREATE TEMPORARY TABLE tmp_refUpdate SELECT 
-		*
+	*
 FROM
 	(SELECT 
-			hrc.*
+		hrc.*
 	FROM
-			crs_rpt_hrc hrc
+		crs_rpt_hrc hrc
 	LEFT JOIN rs_s1_refs s1 ON s1.AYSOID = hrc.AYSOID
 	WHERE
-			s1.AYSOID IS NULL) new;
+		s1.AYSOID IS NULL) new;
 				
-INSERT INTO rs_s1_refs
-SELECT * FROM tmp_refUpdate;
-
 INSERT INTO rs_refNicknames
 SELECT AYSOID, Name, Name FROM tmp_refUpdate;
 
