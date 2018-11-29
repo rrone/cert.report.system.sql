@@ -162,7 +162,6 @@ CALL `eAYSOHighestRefCert`('eAYSO.MY2018.certs');
 
 -- Apply special cases  
 CALL `CertTweaks`();   
-ALTER TABLE `crs_certs` ADD INDEX (`aysoid`);
 
 -- Refresh all referee certificates - requried to remove duplicate records  
 CALL `RefreshRefCerts`();  
@@ -182,7 +181,8 @@ FROM
 			`AYSOID`, `Membership Year`
 	FROM
 			crs_refcerts
-	GROUP BY AYSOID , `Membership Year` DESC) ranked) uno
+	ORDER BY `Membership Year` DESC) ordered
+	GROUP BY AYSOID , `Membership Year`) ranked
 WHERE
 	rank = 1;
 
@@ -258,6 +258,9 @@ SELECT AYSOID, Name, Name FROM tmp_refUpdate;
 -- Update timestamp table  
 DROP TABLE IF EXISTS `crs_rpt_lastUpdate`;  
 CREATE TABLE `crs_rpt_lastUpdate` SELECT NOW() AS timestamp;
+ALTER TABLE crs_rpt_lastUpdate
+CHANGE COLUMN `timestamp` `timestamp` DATETIME NOT NULL DEFAULT '1901-01-01 00:00:00' ;
+ALTER TABLE crs_rpt_lastUpdate ADD UNIQUE (`timestamp`);
  
 CALL `UpdateCompositeMYCerts`();  
 
@@ -269,4 +272,4 @@ UPDATE `s1_composite_my_certs` SET `Zip` = REPLACE(`Zip`, "'", '');
 SELECT 
 		*
 FROM
-		`s1_composite_my_certs`
+		`s1_composite_my_certs`;
