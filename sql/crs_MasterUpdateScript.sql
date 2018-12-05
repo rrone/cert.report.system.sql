@@ -161,7 +161,8 @@ CALL `processEAYSOCSV`('eAYSO.MY2018.certs');
 CALL `eAYSOHighestRefCert`('eAYSO.MY2018.certs');   
 
 -- Apply special cases  
-CALL `CertTweaks`();   
+CALL `CertTweaks`('crs_certs');   
+CALL `CertTweaks`('crs_shcerts');   
 
 -- Refresh all referee certificates - requried to remove duplicate records  
 CALL `RefreshRefCerts`();  

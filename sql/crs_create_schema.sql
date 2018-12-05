@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Nov 30, 2018 at 04:22 PM
+-- Generation Time: Dec 05, 2018 at 05:58 AM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -59,93 +59,135 @@ FROM
 END$$
 
 DROP PROCEDURE IF EXISTS `CertTweaks`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `CertTweaks` ()  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `CertTweaks` (`certTable` VARCHAR(128))  BEGIN
+
+SET @certTable = CONCAT("`", certTable, "`");
 # rick roberts
-UPDATE `crs_certs` SET `Email` = 'ayso1sra@gmail.com' WHERE `AYSOID` = 97815888;
-UPDATE `crs_certs` SET `SAR` = '1', `Area` = '', `Region` = '' WHERE `AYSOID` = 97815888;
-UPDATE `crs_certs` SET `SAR` = '1', `Area` = '', `Region` = '' WHERE `SAR` = '1/';
+SET @s = CONCAT("UPDATE ", @certTable, " SET `Email` = 'ayso1sra@gmail.com' WHERE `AYSOID` = 97815888;");
+CALL exec_qry(@s);
+SET @s = CONCAT("UPDATE ", @certTable, " SET `SAR` = '1', `Area` = '', `Region` = '' WHERE `AYSOID` = 97815888;");
+CALL exec_qry(@s);
+SET @s = CONCAT("UPDATE ", @certTable, " SET `SAR` = '1', `Area` = '', `Region` = '' WHERE `SAR` = '1/';");
+CALL exec_qry(@s);
 
 # Update Referee Instructors
-UPDATE `crs_certs` SET `CertificationDesc` = 'Regional Referee Instructor' WHERE `CertificationDesc` = 'Referee Instructor' OR `CertificationDesc` = 'Basic Referee Instructor';   
-UPDATE `crs_certs` SET `CertificationDesc` = 'Intermediate Referee Instructor' WHERE `AYSOID` IN (SELECT AYSOID FROM crs_intermediate_referee_instructors); 
+SET @s = CONCAT("UPDATE ", @certTable, " SET `CertificationDesc` = 'Regional Referee Instructor' WHERE `CertificationDesc` = 'Referee Instructor' OR `CertificationDesc` = 'Basic Referee Instructor';");   
+CALL exec_qry(@s);
+SET @s = CONCAT("UPDATE ", @certTable, " SET `CertificationDesc` = 'Intermediate Referee Instructor' WHERE `AYSOID` IN (SELECT AYSOID FROM crs_intermediate_referee_instructors) AND `CertificationDesc` = 'Regional Referee Instructor';"); 
+CALL exec_qry(@s);
 
 # Non-Board members on Section 1 portal
 # Alfred Medina
-UPDATE `crs_certs` SET `SAR` = '1', `Area` = 'H', `Region` = '' WHERE `AYSOID` = 51370299;
+SET @s = CONCAT("UPDATE ", @certTable, " SET `SAR` = '1', `Area` = 'H', `Region` = '' WHERE `AYSOID` = 51370299;");
+CALL exec_qry(@s);
 
 # Manuel Del Rio
-UPDATE `crs_certs` SET `SAR` = '1', `Area` = 'H', `Region` = '' WHERE `AYSOID` = 55290662;
+SET @s = CONCAT("UPDATE ", @certTable, " SET `SAR` = '1', `Area` = 'H', `Region` = '' WHERE `AYSOID` = 55290662;");
+CALL exec_qry(@s);
 
 # Janet Orcutt
-UPDATE `crs_certs` SET `SAR` = '1', `Area` = 'G', `Region` = '' WHERE `AYSOID` = 55189421;
-
+SET @s = CONCAT("UPDATE ", @certTable, " SET `SAR` = '1', `Area` = 'G', `Region` = '' WHERE `AYSOID` = 55189421;");
+CALL exec_qry(@s);
 
 # Merge records
 # Chris Call
-UPDATE `crs_certs` SET `AYSOID` = 66280719 WHERE `AYSOID` = 200284566;
-UPDATE `crs_certs` SET `AYSOID` = 66280719 WHERE `AYSOID` = 202333632;
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 66280719 WHERE `AYSOID` = 200284566;");
+CALL exec_qry(@s);
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 66280719 WHERE `AYSOID` = 202333632;");
+CALL exec_qry(@s);
 
 # Jon Swasey
-UPDATE `crs_certs` SET `AYSOID` = 202650542 WHERE `AYSOID` = 70161548;
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 202650542 WHERE `AYSOID` = 70161548;");
+CALL exec_qry(@s);
 
 # Philip Maki
-UPDATE `crs_certs` SET `AYSOID` = 65397057 WHERE `AYSOID` = 201245499;
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 65397057 WHERE `AYSOID` = 201245499;");
+CALL exec_qry(@s);
 
 # Michael Wolff
-DELETE FROM `crs_certs` WHERE `AYSOID` = 56234203 AND `SAR` LIKE '1/D/%';
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 56234203 AND `SAR` LIKE '1/D/%';");
+CALL exec_qry(@s);
 
 # Rick Ramirez
-UPDATE `crs_certs` SET `AYSOID` = 200019230 WHERE `AYSOID` = 54288898;
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 200019230 WHERE `AYSOID` = 54288898;");
+CALL exec_qry(@s);
 
 # Michael Raycraft
-DELETE FROM `crs_certs` WHERE `Email` = 'mlraycraft.aysoinstructor@gmail.com';
-DELETE FROM `crs_certs` WHERE `Name` = 'Michael Raycraft' AND `CertificationDesc` LIKE 'National Referee Assessor';
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `Email` = 'mlraycraft.aysoinstructor@gmail.com';");
+CALL exec_qry(@s);
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `Name` = 'Michael Raycraft' AND `CertificationDesc` LIKE 'National Referee Assessor';");
+CALL exec_qry(@s);
 
 # Peter Fink
-DELETE FROM `crs_certs` WHERE `AYSOID` = 94012088;
+CALL exec_qry(@s);
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 94012088;");
+CALL exec_qry(@s);
 
 # Vince O'Hara
-DELETE FROM `crs_certs` WHERE `AYSOID` = 58214480;
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 58214480;");
+CALL exec_qry(@s);
 
 # Eric Martinez
-DELETE FROM `crs_certs` WHERE AYSOID = 99811587;
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE AYSOID = 99811587;");
+CALL exec_qry(@s);
 
 # Robert Osborne 
 # duplicate eAYSO record
-DELETE FROM `eAYSO.MY2016.certs` WHERE `AYSOID` = 79403530;
-DELETE FROM `crs_certs` WHERE `AYSOID` = 79403530;
+SET @s = CONCAT("DELETE FROM `eAYSO.MY2016.certs` WHERE `AYSOID` = 79403530;");
+CALL exec_qry(@s);
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 79403530;");
+CALL exec_qry(@s);
 
 # missing Referee Instructor cert
-INSERT INTO `crs_certs` 
-(`Program Name`, `Volunteer Role`, AYSOID, Name, `First Name`, `Last Name`, Address, City, State, Zip, `Home Phone`, `Cell Phone`, Email, Gender, CertificationDesc, CertDate, SAR, Section, Area, Region, `Membership Year`)
-VALUES ('MY2018', 'Volunteer', '71409033', 'Robert Osborne', 'Robert', 'Osborne', '5124 Inadale Ave', 'Los Angeles', 'CA', '90043', '(323) 293-7923', '(562) 216-4601', 'robertosborne72@gmail.com', 'M', 'Referee Instructor', '2018-10-04', '1/P/0076', '1', 'P', '76', 'MY2018');
+IF @certTable = 'crs_certs' THEN
+	SET @s = CONCAT(@s, " 
+	INSERT INTO ", @certTable, " 
+	(`Program Name`, `Volunteer Role`, AYSOID, Name, `First Name`, `Last Name`, Address, City, State, Zip, `Home Phone`, `Cell Phone`, Email, Gender, CertificationDesc, CertDate, SAR, Section, Area, Region, `Membership Year`)
+	VALUES ('MY2018', 'Volunteer', '71409033', 'Robert Osborne', 'Robert', 'Osborne', '5124 Inadale Ave', 'Los Angeles', 'CA', '90043', '(323) 293-7923', '(562) 216-4601', 'robertosborne72@gmail.com', 'M', 'Referee Instructor', '2018-10-04', '1/P/0076', '1', 'P', '76', 'MY2018');");
+	CALL exec_qry(@s);
+END IF;
 
 # Jimmy Molinar
-DELETE FROM `crs_certs` WHERE `AYSOID` = 56272832;
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 56272832;");
+CALL exec_qry(@s);
 
 # Nelson Flores
-UPDATE `crs_certs` SET `Membership Year` = 'MY2018' WHERE `AYSOID` = 94012355 AND `Membership Year` < 'MY2018';
+SET @s = CONCAT("UPDATE ", @certTable, " SET `Membership Year` = 'MY2018' WHERE `AYSOID` = 94012355 AND `Membership Year` < 'MY2018';");
+CALL exec_qry(@s);
 
 # Dennis Raymond
-UPDATE `crs_certs` SET `Membership Year` = 'MY2018' WHERE `AYSOID` = 55296033 AND `Membership Year` < 'MY2018';
+SET @s = CONCAT("UPDATE ", @certTable, " SET `Membership Year` = 'MY2018' WHERE `AYSOID` = 55296033 AND `Membership Year` < 'MY2018';");
+CALL exec_qry(@s);
  
 # Invalid National Referee Assessors
 # Yui-Bin	Chen
-DELETE FROM `crs_certs` WHERE `AYSOID` = 57071121 AND `CertificationDesc` LIKE 'National Referee Assessor';
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 57071121 AND `CertificationDesc` LIKE 'National Referee Assessor';");
+CALL exec_qry(@s);
+
 # Geoffrey	Falk
-DELETE FROM `crs_certs` WHERE `AYSOID` = 59244326 AND `CertificationDesc` LIKE 'National Referee Assessor';
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 59244326 AND `CertificationDesc` LIKE 'National Referee Assessor';");
+CALL exec_qry(@s);
+
 # Jody	Kinsey
-DELETE FROM `crs_certs` WHERE `AYSOID` = 96383441 AND `CertificationDesc` LIKE 'National Referee Assessor';
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 96383441 AND `CertificationDesc` LIKE 'National Referee Assessor';");
+CALL exec_qry(@s);
+
 # Bruce	Hancock
-DELETE FROM `crs_certs` WHERE `AYSOID` = 99871834 AND `CertificationDesc` LIKE 'National Referee Assessor';
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 99871834 AND `CertificationDesc` LIKE 'National Referee Assessor';");
+CALL exec_qry(@s);
+
 # Donald Ramsay
-DELETE FROM `crs_certs` WHERE `AYSOID` = 204673909 AND `CertificationDesc` LIKE 'Referee Instructor Evaluator';
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 204673909 AND `CertificationDesc` LIKE 'Referee Instructor Evaluator';");
+CALL exec_qry(@s);
 
 # Spencer Horwitz
-DELETE FROM `crs_certs` WHERE `CertificationDesc`='National Referee Assessor' AND `AYSOID` = 95025758;
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `CertificationDesc`='National Referee Assessor' AND `AYSOID` = 95025758;");
+CALL exec_qry(@s);
 
 # Matt Kilroy
-DELETE FROM `crs_certs` WHERE `Name` = 'Regional Commissioner';
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `Name` = 'Regional Commissioner';");
+CALL exec_qry(@s);
+
 END$$
 
 DROP PROCEDURE IF EXISTS `compileVolIDs`$$
@@ -254,6 +296,14 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
     
 
+END$$
+
+DROP PROCEDURE IF EXISTS `exec_qry`$$
+CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `exec_qry` (`p_sql` VARCHAR(256))  BEGIN
+  SET @tquery = p_sql;
+  PREPARE stmt FROM @tquery;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `prepEAYSOCSVTable`$$
@@ -1622,7 +1672,7 @@ CREATE TABLE crs_rpt_safehaven SELECT
         crs_shcerts sh RIGHT JOIN crs_rpt_hrc hrc USING (`AYSOID`)
 	WHERE sh.`CertificationDesc` LIKE '%AYSOs Safe Haven'
 		OR sh.`CertificationDesc` LIKE '%Refugio Seguro de AYSO'
-    ORDER BY sh.`CertDate` DESC, sh.`Membership Year` DESC) ordered
+    ORDER BY `AYSOID`, sh.`CertDate` DESC, sh.`Membership Year` DESC) ordered
     GROUP BY `AYSOID`, `CertDate`, `Membership Year`) ranked
 WHERE
     rank = 1
