@@ -225,7 +225,7 @@ CALL `RefreshRefereeAssessors`();
 CALL `RefreshNationalRefereeAssessors`();  
 CALL `RefreshRefereeInstructors`();  
 CALL `RefreshRefereeInstructorEvaluators`();  
-CALL `RefreshRefNoCerts`();  
+-- CALL `RefreshRefNoCerts`();  
 CALL `RefreshRefereeUpgradeCandidates`();  
 CALL `RefreshUnregisteredReferees`();  -- depends on current crs_rpt_hrc
 CALL `RefreshSafeHavenCerts`();  

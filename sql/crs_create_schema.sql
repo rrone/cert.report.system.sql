@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.3
+-- version 4.8.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 05, 2018 at 05:58 AM
+-- Generation Time: Dec 30, 2018 at 06:51 PM
 -- Server version: 5.7.24-0ubuntu0.18.04.1
 -- PHP Version: 7.2.10-0ubuntu0.18.04.1
 
@@ -187,6 +187,11 @@ CALL exec_qry(@s);
 # Matt Kilroy
 SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `Name` = 'Regional Commissioner';");
 CALL exec_qry(@s);
+
+# Chris Salmon
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 54261701;");
+CALL exec_qry(@s);
+
 
 END$$
 
@@ -842,7 +847,8 @@ FROM
             AND `CertificationDesc` <> 'Z-Online Regional Referee'
             AND `CertificationDesc` <> 'Z-Online Safe Haven Referee'
             AND `CertificationDesc` <> 'Safe Haven Referee'
-    GROUP BY `AYSOID` , `Section`, `Area` , FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '')) ordered) ranked
+	ORDER BY `AYSOID` , `Membership Year` DESC, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '')) ordered
+    GROUP BY `AYSOID` , `Section`, `Area`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '') ) ranked
     WHERE
         rankID = 1
     ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', ''), `Section`, `Area`, `Region`, `Last Name`, `First Name`, AYSOID) hrc;
@@ -1023,7 +1029,8 @@ CREATE TABLE crs_rpt_ra SELECT * FROM
             AND NOT `CertificationDesc` LIKE '%Safe Haven%'
             AND NOT `CertificationDesc` LIKE 'Assistant%'
             AND NOT `CertificationDesc` LIKE '%Official%'
-    GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor')) ordered) ranked
+	ORDER BY `AYSOID`, `Membership Year` DESC, FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor') ) ordered            
+    GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor')) ranked
     WHERE
         rank = 1
     GROUP BY `Email`
@@ -1036,7 +1043,7 @@ SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_rie;
 
-CREATE TEMPORARY TABLE crs_rpt_rie SELECT DISTINCT * FROM
+CREATE TABLE crs_rpt_rie SELECT DISTINCT * FROM
     (SELECT 
         `AYSOID`,
 		`Name`,
@@ -1087,7 +1094,7 @@ SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_ri;
 
-CREATE TEMPORARY TABLE crs_rpt_ri SELECT * FROM
+CREATE TABLE crs_rpt_ri SELECT * FROM
     (SELECT 
         `AYSOID`,
 		`Name`,
@@ -1128,7 +1135,8 @@ CREATE TEMPORARY TABLE crs_rpt_ri SELECT * FROM
             AND NOT `CertificationDesc` LIKE '%Webinar%'
             AND NOT `CertificationDesc` LIKE '%Online%'
             AND NOT `CertificationDesc` LIKE '%Safe Haven%'
-    GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ordered) ranked
+		ORDER BY `AYSOID` , `Membership Year`, FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ordered
+    GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ranked
     WHERE
         rank = 1) ri;
     
@@ -1601,14 +1609,14 @@ FROM
         (SELECT 
         *
     FROM
-        `crs_certs`
+        `crs_refcerts`
     GROUP BY `AYSOID` , `Membership Year` DESC) ranked
     ) ordered
     WHERE
         rank = 1) s1
-WHERE `Volunteer Role` LIKE '%Referee%' 
+WHERE `Volunteer Role` LIKE '%Referee' 
 	AND `CertificationDesc` = '' 
-    AND NOT `Volunteer Role` LIKE '%General Volunteer%'
+    AND NOT `Volunteer Role` LIKE 'TEST%'
 ORDER BY `Section`, `Area`, `Region`;
 
 END$$
@@ -1620,9 +1628,6 @@ SET @id:= 0;
 DROP TABLE IF EXISTS crs_rpt_safehaven;
 SET @s = CONCAT("
 CREATE TABLE crs_rpt_safehaven SELECT 
-		`Program Name`,
-		`Membership Year`,
-		`Volunteer Role`,
 		`AYSOID`,
 		`Name`,
 		`First Name`,
@@ -1640,7 +1645,8 @@ CREATE TABLE crs_rpt_safehaven SELECT
 		`SAR`,
 		`Section`,
 		`Area`,
-		`Region`
+		`Region`,
+		`Membership Year`
     FROM
         (SELECT 
 			*,
