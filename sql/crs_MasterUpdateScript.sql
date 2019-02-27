@@ -196,7 +196,7 @@ CREATE TEMPORARY TABLE tmp_refcerts SELECT DISTINCT n1.* FROM
 	crs_refcerts n1
 			INNER JOIN
 	tmp_dupmy d ON n1.`AYSOID` = d.`AYSOID`
-			AND n1.`Membership Year` = d.`Membership Year`;
+			AND n1.`Membership Year` > d.`Membership Year`;
 
 DROP TABLE IF EXISTS crs_refcerts;
 
