@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 30, 2018 at 06:51 PM
--- Server version: 5.7.24-0ubuntu0.18.04.1
--- PHP Version: 7.2.10-0ubuntu0.18.04.1
+-- Generation Time: Feb 27, 2019 at 03:45 PM
+-- Server version: 5.7.25-0ubuntu0.18.04.2
+-- PHP Version: 7.3.2-3+ubuntu18.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -59,7 +59,7 @@ FROM
 END$$
 
 DROP PROCEDURE IF EXISTS `CertTweaks`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `CertTweaks` (`certTable` VARCHAR(128))  BEGIN
+CREATE DEFINER=`root`@`%` PROCEDURE `CertTweaks` (IN `certTable` VARCHAR(128))  BEGIN
 
 SET @certTable = CONCAT("`", certTable, "`");
 # rick roberts
@@ -91,26 +91,24 @@ CALL exec_qry(@s);
 
 # Merge records
 # Chris Call
-SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 66280719 WHERE `AYSOID` = 200284566;");
-CALL exec_qry(@s);
-SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 66280719 WHERE `AYSOID` = 202333632;");
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 200284566 WHERE `AYSOID` = 66280719;");
 CALL exec_qry(@s);
 
 # Jon Swasey
-SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 202650542 WHERE `AYSOID` = 70161548;");
-CALL exec_qry(@s);
+# SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 202650542 WHERE `AYSOID` = 70161548;");
+# CALL exec_qry(@s);
 
 # Philip Maki
-SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 65397057 WHERE `AYSOID` = 201245499;");
-CALL exec_qry(@s);
+# SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 65397057 WHERE `AYSOID` = 201245499;");
+# CALL exec_qry(@s);
 
 # Michael Wolff
 SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 56234203 AND `SAR` LIKE '1/D/%';");
 CALL exec_qry(@s);
 
 # Rick Ramirez
-SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 200019230 WHERE `AYSOID` = 54288898;");
-CALL exec_qry(@s);
+# SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 200019230 WHERE `AYSOID` = 54288898;");
+# CALL exec_qry(@s);
 
 # Michael Raycraft
 SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `Email` = 'mlraycraft.aysoinstructor@gmail.com';");
@@ -123,12 +121,8 @@ CALL exec_qry(@s);
 SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 94012088;");
 CALL exec_qry(@s);
 
-# Vince O'Hara
-SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 58214480;");
-CALL exec_qry(@s);
-
 # Eric Martinez
-SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE AYSOID = 99811587;");
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 99811587;");
 CALL exec_qry(@s);
 
 # Robert Osborne 
@@ -192,6 +186,9 @@ CALL exec_qry(@s);
 SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 54261701;");
 CALL exec_qry(@s);
 
+# Rafael Rangel
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 79685757;");
+CALL exec_qry(@s);
 
 END$$
 
@@ -847,8 +844,8 @@ FROM
             AND `CertificationDesc` <> 'Z-Online Regional Referee'
             AND `CertificationDesc` <> 'Z-Online Safe Haven Referee'
             AND `CertificationDesc` <> 'Safe Haven Referee'
-	ORDER BY `AYSOID` , `Membership Year` DESC, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '')) ordered
-    GROUP BY `AYSOID` , `Section`, `Area`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '') ) ranked
+    GROUP BY `AYSOID` , `Section`, `Area`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '') ) grouped
+	ORDER BY `AYSOID` , `Membership Year` DESC, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '') ) ordered
     WHERE
         rankID = 1
     ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', ''), `Section`, `Area`, `Region`, `Last Name`, `First Name`, AYSOID) hrc;
@@ -1135,7 +1132,7 @@ CREATE TABLE crs_rpt_ri SELECT * FROM
             AND NOT `CertificationDesc` LIKE '%Webinar%'
             AND NOT `CertificationDesc` LIKE '%Online%'
             AND NOT `CertificationDesc` LIKE '%Safe Haven%'
-		ORDER BY `AYSOID` , `Membership Year`, FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ordered
+		ORDER BY `AYSOID` , `Membership Year` DESC, FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ordered
     GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ranked
     WHERE
         rank = 1) ri;

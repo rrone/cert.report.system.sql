@@ -204,9 +204,9 @@ CREATE TABLE crs_refcerts SELECT * FROM
 	tmp_refcerts;
 		
 -- Delete regional records duplicated at Area Portals  
-DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` = '' and n2.`Region` <> '';
--- Delete regional records duplicated at Section Portals  
-DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` = ''and n2.`Area` <> '';
+DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` <> '' and n2.`Region` = '';
+-- Delete area records duplicated at Section Portals  
+DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` <> ''and n2.`Area` = '';
 ALTER TABLE `crs_refcerts` ADD INDEX (`aysoid`);
 
 -- Refresh Highest Certification table after deletion of duplicate records
@@ -253,7 +253,7 @@ FROM
 	WHERE
 		s1.AYSOID IS NULL) new;
 				
-INSERT INTO rs_refNicknames
+INSERT INTO rs_refNicknames (`AYSOID`, `Name`, `Nickname`)
 SELECT AYSOID, Name, Name FROM tmp_refUpdate;
 
 -- Update timestamp table  
