@@ -196,19 +196,13 @@ CREATE TEMPORARY TABLE tmp_refcerts SELECT DISTINCT n1.* FROM
 	crs_refcerts n1
 			INNER JOIN
 	tmp_dupmy d ON n1.`AYSOID` = d.`AYSOID`
-			AND n1.`Membership Year` > d.`Membership Year`;
+			AND n1.`Membership Year` = d.`Membership Year`;
 
 DROP TABLE IF EXISTS crs_refcerts;
 
 CREATE TABLE crs_refcerts SELECT * FROM
 	tmp_refcerts;
 		
--- Delete regional records duplicated at Area Portals  
-DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Region` <> '' and n2.`Region` = '';
--- Delete area records duplicated at Section Portals  
-DELETE n1.* FROM crs_refcerts n1, crs_refcerts n2 WHERE n1.AYSOID = n2.AYSOID AND n1.`Area` <> ''and n2.`Area` = '';
-ALTER TABLE `crs_refcerts` ADD INDEX (`aysoid`);
-
 -- Refresh Highest Certification table after deletion of duplicate records
 CALL `RefreshHighestCertification`();  
 

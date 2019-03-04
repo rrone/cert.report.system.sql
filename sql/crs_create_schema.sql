@@ -907,7 +907,7 @@ CREATE TEMPORARY TABLE tmp_nra SELECT * FROM
         `crs_refcerts`
     WHERE
         `CertificationDesc` LIKE 'National Referee Assessor' AND
-        (`Membership Year` = 'MY2018' OR `Membership Year` = 'MY2017')
+        (`Membership Year` = 'MY2019' OR `Membership Year` = 'MY2018')
     GROUP BY `AYSOID` ) ordered) ranked
     WHERE
         rank = 1
@@ -1076,7 +1076,7 @@ CREATE TABLE crs_rpt_rie SELECT DISTINCT * FROM
         `crs_refcerts` rc INNER JOIN `crs_refcerts` ar ON rc.AYSOID = ar.AYSOID
     WHERE
         rc.`CertificationDesc` = 'Referee Instructor Evaluator'
-            AND (rc.`Membership Year` = 'MY2018' OR rc.`Membership Year` = 'MY2017')
+            AND (rc.`Membership Year` = 'MY2019' OR rc.`Membership Year` = 'MY2018')
             AND ar.`CertificationDesc` LIKE '%Referee Instructor'
     ORDER BY rc.`CertDate` DESC) ordered) ranked
     WHERE
@@ -1903,7 +1903,7 @@ CREATE TEMPORARY TABLE `tmp_composite` SELECT * FROM
 				`Membership Year`
 		FROM
 			.crs_rpt_hrc) hrc
-		GROUP BY `AYSOID` , Field(`Membership Year`, 'MY2018', 'MY2017', 'MY2016'), `Section`, `Area`) ordered) ranked
+		GROUP BY `AYSOID` , Field(`Membership Year`, 'MY2019', 'MY2018', 'MY2017', 'MY2016'), `Section`, `Area`) ordered) ranked
 		ORDER BY AYSOID, `Membership Year` DESC) composite;
 ");
 
