@@ -1,6 +1,6 @@
 USE `ayso1ref_services`;
 
-SET @@GLOBAL.sql_mode=(SELECT REPLACE(@@GLOBAL.sql_mode,'ONLY_FULL_GROUP_BY',''));
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 -- init table crs_certs
 DROP TABLE IF EXISTS crs_certs;
@@ -159,6 +159,14 @@ DELETE FROM `eAYSO.MY2018.certs` WHERE `AYSOID` = '';
 ALTER TABLE `eAYSO.MY2018.certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
 CALL `processEAYSOCSV`('eAYSO.MY2018.certs');    
 CALL `eAYSOHighestRefCert`('eAYSO.MY2018.certs');   
+
+-- 2019-03-18: added because eAYSO is now returning blank dates for invalid dates
+UPDATE ayso1ref_services.crs_certs 
+SET 
+    CertDate = '1964-09-15'
+WHERE
+    CertificationDesc LIKE '%Referee%'
+        AND CertDate = '';        
 
 -- Apply special cases  
 CALL `CertTweaks`('crs_certs');   
