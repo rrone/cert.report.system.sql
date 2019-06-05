@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.5
+-- version 4.9.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 26, 2019 at 04:25 PM
--- Server version: 5.7.25-0ubuntu0.18.04.2
--- PHP Version: 7.2.17-1+ubuntu18.04.1+deb.sury.org+3
+-- Generation Time: Jun 05, 2019 at 06:14 PM
+-- Server version: 5.7.26-0ubuntu0.18.04.1
+-- PHP Version: 7.2.19-1+ubuntu18.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -103,7 +103,7 @@ CALL exec_qry(@s);
 # CALL exec_qry(@s);
 
 # Michael Wolff
-SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 56234203 AND `SAR` LIKE '1/D/%';");
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 56234203 AND `SAR` LIKE '1/F/%';");
 CALL exec_qry(@s);
 
 # Rick Ramirez
