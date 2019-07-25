@@ -64,9 +64,9 @@ ALTER TABLE crs_shcerts AUTO_INCREMENT = 0;
 ALTER TABLE crs_shcerts ADD INDEX (`aysoid`);
 
 -- Refresh Section BS data table `crs_1_certs`
-DROP TABLE IF EXISTS `crs_1_certs`;   
+DROP TABLE IF EXISTS `tmp_1_certs`;   
 
-CREATE TABLE `crs_1_certs` (
+CREATE TEMPORARY TABLE `tmp_1_certs` (
 	`Program Name` text,
 	`Program AYSO Membership Year` text,
 	`Volunteer Role` text,
@@ -87,12 +87,20 @@ CREATE TABLE `crs_1_certs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/data/1.txt'  
-	INTO TABLE `crs_1_certs`   
+	INTO TABLE `tmp_1_certs`   
 	FIELDS TERMINATED BY '\t'   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\r'
 	IGNORE 1 ROWS;   
 
+-- Recover from Regions deleting programs & volunteers each season
+INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201812_certs`;
+INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201905_certs`;
+
+DROP TABLE IF EXISTS `crs_1_certs`;  
+CREATE TABLE `crs_1_certs` SELECT DISTINCT * FROM `tmp_1_certs`;  
+
+-- Clean up imported data
 DELETE FROM `crs_1_certs` WHERE `AYSO Volunteer ID` IS NULL;
 UPDATE `crs_1_certs` SET `Program Name` = REPLACE(`Program Name`, '"', '');
 UPDATE `crs_1_certs` SET `Volunteer Role` = REPLACE(`Volunteer Role`, '"', '');
