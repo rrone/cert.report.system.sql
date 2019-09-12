@@ -93,6 +93,8 @@ LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/d
 	LINES TERMINATED BY '\r'
 	IGNORE 1 ROWS;   
 
+DELETE FROM ayso1ref_services.tmp_1_certs WHERE `Program Name` like '%Do not use%';
+
 -- Recover from Regions deleting programs & volunteers each season
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201812_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201905_certs`;
