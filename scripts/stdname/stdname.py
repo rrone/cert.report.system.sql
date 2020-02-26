@@ -4,7 +4,7 @@ import glob
 import shutil
 import ntpath
 
-vagrant_dir = "/Users/frederickroberts/Library/Application Support/com.clickontyler.VirtualHostX/VirtualHostX/crs_csv"
+vagrant_dir = "/Users/rick/Library/Application Support/com.clickontyler.VirtualHostX/VirtualHostX/crs_csv"
 
 
 def path_folder(path):

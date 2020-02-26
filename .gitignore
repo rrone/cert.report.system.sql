@@ -18,9 +18,10 @@ composites
 *update.*
 working
 Thumbs.db
-scripts/htmlDataTables/__pycache__
-scripts/htmlDataTables/build
-scripts/htmlDataTables/dist
+scripts/htmlDataTables/*
 *.spec
-scripts/htmlDataTables/venv
 *.webloc
+xlsx
+*.xls
+reports_encrypted
+htmlDataTables

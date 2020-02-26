@@ -3,6 +3,7 @@ import requests
 import csv
 import sys
 import os
+import shutil
 
 from datetime import datetime
 import pytz
@@ -24,12 +25,13 @@ dt_fmt = "%m/%d/%Y %I:%M:%S %p"
 # and provide it as an argument to this script
 
 if len(sys.argv) == 1:
+    print('processFutureCourses.py Version 2020.01.20.40')
     print('Syntax: processFutureCourses.py <FutureCoursesReport.html>')
     sys.exit(1)
 fname = os.path.splitext(str(sys.argv[1]))[0]
 
 # load the file saved from https://aysou.org/LMSAdmin/FutureCoursesReport.aspx
-html_content = open(f"{fname}.html", "r")
+html_content = open(f"{fname}.htm", "r")
 # Parse the html content
 soup = BeautifulSoup(html_content, "html.parser")
 
@@ -76,9 +78,9 @@ for c in data:
     if c[5].find("Pacific") < 0:
         continue
 
-    # parse for Section 1
+    # parse for Section 1, 10, 11
     # c[3] = Location
-    if c[3].find("1/") != 0 and c[1].find:
+    if c[3].find("1/") != 0 and c[3].find("10/") != 0 and c[3].find("11/") != 0 and c[1].find:
         continue
 
     # parse for courses today or later
@@ -109,7 +111,6 @@ for c in s1_data:
         continue
     referee_data.append(c)
 
-
 # Write all data to CSV File
 with open(f"{fname}.csv", 'w', newline='') as out_file:
     writer = csv.writer(out_file, quotechar='\"')
@@ -127,3 +128,19 @@ with open(f"{fname}.referee.csv", 'w', newline='') as out_file:
     writer = csv.writer(out_file, quotechar='\"')
     writer.writerow(list(headings.keys()))
     writer.writerows(referee_data)
+
+# Cleanup and backup
+html_content.close()
+
+try:
+    shutil.rmtree(f"{fname}_files")
+except:
+    pass
+
+try:
+    dtFname = "./html/" + datetime.today().strftime('%Y%m%d.') + os.path.basename(f"{fname}.htm")
+    print(dtFname)
+    shutil.copyfile(f"{fname}.htm", dtFname)
+    shutil.move(dtFname, "./html/_archive/")
+except:
+    pass

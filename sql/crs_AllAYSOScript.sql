@@ -15,7 +15,7 @@ CREATE TABLE `crs_allAYSO_certs` (
 	`AYSO Region #` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/frederickroberts/Dropbox/_open/_ayso/s1/reports/data.allAYSO/all.txt'  
+LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data.allAYSO/all.txt'  
 	INTO TABLE `crs_allAYSO_certs`   
 	FIELDS TERMINATED BY '\t'   
 	ENCLOSED BY ''  

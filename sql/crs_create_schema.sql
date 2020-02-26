@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.0.1
+-- version 4.9.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jul 25, 2019 at 05:56 AM
--- Server version: 5.7.26-0ubuntu0.18.04.1
--- PHP Version: 7.3.7-1+ubuntu18.04.1+deb.sury.org+1
+-- Generation Time: Feb 26, 2020 at 04:05 PM
+-- Server version: 5.7.29-0ubuntu0.18.04.1
+-- PHP Version: 7.3.15-3+ubuntu18.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -87,6 +87,10 @@ CALL exec_qry(@s);
 
 # Janet Orcutt
 SET @s = CONCAT("UPDATE ", @certTable, " SET `SAR` = '1', `Area` = 'G', `Region` = '' WHERE `AYSOID` = 55189421;");
+CALL exec_qry(@s);
+
+# Al Prado
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 56097099 WHERE `AYSOID` = 214892296;");
 CALL exec_qry(@s);
 
 # Merge records
@@ -194,6 +198,13 @@ CALL exec_qry(@s);
 SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 57182658;");
 CALL exec_qry(@s);
 
+# Gutierrez, Zoë
+SET @s = CONCAT("UPDATE ", @certTable, " SET `Name`= 'Zoe Gutierrez', `First Name` = 'Zoe' WHERE AYSOID = 82014699;");
+CALL exec_qry(@s);
+
+# Daniel Gomez / 1/U/23
+# SET @s = CONCAT("UPDATE ", @certTable, " SET `CertificationDesc`= 'Intermediate Referee', `CertDate` = '2020-02-12' WHERE AYSOID = 74607360;");
+# CALL exec_qry(@s);
 
 
 END$$
@@ -308,7 +319,7 @@ END$$
 
 DROP PROCEDURE IF EXISTS `exec_qry`$$
 CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `exec_qry` (`p_sql` VARCHAR(256))  BEGIN
-  SET @tquery = p_sql;
+SET @tquery = p_sql;
   PREPARE stmt FROM @tquery;
   EXECUTE stmt;
   DEALLOCATE PREPARE stmt;
@@ -984,6 +995,7 @@ END$$
 DROP PROCEDURE IF EXISTS `RefreshNationalRefereeAssessors`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshNationalRefereeAssessors` ()  BEGIN
 SET @id:= 0;
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 DROP TABLE IF EXISTS tmp_nra;
 
@@ -1019,14 +1031,14 @@ CREATE TEMPORARY TABLE tmp_nra SELECT * FROM
         `crs_refcerts`
     WHERE
         `CertificationDesc` LIKE 'National Referee Assessor' AND
-        (`Membership Year` = 'MY2019' OR `Membership Year` = 'MY2018')
+        (`Membership Year` = 'MY2019')
     GROUP BY `AYSOID` ) ordered) ranked
     WHERE
         rank = 1
 	GROUP BY `Email`
     ORDER BY CertificationDesc , `Section` , `Area` , `Last Name` , `First Name` , `AYSOID`) ra;
     
-    UPDATE tmp_nra SET `SAR`= '1/', `Area`= '' WHERE `AYSOID` = 97815888;
+    UPDATE tmp_nra SET `SAR`= '1', `Area`= '' WHERE `AYSOID` = 97815888;
     
     DROP TABLE IF EXISTS crs_rpt_nra;
 
@@ -1044,8 +1056,9 @@ CREATE TABLE crs_refcerts SELECT * FROM
 WHERE
     (`CertificationDesc` LIKE '%Referee%'
     OR `CertificationDesc` LIKE '%Official%')
-        AND `CertificationDesc` <> 'Z-Online Regional Referee%'
-        AND `CertificationDesc` <> 'Regional Referee online%'
+        AND NOT `CertificationDesc` LIKE 'Z-Online Regional Referee%'
+        AND NOT `CertificationDesc` LIKE 'Regional Referee online%'
+        AND NOT `CertificationDesc` LIKE '%Annual Referee Update'
         AND `Volunteer Role` <> 'General Volunteer (Not Coach, Referee or Manager)'
 		AND `Volunteer Role` <> 'TEST ONLY - Referee';
         
@@ -1199,6 +1212,8 @@ END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefereeInstructors`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeInstructors` ()  BEGIN
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
 SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_ri;
@@ -1234,11 +1249,10 @@ CREATE TABLE crs_rpt_ri SELECT * FROM
     FROM
         `crs_refcerts`
     WHERE
-        `CertificationDesc` LIKE '%Instructor%'
+        `CertificationDesc` LIKE '%Referee Instructor%'
             AND NOT `CertificationDesc` LIKE '%Evaluator%'
             AND NOT `CertificationDesc` LIKE '%Assessor%'
             AND NOT `CertificationDesc` LIKE '%Course%'
-            AND NOT `CertificationDesc` LIKE '%Regional%'
             AND NOT `CertificationDesc` LIKE '%Assistant%'
             AND NOT `CertificationDesc` LIKE '%Official%'
             AND NOT `CertificationDesc` LIKE '%Webinar%'
@@ -1801,6 +1815,72 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 ALTER TABLE crs_rpt_safehaven ADD INDEX (`AYSOID`);
+END$$
+
+DROP PROCEDURE IF EXISTS `RefreshSection8RefereeInstructors`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RefreshSection8RefereeInstructors` ()  BEGIN
+SET sql_mode=(SELECT REPLACE(@@GLOBAL.sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+SET @id:= 0;
+
+DROP TABLE IF EXISTS crs_rpt_s8_ri;
+
+SET @s = CONCAT("
+	CREATE TABLE crs_rpt_s8_ri SELECT DISTINCT
+	`MY`,
+	`AYSO ID`,
+	`Volunteer First Name`,
+	`Volunteer Last Name`,
+	`Volunteer Cell`,
+    `Volunteer Email`,
+	`AYSO Certifications`,
+	`Date of Last AYSO Certification Update`,
+	`AYSO Region #`
+FROM
+    (SELECT 
+	`MY`,
+	`AYSO ID`,
+	`Volunteer First Name`,
+	`Volunteer Last Name`,
+	`Volunteer Cell`,
+    `Volunteer Email`,
+	`AYSO Certifications`,
+	`Date of Last AYSO Certification Update`,
+	`AYSO Region #`,
+            @rankID:=IF(@id = `AYSO ID`, @rankID + 1, 1) AS rankID,
+            @id:=`AYSO ID`,
+            @region:=`AYSO Region #`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `crs_Section8_certs`
+    WHERE
+        NOT `AYSO Certifications` LIKE '%Assessor%'
+            AND `AYSO Certifications` LIKE '%Instructor%'
+            AND NOT `AYSO Certifications` LIKE '%Evaluator%'
+            AND NOT `AYSO Certifications` LIKE '%Administrator%'
+            AND NOT `AYSO Certifications` LIKE '%VIP%'
+            AND NOT `AYSO Certifications` LIKE '%Course%'
+            AND NOT `AYSO Certifications` LIKE '%Scheduler%'
+            AND `AYSO Certifications` <> 'z-Online Regional Referee without Safe Haven'
+            AND `AYSO Certifications` <> 'Z-Online Regional Referee'
+            AND `AYSO Certifications` <> 'Z-Online Safe Haven Referee'
+            AND `AYSO Certifications` <> 'Safe Haven Referee'
+    GROUP BY `AYSO ID`, FIELD(`AYSO Certifications`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', '')) grouped ) ranked
+    WHERE
+        rankID = 1
+    ORDER BY FIELD(`AYSO Certifications`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', ''), `AYSO Region #`, `Volunteer Last Name`, `Volunteer First Name`, `AYSO ID`;
+");
+
+PREPARE stmt FROM @s;
+
+EXECUTE stmt;
+
+DEALLOCATE PREPARE stmt;
+
+ALTER TABLE `crs_rpt_s8_ri` ADD INDEX (`AYSO ID`);
+
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshUnregisteredReferees`$$

@@ -98,7 +98,6 @@ DELETE FROM ayso1ref_services.tmp_1_certs WHERE `Program Name` like '%Do not use
 -- Recover from Regions deleting programs & volunteers each season
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201812_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201905_certs`;
-INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201912_certs`;
 
 DROP TABLE IF EXISTS `crs_1_certs`;  
 CREATE TABLE `crs_1_certs` SELECT DISTINCT * FROM `tmp_1_certs`;  
@@ -113,9 +112,6 @@ UPDATE `crs_1_certs` SET `Portal Name` = REPLACE(`Portal Name`, '"', '');
 
 ALTER TABLE crs_1_certs ADD INDEX (`AYSO Volunteer ID`);
 ALTER TABLE crs_1_certs ADD INDEX (`Portal Name`);
-
-# Maureen Reid 73895502 registered Section 1 in error lives in Pennsylvania
-DELETE FROM crs_1_certs WHERE `AYSO Volunteer ID` = 73895502;
 
 CALL `processBSCSV`('crs_1_certs');  
 
@@ -269,11 +265,11 @@ CALL `RefreshCertDateErrors`();
 CALL `RefreshCompositeRefCerts`();
 
 -- Update Tables for Referee Scheduler
-DROP TABLE IF EXISTS rs_refs;
-CREATE TABLE rs_refs SELECT 
+DROP TABLE IF EXISTS rs_s1_refs;
+CREATE TABLE rs_s1_refs SELECT 
 	* 
 FROM crs_rpt_hrc;
-ALTER TABLE rs_refs ADD INDEX (`AYSOID`);
+ALTER TABLE rs_s1_refs ADD INDEX (`AYSOID`);
 
 DROP TABLE IF EXISTS tmp_refUpdate;
 CREATE TEMPORARY TABLE tmp_refUpdate SELECT 
@@ -283,9 +279,9 @@ FROM
 		hrc.*
 	FROM
 		crs_rpt_hrc hrc
-	LEFT JOIN rs_refs r ON r.AYSOID = hrc.AYSOID
+	LEFT JOIN rs_s1_refs s1 ON s1.AYSOID = hrc.AYSOID
 	WHERE
-		r.AYSOID IS NULL) new;
+		s1.AYSOID IS NULL) new;
 				
 INSERT INTO rs_refNicknames (`AYSOID`, `Name`, `Nickname`)
 SELECT AYSOID, Name, Name FROM tmp_refUpdate;
