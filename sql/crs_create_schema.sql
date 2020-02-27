@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 26, 2020 at 04:05 PM
+-- Generation Time: Feb 26, 2020 at 05:07 PM
 -- Server version: 5.7.29-0ubuntu0.18.04.1
 -- PHP Version: 7.3.15-3+ubuntu18.04.1+deb.sury.org+1
 
@@ -205,6 +205,10 @@ CALL exec_qry(@s);
 # Daniel Gomez / 1/U/23
 # SET @s = CONCAT("UPDATE ", @certTable, " SET `CertificationDesc`= 'Intermediate Referee', `CertDate` = '2020-02-12' WHERE AYSOID = 74607360;");
 # CALL exec_qry(@s);
+
+# Nicholas Jung
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 82124801 WHERE `AYSOID` = 82134170;");
+CALL exec_qry(@s);
 
 
 END$$

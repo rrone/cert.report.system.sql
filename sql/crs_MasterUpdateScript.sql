@@ -242,9 +242,14 @@ DROP TABLE IF EXISTS crs_refcerts;
 
 CREATE TABLE crs_refcerts SELECT * FROM
 	tmp_refcerts;
-		
+	
 -- Refresh Highest Certification table after deletion of duplicate records
-CALL `RefreshHighestCertification`();  
+CALL `RefreshHighestCertification`();
+
+-- Daniel Gomez fix  
+SET @s = CONCAT("UPDATE crs_rpt_hrc SET CertificationDesc = 'Intermediate Referee', CertDate = '2020-01-12' WHERE `AYSOID` = 74607360;");
+CALL exec_qry(@s);
+--
 
 CALL `RefreshDupicateRefCerts`();
 
