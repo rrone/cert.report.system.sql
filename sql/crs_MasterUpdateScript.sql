@@ -242,6 +242,8 @@ DROP TABLE IF EXISTS crs_refcerts;
 
 CREATE TABLE crs_refcerts SELECT * FROM
 	tmp_refcerts;
+    
+DELETE FROM crs_refcerts WHERE AYSOID IN (SELECT AYSOID FROM crs_duplicateIDs);    
 	
 -- Refresh Highest Certification table after deletion of duplicate records
 CALL `RefreshHighestCertification`();
