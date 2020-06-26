@@ -272,6 +272,8 @@ CALL `RefreshUnregisteredReferees`();  -- depends on current crs_rpt_hrc
 CALL `RefreshSafeHavenCerts`();  
 CALL `RefreshConcussionCerts`();  
 CALL `RefreshRefConcussionCerts`();   
+CALL `RefreshSuddenCardiacArrestCerts`();
+CALL `RefreshRefSuddenCardiacArrestCerts`();
 CALL `RefreshCertDateErrors`();
 CALL `RefreshCompositeRefCerts`();
 

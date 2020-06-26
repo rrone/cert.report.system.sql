@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 31, 2020 at 08:30 PM
--- Server version: 5.7.29-0ubuntu0.18.04.1
--- PHP Version: 7.3.16-1+ubuntu18.04.1+deb.sury.org+1
+-- Generation Time: Jun 26, 2020 at 05:45 PM
+-- Server version: 5.7.30-0ubuntu0.18.04.1
+-- PHP Version: 7.3.19-1+ubuntu18.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -714,13 +714,17 @@ CREATE TABLE crs_rpt_ref_certs SELECT * FROM
 		sh.CertificationDesc AS shCertificationDesc,
 		sh.CertDate AS shCertDate,
 		cdc.CDCCert AS cdcCertficationDesc,
-		cdc.CDCCertDate AS cdcCertDate 
+		cdc.CDCCertDate AS cdcCertDate, 
+		sca.SCACert AS scaCertficationDesc,
+		sca.SCACertDate AS scaCertDate 
     FROM
         crs_rpt_hrc hrc
 			LEFT JOIN 
         crs_rpt_safehaven sh ON hrc.aysoid = sh.aysoid
 			LEFT JOIN
-		crs_rpt_ref_cdc cdc ON hrc.AYSOID = cdc.aysoid) a
+		crs_rpt_ref_cdc cdc ON hrc.AYSOID = cdc.aysoid
+			LEFT JOIN
+		crs_rpt_ref_sca sca ON hrc.AYSOID = sca.aysoid) a
 ORDER BY SAR;
 
 END$$
@@ -1037,7 +1041,7 @@ SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_ref_cdc;
 SET @s = CONCAT("CREATE TABLE crs_rpt_ref_cdc SELECT 
-hrc.*, cdc.CertificationDesc AS CDCCert, cdc.CertDate AS CDCCertDate 
+hrc.*, cdc.CertificationDesc AS cdcCert, cdc.CertDate AS cdcCertDate 
 FROM `crs_cdc` cdc
 RIGHT JOIN `crs_rpt_hrc` hrc 
 ON cdc.AYSOID = hrc.AYSOID
@@ -1695,6 +1699,29 @@ ORDER BY `Section`, `Area`, `Region`;
 
 END$$
 
+DROP PROCEDURE IF EXISTS `RefreshRefSuddenCardiacArrestCerts`$$
+CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefSuddenCardiacArrestCerts` ()  BEGIN
+SET @id:= 0;
+
+DROP TABLE IF EXISTS crs_rpt_ref_sca;
+SET @s = CONCAT("CREATE TABLE crs_rpt_ref_sca SELECT 
+hrc.*, sca.CertificationDesc AS scaCert, sca.CertDate AS scaCertDate 
+FROM `crs_sca` sca
+RIGHT JOIN `crs_rpt_hrc` hrc 
+ON sca.AYSOID = hrc.AYSOID
+ORDER BY `Section`, `Area`, `Region`;
+");
+    
+PREPARE stmt FROM @s;
+
+EXECUTE stmt;
+
+DEALLOCATE PREPARE stmt;
+
+ALTER TABLE crs_rpt_ref_sca ADD INDEX (`AYSOID`);
+
+END$$
+
 DROP PROCEDURE IF EXISTS `RefreshSafeHavenCerts`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshSafeHavenCerts` ()  BEGIN
 SET @id:= 0;
@@ -1830,6 +1857,62 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 ALTER TABLE `crs_rpt_s8_ri` ADD INDEX (`AYSO ID`);
+
+END$$
+
+DROP PROCEDURE IF EXISTS `RefreshSuddenCardiacArrestCerts`$$
+CREATE DEFINER=`root`@`%` PROCEDURE `RefreshSuddenCardiacArrestCerts` ()  BEGIN
+SET @id:= 0;
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+DROP TABLE IF EXISTS crs_sca;
+SET @s = CONCAT("
+CREATE TABLE crs_sca SELECT 
+	`Program Name`,
+	`Membership Year`,
+	`Volunteer Role`,
+	`AYSOID`,
+	`Name`,
+	`First Name`,
+	`Last Name`,
+	`Address`,
+	`City`,
+	`State`,
+	`Zip`,
+	`Home Phone`,
+	`Cell Phone`,
+	`Email`,
+    `Gender`,
+	`CertificationDesc`,
+	`CertDate`,
+	`SAR`,
+	`Section`,
+	`Area`,
+	`Region`
+FROM
+    (SELECT 
+        *
+    FROM
+        (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM (SELECT * FROM 
+        crs_certs
+    WHERE
+        `CertificationDesc` LIKE '%Sudden Cardiac Arrest Training' 
+    GROUP BY `AYSOID`, `CertDate` DESC, `Membership Year` DESC) con ) ordered) ranked
+WHERE
+    rank = 1
+ORDER BY `Section` , `Area` , `Region` , `Last Name`;
+");
+    
+PREPARE stmt FROM @s;
+
+EXECUTE stmt;
+
+DEALLOCATE PREPARE stmt;
+
+ALTER TABLE crs_cdc ADD INDEX (`AYSOID`);
 
 END$$
 
@@ -2105,6 +2188,31 @@ END IF;
 SET @currentMY = CONCAT('MY', @year);
 
 RETURN @currentMY;
+END$$
+
+DROP FUNCTION IF EXISTS `ExtractNumber`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `ExtractNumber` (`in_string` VARCHAR(50)) RETURNS INT(11) NO SQL
+BEGIN
+    DECLARE ctrNumber VARCHAR(50);
+    DECLARE finNumber VARCHAR(50) DEFAULT '';
+    DECLARE sChar VARCHAR(1);
+    DECLARE inti INTEGER DEFAULT 1;
+
+    IF LENGTH(in_string) > 0 THEN
+        WHILE(inti <= LENGTH(in_string)) DO
+            SET sChar = SUBSTRING(in_string, inti, 1);
+            SET ctrNumber = FIND_IN_SET(sChar, '0,1,2,3,4,5,6,7,8,9'); 
+            IF ctrNumber > 0 THEN
+                SET finNumber = CONCAT(finNumber, sChar);
+            END IF;
+            SET inti = inti + 1;
+        END WHILE;
+        IF LENGTH(finNumber) > 0 THEN
+			RETURN CAST(finNumber AS UNSIGNED);
+		END IF;
+    END IF;    
+	
+    RETURN -1;
 END$$
 
 DROP FUNCTION IF EXISTS `multiTrim`$$
