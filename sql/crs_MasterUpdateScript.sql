@@ -2,6 +2,10 @@ USE `ayso1ref_services`;
 
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
+
+/***************************************/
+--  Load SportsConnect certs`
+
 -- init table crs_certs
 DROP TABLE IF EXISTS crs_certs;
 
@@ -30,7 +34,7 @@ CREATE TABLE `crs_certs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 ALTER TABLE crs_certs AUTO_INCREMENT = 0; 
-ALTER TABLE crs_certs ADD INDEX (`aysoid`);
+ALTER TABLE crs_certs ADD INDEX (`AYSOID`);
 ALTER TABLE crs_certs ADD INDEX (`Membership Year`);
 
 -- init table crs_shcerts
@@ -60,8 +64,9 @@ CREATE TABLE `crs_shcerts` (
 	`Region` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE crs_shcerts AUTO_INCREMENT = 0; 
-ALTER TABLE crs_shcerts ADD INDEX (`aysoid`);
+ALTER TABLE `crs_shcerts` 
+AUTO_INCREMENT = 0, 
+ADD INDEX (`aysoid`);
 
 -- Refresh Section BS data table `crs_1_certs`
 DROP TABLE IF EXISTS `tmp_1_certs`;   
@@ -90,12 +95,12 @@ LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/1.txt'
 	INTO TABLE `tmp_1_certs`   
 	FIELDS TERMINATED BY '\t'   
 	ENCLOSED BY ''  
-	LINES TERMINATED BY '\r'
+	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;   
 
-DELETE FROM ayso1ref_services.tmp_1_certs WHERE `Program Name` like '%Do not use%';
+DELETE FROM `tmp_1_certs` WHERE `Program Name` like '%Do not use%';
 
--- Recover from Regions deleting programs & volunteers each season
+-- Restore Region deleted programs & volunteers in past seasons
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201812_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201905_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201912_certs`;
@@ -111,32 +116,36 @@ UPDATE `crs_1_certs` SET `Volunteer Address` = REPLACE(`Volunteer Address`, '"',
 UPDATE `crs_1_certs` SET `Volunteer City` = REPLACE(`Volunteer City`, '"', '');
 UPDATE `crs_1_certs` SET `Portal Name` = REPLACE(`Portal Name`, '"', '');
 
-ALTER TABLE crs_1_certs ADD INDEX (`AYSO Volunteer ID`);
-ALTER TABLE crs_1_certs ADD INDEX (`Portal Name`);
+ALTER TABLE `crs_1_certs` 
+ADD INDEX (`AYSO Volunteer ID`),
+ADD INDEX (`Portal Name`);
 
 # Maureen Reid 73895502 registered Section 1 in error lives in Pennsylvania
-DELETE FROM crs_1_certs WHERE `AYSO Volunteer ID` = 73895502;
+DELETE FROM `crs_1_certs` WHERE `AYSO Volunteer ID` = 73895502;
 
 CALL `processBSCSV`('crs_1_certs');  
 
---  Refresh `eAYSO.MY2016.certs`
+/***************************************/
+--  Load eAYSO certs`
+
+--  Load `eAYSO.MY2017.certs`
 CALL `prepEAYSOCSVTable`('eAYSO.MY2016.certs');
 
 LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2016.certs.csv'
 	INTO TABLE `eAYSO.MY2016.certs`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\r'
+	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;   
 
---  Refresh `eAYSO.MY2017.certs`
+--  Load `eAYSO.MY2017.certs`
 CALL `prepEAYSOCSVTable`('eAYSO.MY2017.certs');
 
 LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2017.certs.csv'
 	INTO TABLE `eAYSO.MY2017.certs`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\r'
+	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;   
 	
 --  Refresh `eAYSO.MY2018.certs`
@@ -146,7 +155,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY
 	INTO TABLE `eAYSO.MY2018.certs`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\r'
+	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;   
 
 --  Refresh `eAYSO.MY2019.certs`
@@ -156,44 +165,16 @@ LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY
 	INTO TABLE `eAYSO.MY2019.certs`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\r'
+	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;   
 
--- UPDATE `eAYSO.certs` SET `AYSOID` = REPLACE(`AYSOID`,'"','');
--- MY2016
-UPDATE `eAYSO.MY2016.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
-UPDATE `eAYSO.MY2016.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
-DELETE FROM `eAYSO.MY2016.certs` WHERE `AYSOID` = '';
-ALTER TABLE `eAYSO.MY2016.certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
-CALL `processEAYSOCSV`('eAYSO.MY2016.certs');
-CALL `eAYSOHighestRefCert`('eAYSO.MY2016.certs');   
+CALL `processEAYSOCSV`();
 
--- MY2017
-UPDATE `eAYSO.MY2017.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
-UPDATE `eAYSO.MY2017.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
-DELETE FROM `eAYSO.MY2017.certs` WHERE `AYSOID` = '';
-ALTER TABLE `eAYSO.MY2017.certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
-CALL `processEAYSOCSV`('eAYSO.MY2017.certs');    
-CALL `eAYSOHighestRefCert`('eAYSO.MY2017.certs');   
-
--- MY2018
-UPDATE `eAYSO.MY2018.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
-UPDATE `eAYSO.MY2018.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
-DELETE FROM `eAYSO.MY2018.certs` WHERE `AYSOID` = '';
-ALTER TABLE `eAYSO.MY2018.certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
-CALL `processEAYSOCSV`('eAYSO.MY2018.certs');    
-CALL `eAYSOHighestRefCert`('eAYSO.MY2018.certs');   
-
--- MY2019
-UPDATE `eAYSO.MY2019.certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
-UPDATE `eAYSO.MY2019.certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
-DELETE FROM `eAYSO.MY2019.certs` WHERE `AYSOID` = '';
-ALTER TABLE `eAYSO.MY2019.certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
-CALL `processEAYSOCSV`('eAYSO.MY2019.certs');    
-CALL `eAYSOHighestRefCert`('eAYSO.MY2019.certs');   
+/***************************************/
+--  Process the lot
 
 -- 2019-03-18: added because eAYSO is now returning blank dates for invalid dates
-UPDATE ayso1ref_services.crs_certs 
+UPDATE crs_certs 
 SET 
     CertDate = '1964-09-15'
 WHERE
@@ -204,7 +185,7 @@ WHERE
 CALL `CertTweaks`('crs_certs');   
 CALL `CertTweaks`('crs_shcerts');   
 
--- Refresh all referee certificates - requried to remove duplicate records  
+-- Refresh all referee certificates - required to remove duplicate records  
 CALL `RefreshRefCerts`();  
 
 -- Delete records duplicated across Membership Years
@@ -306,13 +287,15 @@ ALTER TABLE crs_rpt_lastUpdate
 CHANGE COLUMN `timestamp` `timestamp` DATETIME NOT NULL DEFAULT '1901-01-01 00:00:00' ;
 ALTER TABLE crs_rpt_lastUpdate ADD UNIQUE (`timestamp`);
  
+-- Update Composite Cert table  
 CALL `UpdateCompositeMYCerts`();  
 
+UPDATE `s1_composite_my_certs` SET `Zip` = REPLACE(`Zip`, "'", '');
+UPDATE `s1_composite_my_certs` SET `AYSOID` = REPLACE(`Zip`, " ", "");
 ALTER TABLE `s1_composite_my_certs` 
 CHANGE COLUMN `AYSOID` `AYSOID` INT(11); 
-UPDATE `s1_composite_my_certs` SET `Zip` = REPLACE(`Zip`, "'", '');
 
--- Get the composite results
+-- Select the composite results for download
 SELECT 
 		*
 FROM

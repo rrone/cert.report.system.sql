@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 26, 2020 at 05:45 PM
+-- Generation Time: Jun 28, 2020 at 09:51 PM
 -- Server version: 5.7.30-0ubuntu0.18.04.1
 -- PHP Version: 7.3.19-1+ubuntu18.04.1+deb.sury.org+1
 
@@ -321,18 +321,33 @@ END$$
 
 DROP PROCEDURE IF EXISTS `processBSCSV`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `processBSCSV` (`certCSV` VARCHAR(128))  BEGIN
-SET @inTable = CONCAT("`", certCSV, "`");
 
-SET @empty = '';
-SET @space = ' ';
-SET @delimTS = '/';
-SET @delimDate = '/';
+SET @inTable = CONCAT('`', certCSV, '`');
 
-SET @s = CONCAT(' INSERT INTO crs_certs SELECT 
+SET @empty = "";
+SET @space = " ";
+SET @delim = "/";
+
+SET @s = CONCAT("DELETE FROM ",@inTable," WHERE
+NOT (`AYSO Certifications` LIKE '%Referee%'
+OR `AYSO Certifications` LIKE '%Official%'
+OR `AYSO Certifications` LIKE '%Concussion%'
+OR `AYSO Certifications` LIKE '%Cardiac Arrest%'
+OR `AYSO Certifications` LIKE '%AYSOs Safe Haven'
+OR `AYSO Certifications` LIKE '%Refugio Seguro de AYSO'
+);"
+);
+
+PREPARE stmt FROM @s;  
+EXECUTE stmt;  
+
+DEALLOCATE PREPARE stmt; 
+
+SET @s = CONCAT(" INSERT INTO crs_certs SELECT 
     `Program Name`,
-    CONCAT("MY",`Program AYSO Membership Year`) AS `Membership Year`,
+    CONCAT('MY',`Program AYSO Membership Year`) AS `Membership Year`,
     `Volunteer Role`,
-    `AYSO Volunteer ID` AS AYSOID,
+    TRIM(`AYSO Volunteer ID`) AS AYSOID,
 	PROPER_CASE(CONCAT(`Volunteer First Name`, @space, `Volunteer Last Name`)) AS `Name`,
     PROPER_CASE(`Volunteer First Name`) AS `First Name`,
     PROPER_CASE(`Volunteer Last Name`) AS `Last Name`,
@@ -345,23 +360,21 @@ SET @s = CONCAT(' INSERT INTO crs_certs SELECT
     LCASE(`Volunteer Email`) AS Email,
     `Gender`,
     `AYSO Certifications` AS CertificationDesc,
-    IF(`Date of Last AYSO Certification Update` = "" OR `Date of Last AYSO Certification Update` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`Date of Last AYSO Certification Update`, " ", 1),"/", "."),GET_FORMAT(DATE,"USA"))) AS `CertDate`,
+    IF(`Date of Last AYSO Certification Update` = '' OR `Date of Last AYSO Certification Update` IS NULL, '', STR_TO_DATE(REPLACE(SPLIT_STRING(`Date of Last AYSO Certification Update`, ' ', 1),'/', '.'),GET_FORMAT(DATE,'USA'))) AS `CertDate`,
     IF(sar.`region` IS NULL
             OR sar.`region` = @empty,
-        CONCAT(sar.`section`, @delimTS, sar.`area`),
+        CONCAT(sar.`section`, @delim, sar.`area`),
         CONCAT(sar.`section`,
-                @delimTS,
+                @delim,
                 sar.`area`,
-                @delimTS,
+                @delim,
                 sar.`region`)) AS SAR,
     sar.`section` AS Section,
     sar.`area` AS Area,
     sar.`region` AS Region
-FROM ',
-    @inTable,
-    ' csv
+FROM ", @inTable, " csv
         INNER JOIN
-    rs_sar sar ON csv.`Portal Name` = sar.`portalName`'
+    rs_sar sar ON csv.`Portal Name` = sar.`portalName`;"
     );
 
 PREPARE stmt FROM @s;  
@@ -369,11 +382,11 @@ EXECUTE stmt;
 
 DEALLOCATE PREPARE stmt;  
 
-SET @s = CONCAT(' INSERT INTO crs_shcerts SELECT 
+SET @s = CONCAT(" INSERT INTO crs_shcerts SELECT 
     `Program Name`,
-    CONCAT("MY",`Program AYSO Membership Year`) AS `Membership Year`,
+    CONCAT('MY',`Program AYSO Membership Year`) AS `Membership Year`,
     `Volunteer Role`,
-    `AYSO Volunteer ID` AS AYSOID,
+    TRIM(`AYSO Volunteer ID`) AS AYSOID,
 	PROPER_CASE(CONCAT(`Volunteer First Name`, @space, `Volunteer Last Name`)) AS `Name`,
     PROPER_CASE(`Volunteer First Name`) AS `First Name`,
     PROPER_CASE(`Volunteer Last Name`) AS `Last Name`,
@@ -386,24 +399,22 @@ SET @s = CONCAT(' INSERT INTO crs_shcerts SELECT
     LCASE(`Volunteer Email`) AS Email,
     `Gender`,
     `AYSO Certifications` AS CertificationDesc,
-    IF(`Date of Last AYSO Certification Update` = "" OR `Date of Last AYSO Certification Update` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`Date of Last AYSO Certification Update`, " ", 1),"/", "."),GET_FORMAT(DATE,"USA"))) AS `CertDate`,
+    IF(`Date of Last AYSO Certification Update` = '' OR `Date of Last AYSO Certification Update` IS NULL, '', STR_TO_DATE(REPLACE(SPLIT_STRING(`Date of Last AYSO Certification Update`, ' ', 1),'/', '.'),GET_FORMAT(DATE,'USA'))) AS `CertDate`,
     IF(sar.`region` IS NULL
             OR sar.`region` = @empty,
-        CONCAT(sar.`section`, @delimTS, sar.`area`),
+        CONCAT(sar.`section`, @delim, sar.`area`),
         CONCAT(sar.`section`,
-                @delimTS,
+                @delim,
                 sar.`area`,
-                @delimTS,
+                @delim,
                 sar.`region`)) AS SAR,
     sar.`section` AS Section,
     sar.`area` AS Area,
     sar.`region` AS Region
-FROM ',
-    @inTable,
-    ' csv
+FROM ", @inTable, " csv
         INNER JOIN
     rs_sar sar ON csv.`Portal Name` = sar.`portalName`
-WHERE `AYSO Certifications` LIKE \'%Safe Haven%\' AND NOT `AYSO Certifications` LIKE \'%without Safe Haven%\''
+WHERE `AYSO Certifications` LIKE '%Safe Haven%' AND NOT `AYSO Certifications` LIKE '%without Safe Haven%'"
     );
 
 PREPARE stmt FROM @s;  
@@ -413,76 +424,137 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `processEAYSOCSV`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `processEAYSOCSV` (`certTable` VARCHAR(128))  BEGIN
-SET @inTable = CONCAT("`", certTable, "`");
+CREATE DEFINER=`root`@`%` PROCEDURE `processEAYSOCSV` ()  BEGIN
 
-SET @s = CONCAT('DELETE FROM ', @inTable, ' WHERE AYSOID = 0');
-PREPARE stmt FROM @s;  
-EXECUTE stmt;  
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
-DEALLOCATE PREPARE stmt;
+DROP TABLE IF EXISTS `tmp_eAYSO_certs`;
 
-SET @s = CONCAT(' INSERT INTO crs_certs SELECT 
+CREATE TEMPORARY TABLE `tmp_eAYSO_certs` SELECT
+ * FROM (
+ SELECT * FROM `eAYSO.MY2016.certs`
+ UNION
+ SELECT * FROM `eAYSO.MY2017.certs`
+ UNION 
+ SELECT * FROM `eAYSO.MY2018.certs`
+ UNION
+ SELECT * FROM `eAYSO.MY2019.certs`
+ ) e;
+
+UPDATE `tmp_eAYSO_certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
+UPDATE `tmp_eAYSO_certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
+DELETE FROM `tmp_eAYSO_certs` WHERE `AYSOID` = '';
+ALTER TABLE `tmp_eAYSO_certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
+
+DELETE FROM `tmp_eAYSO_certs`  WHERE
+NOT (`CertificationDesc` LIKE '%Referee%'
+OR `CertificationDesc` LIKE '%Official%'
+OR `CertificationDesc` LIKE '%Concussion%'
+OR `CertificationDesc` LIKE '%Cardiac Arrest%'
+OR `CertificationDesc` LIKE '%AYSOs Safe Haven'
+OR `CertificationDesc` LIKE '%Refugio Seguro de AYSO'
+);
+
+DROP TABLE IF EXISTS `eAYSO_certs`;
+
+CREATE TABLE `eAYSO_certs` SELECT 
+    TRIM(BOTH ' ' FROM `AYSOID`) as 'AYSOID',
+    `Name`,
+    `Street`,
+    `City`,
+    `State`,
+    `Zip`,
+    `HomePhone`,
+    `BusinessPhone`,
+    `Email`,
+    `CertificationDesc`,
+    `Gender`,
+    `SectionAreaRegion`,
+    `CertDate`,
+    `ReCertDate`,
+    `FirstName`,
+    `LastName`,
+    `SectionName`,
+    `AreaName`,
+    `RegionNumber`,
+    `Membership Year`
+FROM
+    (SELECT 
+        *,
+            @rankID:=IF(@id = CONCAT(`AYSOID`, `CertificationDesc`), @rankID + 1, 1) AS rankID,
+            @id:=CONCAT(`AYSOID`, `CertificationDesc`)
+    FROM
+        (SELECT 
+        *
+    FROM
+        `tmp_eAYSO_certs`
+    ORDER BY `CertificationDesc` , `AYSOID` , `Membership Year` DESC) tmp) ranked
+WHERE
+    rankID = 1
+GROUP BY `AYSOID` , `Membership Year` , `CertificationDesc`
+ORDER BY `SectionName` , `AreaName` , `RegionNumber` , AYSOID , `LastName` , `FirstName`,`CertificationDesc`;
+
+
+DROP TABLE IF EXISTS `eAYSO.MY2016.certs`;
+DROP TABLE IF EXISTS `eAYSO.MY2017.certs`;
+DROP TABLE IF EXISTS `eAYSO.MY2018.certs`;
+DROP TABLE IF EXISTS `eAYSO.MY2019.certs`;
+
+DELETE FROM `eAYSO_certs` WHERE AYSOID = 0;
+
+INSERT INTO `crs_certs` SELECT 
 	`Membership Year` AS `Program Name`,
     `Membership Year`,
-    "Volunteer" AS `Volunteer Role`,
-    `AYSOID`,
+    'Volunteer' AS `Volunteer Role`,
+    TRIM(BOTH ' ' FROM `AYSOID`) as `AYSOID`,
 	PROPER_CASE(`Name`) AS `Name`,
     PROPER_CASE(`FirstName`) AS `First Name`,
     PROPER_CASE(`LastName`) AS `Last Name`,
     PROPER_CASE(`Street`) AS Address,
     PROPER_CASE(`City`) AS `City`,
     `State`,
-    REPLACE(`Zip`,"\'", "") AS `Zip`,
+    REPLACE(`Zip`,'\'', '') AS `Zip`,
     `HomePhone` AS `Home Phone`,
     `BusinessPhone` AS `Cell Phone`,
     LCASE(`Email`) AS Email,
     `Gender`,
     `CertificationDesc`,
-    IF(`CertDate` = "" OR `CertDate` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`CertDate`, " ", 1),"/", "."),GET_FORMAT(DATE,"USA"))) AS `CertDate`,
+    IF(`CertDate` = "" OR `CertDate` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`CertDate`, ' ', 1),'/', '.'),GET_FORMAT(DATE,'USA'))) AS `CertDate`,
     `SectionAreaRegion` AS SAR,
     `SectionName` AS Section,
     `AreaName` AS Area,
     `RegionNumber` AS Region
-FROM ',
-    @inTable);
+FROM `eAYSO_certs`;
 
-PREPARE stmt FROM @s;  
-EXECUTE stmt;  
 
-DEALLOCATE PREPARE stmt;
-
-SET @s = CONCAT(' INSERT INTO crs_shcerts SELECT 
+INSERT INTO `crs_shcerts` SELECT 
 	`Membership Year` AS `Program Name`,
     `Membership Year`,
-    "Volunteer" AS `Volunteer Role`,
-    `AYSOID`,
+    'Volunteer' AS `Volunteer Role`,
+    TRIM(BOTH ' ' FROM `AYSOID`) as `AYSOID`,
 	PROPER_CASE(`Name`) AS `Name`,
     PROPER_CASE(`FirstName`) AS `First Name`,
     PROPER_CASE(`LastName`) AS `Last Name`,
     PROPER_CASE(`Street`) AS Address,
     PROPER_CASE(`City`) AS `City`,
     `State`,
-    REPLACE(`Zip`,"\'", "") AS `Zip`,
+    REPLACE(`Zip`,'\'', '') AS `Zip`,
     `HomePhone` AS `Home Phone`,
     `BusinessPhone` AS `Cell Phone`,
     LCASE(`Email`) AS Email,
     `Gender`,
     `CertificationDesc`,
-    IF(`CertDate` = "" OR `CertDate` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`CertDate`, " ", 1),"/", "."),GET_FORMAT(DATE,"USA"))) AS `CertDate`,
+    IF(`CertDate` = "" OR `CertDate` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`CertDate`, ' ', 1),'/', '.'),GET_FORMAT(DATE,'USA'))) AS `CertDate`,
     `SectionAreaRegion` AS SAR,
     `SectionName` AS Section,
     `AreaName` AS Area,
     `RegionNumber` AS Region
-FROM ',
-    @inTable,
-'WHERE `CertificationDesc` LIKE "%Safe Haven%" AND NOT `CertificationDesc` LIKE "%without Safe Haven%"
-');
+FROM `eAYSO_certs` WHERE (`CertificationDesc` LIKE '%Refugio Seguro de AYSO'
+            OR `CertificationDesc` LIKE '%AYSOs Safe Haven'
+            OR `CertificationDesc` LIKE '%Concussion%'
+            OR `CertificationDesc` LIKE '%Sudden Cardiac Arrest Training'
+    ) AND NOT `CertificationDesc` LIKE '%without Safe Haven%';
 
-PREPARE stmt FROM @s;  
-EXECUTE stmt;  
-
-DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshAllAYSOHighestCertification`$$
@@ -2031,7 +2103,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `UpdateCompositeMYCerts` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 DROP TABLE IF EXISTS `tmp_composite`;
-SET @s = CONCAT("
+
 CREATE TEMPORARY TABLE `tmp_composite` SELECT * FROM
 		(SELECT 
 			AYSOID,
@@ -2064,51 +2136,7 @@ CREATE TEMPORARY TABLE `tmp_composite` SELECT * FROM
 		FROM (
 		
 		SELECT 
-			AYSOID,
-				`Name`,
-				`First Name`,
-				`Last Name`,
-				Address,
-				City,
-				State,
-				REPLACE(`Zip`, '\'', '') AS Zip,
-				`Home Phone`,
-				`Cell Phone`,
-				Email,
-				`Gender`,
-				CertificationDesc,
-				CertDate,
-				SAR,
-				Section,
-				Area,
-				Region,
-				`Membership Year`
-		FROM
-			.`eAYSO.MY2017.certs_highestRefCert` 
-	UNION SELECT 
-			AYSOID,
-				`Name`,
-				`First Name`,
-				`Last Name`,
-				Address,
-				City,
-				State,
-				REPLACE(`Zip`, '\'', '') AS Zip,
-				`Home Phone`,
-				`Cell Phone`,
-				Email,
-				`Gender`,
-				CertificationDesc,
-				CertDate,
-				SAR,
-				Section,
-				Area,
-				Region,
-				`Membership Year`
-		FROM
-			.`eAYSO.MY2016.certs_highestRefCert` 
-	UNION SELECT 
-			AYSOID,
+			TRIM(AYSOID) AS AYSOID,
 				`Name`,
 				`First Name`,
 				`Last Name`,
@@ -2128,18 +2156,12 @@ CREATE TEMPORARY TABLE `tmp_composite` SELECT * FROM
 				Region,
 				`Membership Year`
 		FROM
-			.crs_rpt_hrc) hrc
-		GROUP BY `AYSOID` , Field(`Membership Year`, 'MY2020', 'MY2019', 'MY2018', 'MY2017', 'MY2016'), `Section`, `Area`) ordered) ranked
+			crs_rpt_hrc) hrc
+		GROUP BY `AYSOID` , Field(`Membership Year`, 'MY2020', 'MY2019', 'MY2018', 'MY2017', 'MY2016'), `Section`, `Area`) grouped ) ranked
 		ORDER BY AYSOID, `Membership Year` DESC) composite;
-");
-
-PREPARE stmt FROM @s;
-
-EXECUTE stmt;
-
-DEALLOCATE PREPARE stmt;
 
 DROP TABLE IF EXISTS `s1_composite_my_certs`;
+
 CREATE TABLE s1_composite_my_certs SELECT DISTINCT * FROM (
 		SELECT 
 			AYSOID,
