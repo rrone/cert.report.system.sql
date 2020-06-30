@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 28, 2020 at 09:51 PM
+-- Generation Time: Jun 30, 2020 at 04:40 PM
 -- Server version: 5.7.30-0ubuntu0.18.04.1
 -- PHP Version: 7.3.19-1+ubuntu18.04.1+deb.sury.org+1
 
@@ -360,7 +360,7 @@ SET @s = CONCAT(" INSERT INTO crs_certs SELECT
     LCASE(`Volunteer Email`) AS Email,
     `Gender`,
     `AYSO Certifications` AS CertificationDesc,
-    IF(`Date of Last AYSO Certification Update` = '' OR `Date of Last AYSO Certification Update` IS NULL, '', STR_TO_DATE(REPLACE(SPLIT_STRING(`Date of Last AYSO Certification Update`, ' ', 1),'/', '.'),GET_FORMAT(DATE,'USA'))) AS `CertDate`,
+    IF(`Date of Last AYSO Certification Update` = '' OR `Date of Last AYSO Certification Update` IS NULL, '', `Date of Last AYSO Certification Update`) AS `CertDate`,
     IF(sar.`region` IS NULL
             OR sar.`region` = @empty,
         CONCAT(sar.`section`, @delim, sar.`area`),
@@ -399,7 +399,7 @@ SET @s = CONCAT(" INSERT INTO crs_shcerts SELECT
     LCASE(`Volunteer Email`) AS Email,
     `Gender`,
     `AYSO Certifications` AS CertificationDesc,
-    IF(`Date of Last AYSO Certification Update` = '' OR `Date of Last AYSO Certification Update` IS NULL, '', STR_TO_DATE(REPLACE(SPLIT_STRING(`Date of Last AYSO Certification Update`, ' ', 1),'/', '.'),GET_FORMAT(DATE,'USA'))) AS `CertDate`,
+        IF(`Date of Last AYSO Certification Update` = '' OR `Date of Last AYSO Certification Update` IS NULL, '', `Date of Last AYSO Certification Update`) AS `CertDate`,
     IF(sar.`region` IS NULL
             OR sar.`region` = @empty,
         CONCAT(sar.`section`, @delim, sar.`area`),
@@ -519,7 +519,7 @@ INSERT INTO `crs_certs` SELECT
     LCASE(`Email`) AS Email,
     `Gender`,
     `CertificationDesc`,
-    IF(`CertDate` = "" OR `CertDate` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`CertDate`, ' ', 1),'/', '.'),GET_FORMAT(DATE,'USA'))) AS `CertDate`,
+    IF(`CertDate` = "" OR `CertDate` IS NULL, "", `CertDate`) AS `CertDate`,
     `SectionAreaRegion` AS SAR,
     `SectionName` AS Section,
     `AreaName` AS Area,
@@ -544,7 +544,7 @@ INSERT INTO `crs_shcerts` SELECT
     LCASE(`Email`) AS Email,
     `Gender`,
     `CertificationDesc`,
-    IF(`CertDate` = "" OR `CertDate` IS NULL, "", STR_TO_DATE(REPLACE(SPLIT_STRING(`CertDate`, ' ', 1),'/', '.'),GET_FORMAT(DATE,'USA'))) AS `CertDate`,
+    IF(`CertDate` = "" OR `CertDate` IS NULL, "", `CertDate`) AS `CertDate`,
     `SectionAreaRegion` AS SAR,
     `SectionName` AS Section,
     `AreaName` AS Area,
@@ -1984,7 +1984,7 @@ EXECUTE stmt;
 
 DEALLOCATE PREPARE stmt;
 
-ALTER TABLE crs_cdc ADD INDEX (`AYSOID`);
+ALTER TABLE crs_sca ADD INDEX (`AYSOID`);
 
 END$$
 
