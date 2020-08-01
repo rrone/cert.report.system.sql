@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests
+# import requests
 import csv
 import sys
 import os
@@ -8,8 +8,13 @@ import shutil
 from datetime import datetime
 import pytz
 
+from pathlib import Path
+
 # reference: https://www.pluralsight.com/guides/extracting-data-html-beautifulsoup
 from tzlocal import get_localzone
+
+# define version number
+ver = "2020.07.27.00"
 
 # define Start Date format
 dt_fmt = "%m/%d/%Y %I:%M:%S %p"
@@ -25,7 +30,7 @@ dt_fmt = "%m/%d/%Y %I:%M:%S %p"
 # and provide it as an argument to this script
 
 if len(sys.argv) == 1:
-    print('processFutureCourses.py Version 2020.01.20.40')
+    print('processFutureCourses.py Version ' + ver)
     print('Syntax: processFutureCourses.py <FutureCoursesReport.html>')
     sys.exit(1)
 fname = os.path.splitext(str(sys.argv[1]))[0]
@@ -134,13 +139,16 @@ html_content.close()
 
 try:
     shutil.rmtree(f"{fname}_files")
-except:
-    pass
+except Exception as e:
+    print("<p>Error: %s</p>" % e)
 
 try:
-    dtFname = "./html/" + datetime.today().strftime('%Y%m%d.') + os.path.basename(f"{fname}.htm")
-    print(dtFname)
-    shutil.copyfile(f"{fname}.htm", dtFname)
-    shutil.move(dtFname, "./html/_archive/")
-except:
-    pass
+    sav_File = datetime.today().strftime('%Y%m%d.') + os.path.basename(f"{fname}.htm")
+    dtFname = "./html/_archive/" + sav_File
+    if Path(dtFname):
+        os.remove(dtFname)
+    print(sav_File)
+    shutil.copyfile(f"{fname}.htm", "./html/" + sav_File)
+    shutil.move("./html/" + sav_File, dtFname)
+except Exception as e:
+    print("<p>Error: %s</p>" % e)

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 30, 2020 at 04:40 PM
--- Server version: 5.7.30-0ubuntu0.18.04.1
--- PHP Version: 7.3.19-1+ubuntu18.04.1+deb.sury.org+1
+-- Generation Time: Aug 01, 2020 at 09:55 PM
+-- Server version: 5.7.31-0ubuntu0.18.04.1
+-- PHP Version: 7.3.20-1+ubuntu18.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -76,6 +76,10 @@ CALL exec_qry(@s);
 
 # Al Prado
 SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 56097099 WHERE `AYSOID` = 214892296;");
+CALL exec_qry(@s);
+
+# Update National Referee Assessors: Jody Kinsey, Spencer Horwitz, Geoffrey Falk, Yui-bin Chen, Bruce Hancock
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` in ('96383441','95025758','59244326','57071121','99871834') AND `CertificationDesc` = 'National Referee Assessor';");
 CALL exec_qry(@s);
 
 # Update Referee Instructors
