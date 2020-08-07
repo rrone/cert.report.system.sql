@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Aug 01, 2020 at 09:55 PM
+-- Generation Time: Aug 03, 2020 at 04:00 PM
 -- Server version: 5.7.31-0ubuntu0.18.04.1
 -- PHP Version: 7.3.20-1+ubuntu18.04.1+deb.sury.org+1
 
@@ -1191,6 +1191,8 @@ END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefereeInstructorEvaluators`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeInstructorEvaluators` ()  BEGIN
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
 SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_rie;
@@ -1233,10 +1235,10 @@ CREATE TABLE crs_rpt_rie SELECT DISTINCT * FROM
         rc.`CertificationDesc` = 'Referee Instructor Evaluator'
             AND (rc.`Membership Year` = 'MY2020' OR rc.`Membership Year` = 'MY2019')
             AND ar.`CertificationDesc` LIKE '%Referee Instructor'
-    ORDER BY rc.`CertDate` DESC) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, FIELD(rc.`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', '')) grouped ) ranked
     WHERE
         rank = 1
-    ORDER BY `Section`, `Area`, `Region`, `Last Name`, `First Name`) rie;
+    ORDER BY `Section`, `Area`, `Region`, `Membership Year` DESC, `Last Name`, `First Name`) rie;
 
 END$$
 

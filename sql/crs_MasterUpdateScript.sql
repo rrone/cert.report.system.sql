@@ -181,6 +181,15 @@ WHERE
     CertificationDesc LIKE '%Referee%'
         AND CertDate = '';        
 
+-- 2020-08-07: added because BS is not updating certifications across all portals; each record must be opened for certs to update
+UPDATE crs_certs 
+SET 
+    CertificationDesc = 'Intermediate Referee Instructor'
+WHERE
+    (CertificationDesc = 'Referee Instructor'
+    OR CertificationDesc = 'Basic Referee Instructor')
+        AND CertDate <= '2018-08-01';        
+
 -- Apply special cases  
 CALL `CertTweaks`('crs_certs');   
 CALL `CertTweaks`('crs_shcerts');   
