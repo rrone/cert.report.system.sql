@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Aug 03, 2020 at 04:00 PM
+-- Generation Time: Sep 07, 2020 at 03:56 PM
 -- Server version: 5.7.31-0ubuntu0.18.04.1
--- PHP Version: 7.3.20-1+ubuntu18.04.1+deb.sury.org+1
+-- PHP Version: 7.3.21-1+ubuntu18.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -157,6 +157,10 @@ CALL exec_qry(@s);
 
 # Angel Valdez / 64807304
 SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 55330327;");
+CALL exec_qry(@s);
+
+# Steven Hawkins / 202413390
+SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 56049053;");
 CALL exec_qry(@s);
 
 
