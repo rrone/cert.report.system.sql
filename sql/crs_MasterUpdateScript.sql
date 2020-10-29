@@ -91,7 +91,7 @@ CREATE TEMPORARY TABLE `tmp_1_certs` (
 	`Portal Name` varchar(250)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/1.txt'  
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/1.txt'  
 	INTO TABLE `tmp_1_certs`   
 	FIELDS TERMINATED BY '\t'   
 	ENCLOSED BY ''  
@@ -131,7 +131,7 @@ CALL `processBSCSV`('crs_1_certs');
 --  Load `eAYSO.MY2017.certs`
 CALL `prepEAYSOCSVTable`('eAYSO.MY2016.certs');
 
-LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2016.certs.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2016.certs.csv'
 	INTO TABLE `eAYSO.MY2016.certs`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
@@ -141,7 +141,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY
 --  Load `eAYSO.MY2017.certs`
 CALL `prepEAYSOCSVTable`('eAYSO.MY2017.certs');
 
-LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2017.certs.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2017.certs.csv'
 	INTO TABLE `eAYSO.MY2017.certs`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
@@ -151,7 +151,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY
 --  Refresh `eAYSO.MY2018.certs`
 CALL `prepEAYSOCSVTable`('eAYSO.MY2018.certs');
 
-LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2018.certs.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2018.certs.csv'
 	INTO TABLE `eAYSO.MY2018.certs`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
@@ -161,7 +161,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY
 --  Refresh `eAYSO.MY2019.certs`
 CALL `prepEAYSOCSVTable`('eAYSO.MY2019.certs');
 
-LOAD DATA LOCAL INFILE '/Users/rick/Dropbox/_open/_ayso/s1/reports/data/eAYSO.MY2019.certs.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2019.certs.csv'
 	INTO TABLE `eAYSO.MY2019.certs`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
@@ -290,6 +290,7 @@ INSERT INTO rs_refNicknames (`AYSOID`, `Name`, `Nickname`)
 SELECT AYSOID, Name, Name FROM tmp_refUpdate;
 
 -- Update timestamp table  
+SET time_zone='+00:00';
 DROP TABLE IF EXISTS `crs_rpt_lastUpdate`;  
 CREATE TABLE `crs_rpt_lastUpdate` SELECT NOW() AS timestamp;
 ALTER TABLE crs_rpt_lastUpdate
