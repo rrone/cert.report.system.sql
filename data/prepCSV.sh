@@ -1,5 +1,5 @@
 #!/bin/zsh
-cd ~/Dropbox/_open/_ayso/s1/reports/data
-source ~/Dropbox/_open/_ayso/s1/reports/scripts/cleaneAYSO/bin/activate
-python ../scripts/cleaneAYSO/cleaneAYSO.py
+cd ~/Google_Drive.rick.roberts.9/_ayso/s1/reports/data
+source ../scripts/prep_csv/venv/bin/activate
+python ../scripts/prep_csv/py/prep_csv.py
 deactivate
