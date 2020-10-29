@@ -28,3 +28,6 @@ htmlDataTables
 futureCourses
 sca_certificates
 scripts/process_csv/.idea
+scripts/htmlDataTables
+scripts/mergeE3
+scripts/prep_csv
