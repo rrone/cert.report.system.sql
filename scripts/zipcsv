@@ -1,7 +1,0 @@
-#!/bin/bash
-
-#save originals in archive
-for item in *.csv; do zip "csv.archive.zip" "${item}"; done
-
-find . -type f -name "*.csv" -execdir zip '{}.zip' '{}' \;
-rm *.csv

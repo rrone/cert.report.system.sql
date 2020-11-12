@@ -1,6 +1,0 @@
-# /bin/bash
-
-ls
-
-tail -n +2 $1 > output.csv
-cat $1
