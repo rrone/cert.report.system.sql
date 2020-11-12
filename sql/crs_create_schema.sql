@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.5
+-- version 4.9.7
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Sep 07, 2020 at 03:56 PM
--- Server version: 5.7.31-0ubuntu0.18.04.1
--- PHP Version: 7.3.21-1+ubuntu18.04.1+deb.sury.org+1
+-- Generation Time: Oct 30, 2020 at 01:44 PM
+-- Server version: 5.7.32-0ubuntu0.18.04.1
+-- PHP Version: 7.4.11
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -849,7 +849,7 @@ FROM
         crs_certs
     WHERE
         `CertificationDesc` LIKE '%Concussion%' 
-    GROUP BY `AYSOID`, `CertDate` DESC, `Membership Year` DESC) con ) ordered) ranked
+    GROUP BY `AYSOID`, `CertDate` DESC, `Membership Year` DESC, `SAR`) con ) ordered) ranked
 WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `Last Name`;
@@ -1002,7 +1002,7 @@ FROM
             AND `CertificationDesc` <> 'Z-Online Regional Referee'
             AND `CertificationDesc` <> 'Z-Online Safe Haven Referee'
             AND `CertificationDesc` <> 'Safe Haven Referee'
-    GROUP BY `AYSOID`, `Membership Year` DESC, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '')) grouped ) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '')) grouped ) ranked
     WHERE
         rankID = 1
     ORDER BY `AYSOID`, `Membership Year` DESC, `Section`, `Area`, `Region`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', ''), `Section`, `Area`, `Region`, `Last Name`, `First Name`, AYSOID;
@@ -1066,7 +1066,7 @@ CREATE TEMPORARY TABLE tmp_nra SELECT * FROM
     WHERE
         `CertificationDesc` LIKE 'National Referee Assessor' AND
         (`Membership Year` = 'MY2020' OR `Membership Year` = 'MY2019' )
-    ORDER BY `Membership Year` DESC) ordered
+    ORDER BY `Membership Year` DESC, `SAR`) ordered
     GROUP BY `AYSOID` 
     ) ranked
     WHERE
@@ -1185,7 +1185,7 @@ CREATE TABLE crs_rpt_ra SELECT * FROM
             AND NOT `CertificationDesc` LIKE '%Safe Haven%'
             AND NOT `CertificationDesc` LIKE 'Assistant%'
             AND NOT `CertificationDesc` LIKE '%Official%'
-	ORDER BY `AYSOID`, `Membership Year` DESC, FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor') ) ordered            
+	ORDER BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor') ) ordered            
     GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor')) ranked
     WHERE
         rank = 1
@@ -1239,7 +1239,7 @@ CREATE TABLE crs_rpt_rie SELECT DISTINCT * FROM
         rc.`CertificationDesc` = 'Referee Instructor Evaluator'
             AND (rc.`Membership Year` = 'MY2020' OR rc.`Membership Year` = 'MY2019')
             AND ar.`CertificationDesc` LIKE '%Referee Instructor'
-    GROUP BY `AYSOID`, `Membership Year` DESC, FIELD(rc.`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', '')) grouped ) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(rc.`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', '')) grouped ) ranked
     WHERE
         rank = 1
     ORDER BY `Section`, `Area`, `Region`, `Membership Year` DESC, `Last Name`, `First Name`) rie;
@@ -1294,7 +1294,7 @@ CREATE TABLE crs_rpt_ri SELECT * FROM
             AND NOT `CertificationDesc` LIKE '%Webinar%'
             AND NOT `CertificationDesc` LIKE '%Online%'
             AND NOT `CertificationDesc` LIKE '%Safe Haven%'
-		ORDER BY `AYSOID` , `Membership Year` DESC, FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Regional Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ordered
+		ORDER BY `AYSOID` , `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Regional Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ordered
     GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Regional Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ranked
     WHERE
         rank = 1) ri;
@@ -1317,7 +1317,7 @@ CREATE TEMPORARY TABLE tmp_NatRC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('National Referee Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
 WHERE
     rank = 1;
 
@@ -1370,7 +1370,7 @@ CREATE TEMPORARY TABLE tmp_AdvRC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Advanced Referee Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
 WHERE
     rank = 1;
 
@@ -1421,7 +1421,7 @@ CREATE TEMPORARY TABLE tmp_IntRC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Intermediate Referee Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
 WHERE
     rank = 1;
 
@@ -1475,7 +1475,7 @@ CREATE TEMPORARY TABLE tmp_RAC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Referee Assessor Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
 WHERE
     rank = 1;
 
@@ -1525,7 +1525,7 @@ CREATE TEMPORARY TABLE tmp_NRAC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('National Referee Assessor Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
 WHERE
     rank = 1;
 
@@ -1575,7 +1575,7 @@ CREATE TEMPORARY TABLE tmp_RIC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Referee Instructor Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
 WHERE
     rank = 1;
 
@@ -1626,7 +1626,7 @@ CREATE TEMPORARY TABLE tmp_ARIC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Advanced Referee Instructor Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
 WHERE
     rank = 1;
 
@@ -1677,7 +1677,7 @@ CREATE TEMPORARY TABLE tmp_RIEC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Referee Instructor Evaluator Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC) ordered) ranked
+    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
 WHERE
     rank = 1;
 
@@ -1861,7 +1861,7 @@ CREATE TABLE crs_rpt_safehaven SELECT
         crs_shcerts sh RIGHT JOIN crs_rpt_hrc hrc USING (`AYSOID`)
 	WHERE sh.`CertificationDesc` LIKE '%AYSOs Safe Haven'
 		OR sh.`CertificationDesc` LIKE '%Refugio Seguro de AYSO'
-    ORDER BY `AYSOID`, sh.`CertDate` DESC, sh.`Membership Year` DESC) ordered
+    ORDER BY `AYSOID`, sh.`CertDate` DESC, sh.`Membership Year` DESC, `SAR`) ordered
     GROUP BY `AYSOID`, `CertDate`, `Membership Year`) ranked
 WHERE
     rank = 1
@@ -1982,7 +1982,7 @@ FROM
         crs_certs
     WHERE
         `CertificationDesc` LIKE '%Sudden Cardiac Arrest Training' 
-    GROUP BY `AYSOID`, `CertDate` DESC, `Membership Year` DESC) con ) ordered) ranked
+    GROUP BY `AYSOID`, `CertDate` DESC, `Membership Year` DESC, `SAR`) con ) ordered) ranked
 WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `Last Name`;

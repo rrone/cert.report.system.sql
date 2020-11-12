@@ -31,3 +31,7 @@ scripts/process_csv/.idea
 scripts/htmlDataTables
 scripts/mergeE3
 scripts/prep_csv
+scripts/mail_crawler
+scripts/stdname
+scripts/flipCSV
+scripts/zipcsv

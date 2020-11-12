@@ -105,6 +105,21 @@ INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201812_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201905_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201912_certs`;
 
+# 2020-10-30: Correct cross-id contamination with 97815888  
+ALTER TABLE `tmp_1_certs` 
+ADD COLUMN `id` INT NOT NULL AUTO_INCREMENT AFTER `Portal Name`,
+ADD PRIMARY KEY (`id`);
+
+DELETE FROM `tmp_1_certs` 
+WHERE
+    `AYSO Volunteer ID` = 97815888
+    AND `Gender` = 'F';
+        
+ALTER TABLE `tmp_1_certs`
+DROP COLUMN `id`,
+DROP PRIMARY KEY;        
+# END: 2020-10-30: Correct cross-id contamination with 97815888     
+
 DROP TABLE IF EXISTS `crs_1_certs`;  
 CREATE TABLE `crs_1_certs` SELECT DISTINCT * FROM `tmp_1_certs`;  
 
