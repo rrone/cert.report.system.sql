@@ -140,49 +140,50 @@ DELETE FROM `crs_1_certs` WHERE `AYSO Volunteer ID` = 73895502;
 
 CALL `processBSCSV`('crs_1_certs');  
 
-/***************************************/
+-- /***************************************/
+-- 2021-01-06: eAYSO report files are no longer available.  No need to update.
 --  Load eAYSO certs`
 
 --  Load `eAYSO.MY2017.certs`
-CALL `prepEAYSOCSVTable`('eAYSO.MY2016.certs');
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2016.certs.csv'
-	INTO TABLE `eAYSO.MY2016.certs`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;   
-
---  Load `eAYSO.MY2017.certs`
-CALL `prepEAYSOCSVTable`('eAYSO.MY2017.certs');
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2017.certs.csv'
-	INTO TABLE `eAYSO.MY2017.certs`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;   
-	
---  Refresh `eAYSO.MY2018.certs`
-CALL `prepEAYSOCSVTable`('eAYSO.MY2018.certs');
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2018.certs.csv'
-	INTO TABLE `eAYSO.MY2018.certs`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;   
-
---  Refresh `eAYSO.MY2019.certs`
-CALL `prepEAYSOCSVTable`('eAYSO.MY2019.certs');
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2019.certs.csv'
-	INTO TABLE `eAYSO.MY2019.certs`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;   
-
+-- CALL `prepEAYSOCSVTable`('eAYSO.MY2016.certs');
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2016.certs.csv'
+-- 	INTO TABLE `eAYSO.MY2016.certs`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY '"'  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;   
+-- 
+-- --  Load `eAYSO.MY2017.certs`
+-- CALL `prepEAYSOCSVTable`('eAYSO.MY2017.certs');
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2017.certs.csv'
+-- 	INTO TABLE `eAYSO.MY2017.certs`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY '"'  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;   
+-- 	
+-- --  Refresh `eAYSO.MY2018.certs`
+-- CALL `prepEAYSOCSVTable`('eAYSO.MY2018.certs');
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2018.certs.csv'
+-- 	INTO TABLE `eAYSO.MY2018.certs`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY '"'  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;   
+-- 
+-- --  Refresh `eAYSO.MY2019.certs`
+-- CALL `prepEAYSOCSVTable`('eAYSO.MY2019.certs');
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2019.certs.csv'
+-- 	INTO TABLE `eAYSO.MY2019.certs`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY '"'  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;   
+-- 
 CALL `processEAYSOCSV`();
 
 /***************************************/

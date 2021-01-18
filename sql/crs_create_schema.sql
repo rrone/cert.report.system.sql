@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.7
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 30, 2020 at 01:44 PM
+-- Generation Time: Jan 18, 2021 at 10:28 AM
 -- Server version: 5.7.32-0ubuntu0.18.04.1
--- PHP Version: 7.4.11
+-- PHP Version: 8.0.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -436,79 +435,81 @@ CREATE DEFINER=`root`@`%` PROCEDURE `processEAYSOCSV` ()  BEGIN
 
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
-DROP TABLE IF EXISTS `tmp_eAYSO_certs`;
+-- 2021-01-06: eAYSO report files are no longer available.  No need to update.
 
-CREATE TEMPORARY TABLE `tmp_eAYSO_certs` SELECT
- * FROM (
- SELECT * FROM `eAYSO.MY2016.certs`
- UNION
- SELECT * FROM `eAYSO.MY2017.certs`
- UNION 
- SELECT * FROM `eAYSO.MY2018.certs`
- UNION
- SELECT * FROM `eAYSO.MY2019.certs`
- ) e;
-
-UPDATE `tmp_eAYSO_certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
-UPDATE `tmp_eAYSO_certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
-DELETE FROM `tmp_eAYSO_certs` WHERE `AYSOID` = '';
-ALTER TABLE `tmp_eAYSO_certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
-
-DELETE FROM `tmp_eAYSO_certs`  WHERE
-NOT (`CertificationDesc` LIKE '%Referee%'
-OR `CertificationDesc` LIKE '%Official%'
-OR `CertificationDesc` LIKE '%Concussion%'
-OR `CertificationDesc` LIKE '%Cardiac Arrest%'
-OR `CertificationDesc` LIKE '%AYSOs Safe Haven'
-OR `CertificationDesc` LIKE '%Refugio Seguro de AYSO'
-);
-
-DROP TABLE IF EXISTS `eAYSO_certs`;
-
-CREATE TABLE `eAYSO_certs` SELECT 
-    TRIM(BOTH ' ' FROM `AYSOID`) as 'AYSOID',
-    `Name`,
-    `Street`,
-    `City`,
-    `State`,
-    `Zip`,
-    `HomePhone`,
-    `BusinessPhone`,
-    `Email`,
-    `CertificationDesc`,
-    `Gender`,
-    `SectionAreaRegion`,
-    `CertDate`,
-    `ReCertDate`,
-    `FirstName`,
-    `LastName`,
-    `SectionName`,
-    `AreaName`,
-    `RegionNumber`,
-    `Membership Year`
-FROM
-    (SELECT 
-        *,
-            @rankID:=IF(@id = CONCAT(`AYSOID`, `CertificationDesc`), @rankID + 1, 1) AS rankID,
-            @id:=CONCAT(`AYSOID`, `CertificationDesc`)
-    FROM
-        (SELECT 
-        *
-    FROM
-        `tmp_eAYSO_certs`
-    ORDER BY `CertificationDesc` , `AYSOID` , `Membership Year` DESC) tmp) ranked
-WHERE
-    rankID = 1
-GROUP BY `AYSOID` , `Membership Year` , `CertificationDesc`
-ORDER BY `SectionName` , `AreaName` , `RegionNumber` , AYSOID , `LastName` , `FirstName`,`CertificationDesc`;
-
-
-DROP TABLE IF EXISTS `eAYSO.MY2016.certs`;
-DROP TABLE IF EXISTS `eAYSO.MY2017.certs`;
-DROP TABLE IF EXISTS `eAYSO.MY2018.certs`;
-DROP TABLE IF EXISTS `eAYSO.MY2019.certs`;
-
-DELETE FROM `eAYSO_certs` WHERE AYSOID = 0;
+-- DROP TABLE IF EXISTS `tmp_eAYSO_certs`;
+-- 
+-- CREATE TEMPORARY TABLE `tmp_eAYSO_certs` SELECT
+--  * FROM (
+--  SELECT * FROM `eAYSO.MY2016.certs`
+--  UNION
+--  SELECT * FROM `eAYSO.MY2017.certs`
+--  UNION 
+--  SELECT * FROM `eAYSO.MY2018.certs`
+--  UNION
+--  SELECT * FROM `eAYSO.MY2019.certs`
+--  ) e;
+-- 
+-- UPDATE `tmp_eAYSO_certs` SET `AYSOID` = REPLACE(`AYSOID`, '"', '');
+-- UPDATE `tmp_eAYSO_certs` SET `AYSOID` = REPLACE(`AYSOID`, unhex('0a'), '');
+-- DELETE FROM `tmp_eAYSO_certs` WHERE `AYSOID` = '';
+-- ALTER TABLE `tmp_eAYSO_certs` CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
+-- 
+-- DELETE FROM `tmp_eAYSO_certs`  WHERE
+-- NOT (`CertificationDesc` LIKE '%Referee%'
+-- OR `CertificationDesc` LIKE '%Official%'
+-- OR `CertificationDesc` LIKE '%Concussion%'
+-- OR `CertificationDesc` LIKE '%Cardiac Arrest%'
+-- OR `CertificationDesc` LIKE '%AYSOs Safe Haven'
+-- OR `CertificationDesc` LIKE '%Refugio Seguro de AYSO'
+-- );
+-- 
+-- DROP TABLE IF EXISTS `eAYSO_certs`;
+-- 
+-- CREATE TABLE `eAYSO_certs` SELECT 
+--     TRIM(BOTH ' ' FROM `AYSOID`) as 'AYSOID',
+--     `Name`,
+--     `Street`,
+--     `City`,
+--     `State`,
+--     `Zip`,
+--     `HomePhone`,
+--     `BusinessPhone`,
+--     `Email`,
+--     `CertificationDesc`,
+--     `Gender`,
+--     `SectionAreaRegion`,
+--     `CertDate`,
+--     `ReCertDate`,
+--     `FirstName`,
+--     `LastName`,
+--     `SectionName`,
+--     `AreaName`,
+--     `RegionNumber`,
+--     `Membership Year`
+-- FROM
+--     (SELECT 
+--         *,
+--             @rankID:=IF(@id = CONCAT(`AYSOID`, `CertificationDesc`), @rankID + 1, 1) AS rankID,
+--             @id:=CONCAT(`AYSOID`, `CertificationDesc`)
+--     FROM
+--         (SELECT 
+--         *
+--     FROM
+--         `tmp_eAYSO_certs`
+--     ORDER BY `CertificationDesc` , `AYSOID` , `Membership Year` DESC) tmp) ranked
+-- WHERE
+--     rankID = 1
+-- GROUP BY `AYSOID` , `Membership Year` , `CertificationDesc`
+-- ORDER BY `SectionName` , `AreaName` , `RegionNumber` , AYSOID , `LastName` , `FirstName`,`CertificationDesc`;
+-- 
+-- 
+-- DROP TABLE IF EXISTS `eAYSO.MY2016.certs`;
+-- DROP TABLE IF EXISTS `eAYSO.MY2017.certs`;
+-- DROP TABLE IF EXISTS `eAYSO.MY2018.certs`;
+-- DROP TABLE IF EXISTS `eAYSO.MY2019.certs`;
+-- 
+-- DELETE FROM `eAYSO_certs` WHERE AYSOID = 0;
 
 INSERT INTO `crs_certs` SELECT 
 	`Membership Year` AS `Program Name`,
