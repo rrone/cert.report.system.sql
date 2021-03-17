@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 18, 2021 at 10:28 AM
--- Server version: 5.7.32-0ubuntu0.18.04.1
--- PHP Version: 8.0.1
+-- Generation Time: Feb 09, 2021 at 11:37 AM
+-- Server version: 5.7.33-0ubuntu0.18.04.1
+-- PHP Version: 8.0.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -61,6 +61,16 @@ DROP PROCEDURE IF EXISTS `CertTweaks`$$
 CREATE DEFINER=`root`@`%` PROCEDURE `CertTweaks` (IN `certTable` VARCHAR(128))  BEGIN
 
 SET @certTable = CONCAT("`", certTable, "`");
+
+# 2021-01-27 / Fix corrupted State in Sports Connect data / reference: http://structnet.com/instructions/zip_min_max_by_state.html 
+SET @s = CONCAT("UPDATE ", @certTable, " SET `State` = 'Arizona' WHERE `Zip` >= 85001 AND `Zip` <= 86556;");
+CALL exec_qry(@s);
+SET @s = CONCAT("UPDATE ", @certTable, " SET `State` = 'California' WHERE `Zip` >= 90001 AND `Zip` <= 96162;");
+CALL exec_qry(@s);
+SET @s = CONCAT("UPDATE ", @certTable, " SET `State` = 'Nevada' WHERE `Zip` >= 88901 AND `Zip` <= 89883;");
+CALL exec_qry(@s);
+#  end Fix
+
 
 SET @s = CONCAT("UPDATE ", @certTable, " SET `SAR` = '1', `Area` = '', `Region` = '' WHERE `SAR` = '1/';");
 CALL exec_qry(@s);
