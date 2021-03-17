@@ -1,37 +1,34 @@
-eAYSO.MY.reports/
-2017*/*
-*.composite.*
+## file types
+
 *.csv
 *alias
 *.xlsx
-scripts/.idea/
 *.xml
-*update.wp_ayso1ref.sql
-wp_ayso1ref.update.sql
 *.txt
-composites
 20180423.updateUsers.wp_ayso1ref.sql
 *.pdf
 *.html
 *.zip
-*update.ayso1ref_services.sql
-*update.*
-working
 Thumbs.db
-scripts/htmlDataTables/*
 *.spec
 *.webloc
 xlsx
 *.xls
+
+## folders
+__sports_connect_reports/
+_eAYSO.MY.reports/
+composites/
+working/
+data*/
+
+
+## aliases
 reports_encrypted
-htmlDataTables
-futureCourses
 sca_certificates
-scripts/process_csv/.idea
-scripts/htmlDataTables
-scripts/mergeE3
-scripts/prep_csv
-scripts/mail_crawler
-scripts/stdname
-scripts/flipCSV
-scripts/zipcsv
+
+## working folder
+_data
+
+## scripts
+scripts/
