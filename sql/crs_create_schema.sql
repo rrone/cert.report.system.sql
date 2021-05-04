@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.4
+-- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 09, 2021 at 11:37 AM
+-- Generation Time: Apr 23, 2021 at 11:28 AM
 -- Server version: 5.7.33-0ubuntu0.18.04.1
--- PHP Version: 8.0.2
+-- PHP Version: 8.0.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,7 +28,7 @@ DELIMITER $$
 -- Procedures
 --
 DROP PROCEDURE IF EXISTS `BuildIRITable`$$
-CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `BuildIRITable` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `BuildIRITable` ()  BEGIN
 DROP TABLE IF EXISTS tmp_intermediate_referee_instructors;
 CREATE TEMPORARY TABLE tmp_intermediate_referee_instructors (SELECT DISTINCT 
 AYSOID, Name, SAR, CertificationDesc, CertDate FROM crs_rpt_ri WHERE (`CertificationDesc` = 'Referee Instructor' OR `CertificationDesc` = 'Referee Instructor') AND `CertDate` < '2018-09-01');   
@@ -58,7 +58,7 @@ FROM
 END$$
 
 DROP PROCEDURE IF EXISTS `CertTweaks`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `CertTweaks` (IN `certTable` VARCHAR(128))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `CertTweaks` (IN `certTable` VARCHAR(128))  BEGIN
 
 SET @certTable = CONCAT("`", certTable, "`");
 
@@ -172,12 +172,15 @@ CALL exec_qry(@s);
 SET @s = CONCAT("DELETE FROM ", @certTable, " WHERE `AYSOID` = 56049053;");
 CALL exec_qry(@s);
 
+# Steve Bodnar
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 202728607 WHERE `AYSOID` = 79647224;");
+CALL exec_qry(@s);
 
 
 END$$
 
 DROP PROCEDURE IF EXISTS `compileVolIDs`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `compileVolIDs` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `compileVolIDs` ()  BEGIN
 	DROP TABLE IF EXISTS `crs_vol_ids`;
 
 	CREATE TABLE `crs_vol_ids` SELECT * FROM
@@ -203,7 +206,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `compileVolIDs` ()  BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `distinctRegistrations`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `distinctRegistrations` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `distinctRegistrations` ()  BEGIN
 SELECT DISTINCT `AYSOID`, `Name`, `First Name`, `Last Name`, `Address`, `City`, `State`, `Zip`, `Home Phone`, `Cell Phone`, `Email`, `Gender`,`SAR` FROM crs_certs
 UNION
 SELECT DISTINCT `AYSOID`, `Name`, `FirstName` AS 'First Name', `LastName` AS 'Last Name', `Street` AS 'Address', `City`, `State`, `Zip`, `HomePhone`, `BusinessPhone` AS 'Cell Phone', `Email`, `Gender`, CONCAT(`SectionName`, '/', `AreaName`, '/', `RegionNumber`) AS 'SAR' FROM `eAYSO.MY2017.certs`
@@ -211,7 +214,7 @@ ORDER BY `SAR`, `Last Name`, `First Name`;
 END$$
 
 DROP PROCEDURE IF EXISTS `eAYSOHighestRefCert`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `eAYSOHighestRefCert` (`tableName` VARCHAR(128))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `eAYSOHighestRefCert` (IN `tableName` VARCHAR(128))  BEGIN
 
 SET @id:= 0;
 SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', ''";
@@ -285,7 +288,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `exec_qry`$$
-CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `exec_qry` (`p_sql` VARCHAR(256))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `exec_qry` (IN `p_sql` VARCHAR(256))  BEGIN
 SET @tquery = p_sql;
   PREPARE stmt FROM @tquery;
   EXECUTE stmt;
@@ -293,7 +296,7 @@ SET @tquery = p_sql;
 END$$
 
 DROP PROCEDURE IF EXISTS `prepEAYSOCSVTable`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `prepEAYSOCSVTable` (`certTable` VARCHAR(128))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `prepEAYSOCSVTable` (IN `certTable` VARCHAR(128))  BEGIN
 SET @eaysoTable = CONCAT("`", certTable, "`");
 
 SET @s = CONCAT("
@@ -337,7 +340,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `processBSCSV`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `processBSCSV` (`certCSV` VARCHAR(128))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `processBSCSV` (IN `certCSV` VARCHAR(128))  BEGIN
 
 SET @inTable = CONCAT('`', certCSV, '`');
 
@@ -441,7 +444,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `processEAYSOCSV`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `processEAYSOCSV` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `processEAYSOCSV` ()  BEGIN
 
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
@@ -532,7 +535,7 @@ INSERT INTO `crs_certs` SELECT
     PROPER_CASE(`Street`) AS Address,
     PROPER_CASE(`City`) AS `City`,
     `State`,
-    REPLACE(`Zip`,'\'', '') AS `Zip`,
+    REPLACE(`Zip`,"'", '') AS `Zip`,
     `HomePhone` AS `Home Phone`,
     `BusinessPhone` AS `Cell Phone`,
     LCASE(`Email`) AS Email,
@@ -557,7 +560,7 @@ INSERT INTO `crs_shcerts` SELECT
     PROPER_CASE(`Street`) AS Address,
     PROPER_CASE(`City`) AS `City`,
     `State`,
-    REPLACE(`Zip`,'\'', '') AS `Zip`,
+    REPLACE(`Zip`,"'", '') AS `Zip`,
     `HomePhone` AS `Home Phone`,
     `BusinessPhone` AS `Cell Phone`,
     LCASE(`Email`) AS Email,
@@ -577,7 +580,7 @@ FROM `eAYSO_certs` WHERE (`CertificationDesc` LIKE '%Refugio Seguro de AYSO'
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshAllAYSOHighestCertification`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshAllAYSOHighestCertification` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshAllAYSOHighestCertification` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@GLOBAL.sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @id:= 0;
@@ -632,7 +635,7 @@ ALTER TABLE `crs_rpt_hrc` ADD INDEX (`AYSOID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshCertDateErrors`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshCertDateErrors` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshCertDateErrors` ()  BEGIN
 DROP TABLE IF EXISTS `crs_tmp_cert_date_errors`;
 SET @s = CONCAT("CREATE TABLE `crs_tmp_cert_date_errors`
 SELECT 
@@ -796,7 +799,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshCompositeRefCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshCompositeRefCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshCompositeRefCerts` ()  BEGIN
 DROP TABLE IF EXISTS crs_rpt_ref_certs;
 
 CREATE TABLE crs_rpt_ref_certs SELECT * FROM
@@ -821,7 +824,7 @@ ORDER BY SAR;
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshConcussionCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshConcussionCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshConcussionCerts` ()  BEGIN
 SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_cdc;
@@ -877,7 +880,7 @@ ALTER TABLE crs_cdc ADD INDEX (`AYSOID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshDupicateRefCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshDupicateRefCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshDupicateRefCerts` ()  BEGIN
 
 
 DROP TABLE IF EXISTS tmp_duprefcerts;
@@ -908,7 +911,7 @@ WHERE
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshHighestAYSOCertification`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshHighestAYSOCertification` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshHighestAYSOCertification` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@GLOBAL.sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @id:= 0;
@@ -963,7 +966,7 @@ ALTER TABLE `crs_rpt_all_hrc` ADD INDEX (`AYSO ID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshHighestCertification`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshHighestCertification` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshHighestCertification` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@GLOBAL.sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @id:= 0;
@@ -1030,7 +1033,7 @@ ALTER TABLE `crs_rpt_hrc` ADD INDEX (`AYSOID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshIntermediateRefereeInstructors`$$
-CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `RefreshIntermediateRefereeInstructors` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshIntermediateRefereeInstructors` ()  BEGIN
 UPDATE tmp_rpt_ri SET `CertificationDesc` = 'Regional Referee Instructor' WHERE `CertificationDesc` = 'Referee Instructor' OR `CertificationDesc` = 'Basic Referee Instructor';   
 
 # Voluteer updates
@@ -1038,7 +1041,7 @@ UPDATE tmp_rpt_ri SET `CertificationDesc` = 'Intermediate Referee Instructor' WH
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshNationalRefereeAssessors`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshNationalRefereeAssessors` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshNationalRefereeAssessors` ()  BEGIN
 SET @id:= 0;
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
@@ -1093,7 +1096,7 @@ CREATE TEMPORARY TABLE tmp_nra SELECT * FROM
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshRefCerts` ()  BEGIN
 DROP TABLE IF EXISTS crs_refcerts;
 
 CREATE TABLE crs_refcerts SELECT * FROM
@@ -1127,7 +1130,7 @@ WHERE
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefConcussionCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefConcussionCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshRefConcussionCerts` ()  BEGIN
 SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_ref_cdc;
@@ -1150,7 +1153,7 @@ ALTER TABLE crs_rpt_ref_cdc ADD INDEX (`AYSOID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefereeAssessors`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeAssessors` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshRefereeAssessors` ()  BEGIN
 SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_ra;
@@ -1205,7 +1208,7 @@ CREATE TABLE crs_rpt_ra SELECT * FROM
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefereeInstructorEvaluators`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeInstructorEvaluators` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshRefereeInstructorEvaluators` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @id:= 0;
@@ -1258,7 +1261,7 @@ CREATE TABLE crs_rpt_rie SELECT DISTINCT * FROM
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefereeInstructors`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeInstructors` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshRefereeInstructors` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @id:= 0;
@@ -1313,7 +1316,7 @@ CREATE TABLE crs_rpt_ri SELECT * FROM
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefereeUpgradeCandidates`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefereeUpgradeCandidates` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshRefereeUpgradeCandidates` ()  BEGIN
 DROP TABLE IF EXISTS tmp_NatRC;
 
 CREATE TEMPORARY TABLE tmp_NatRC SELECT * FROM
@@ -1741,7 +1744,7 @@ ORDER BY FIELD(`CertificationDesc`,
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefNoCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefNoCerts` ()  SQL SECURITY INVOKER
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshRefNoCerts` ()  SQL SECURITY INVOKER
 BEGIN   
 SET sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION";
  
@@ -1793,7 +1796,7 @@ ORDER BY `Section`, `Area`, `Region`;
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefSuddenCardiacArrestCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshRefSuddenCardiacArrestCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshRefSuddenCardiacArrestCerts` ()  BEGIN
 SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_ref_sca;
@@ -1816,7 +1819,7 @@ ALTER TABLE crs_rpt_ref_sca ADD INDEX (`AYSOID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshSafeHavenCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshSafeHavenCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshSafeHavenCerts` ()  BEGIN
 SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_safehaven;
@@ -1888,7 +1891,7 @@ ALTER TABLE crs_rpt_safehaven ADD INDEX (`AYSOID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshSection8RefereeInstructors`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `RefreshSection8RefereeInstructors` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshSection8RefereeInstructors` ()  BEGIN
 SET sql_mode=(SELECT REPLACE(@@GLOBAL.sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @id:= 0;
@@ -1954,7 +1957,7 @@ ALTER TABLE `crs_rpt_s8_ri` ADD INDEX (`AYSO ID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshSuddenCardiacArrestCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshSuddenCardiacArrestCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshSuddenCardiacArrestCerts` ()  BEGIN
 SET @id:= 0;
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 DROP TABLE IF EXISTS crs_sca;
@@ -2010,7 +2013,7 @@ ALTER TABLE crs_sca ADD INDEX (`AYSOID`);
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshUnregisteredReferees`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `RefreshUnregisteredReferees` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshUnregisteredReferees` ()  BEGIN
 SET @dfields := "'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'z-Online Regional Referee without Safe Haven', 'Z-Online Regional Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', 'Z-Online Safe Haven Referee', 'Safe Haven Referee', ''";
 
 SET @currentMY = currentMY();
@@ -2043,7 +2046,7 @@ ORDER BY `Section` , `Area` , `Region` , FIELD(`CertificationDesc`,
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_ar1AssignmentMap`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `rs_ar1AssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `rs_ar1AssignmentMap` (IN `projectKey` VARCHAR(45), IN `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @s = CONCAT("
@@ -2062,7 +2065,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_ar2AssignmentMap`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `rs_ar2AssignmentMap` (IN `projectKey` VARCHAR(45), IN `has4th` VARCHAR(45))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `rs_ar2AssignmentMap` (IN `projectKey` VARCHAR(45), IN `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @s = CONCAT("
@@ -2081,7 +2084,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_crAssignmentMap`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `rs_crAssignmentMap` (IN `projectKey` VARCHAR(45), IN `has4th` VARCHAR(45))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `rs_crAssignmentMap` (IN `projectKey` VARCHAR(45), IN `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @s = CONCAT("
@@ -2100,7 +2103,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `rs_r4thAssignmentMap`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `rs_r4thAssignmentMap` (IN `projectKey` VARCHAR(45), `has4th` VARCHAR(45))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `rs_r4thAssignmentMap` (IN `projectKey` VARCHAR(45), IN `has4th` VARCHAR(45))  BEGIN
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 SET @s = CONCAT("
@@ -2119,7 +2122,7 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `UpdateCompositeMYCerts`$$
-CREATE DEFINER=`root`@`%` PROCEDURE `UpdateCompositeMYCerts` ()  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `UpdateCompositeMYCerts` ()  BEGIN
 
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
@@ -2221,7 +2224,7 @@ END$$
 -- Functions
 --
 DROP FUNCTION IF EXISTS `currentMY`$$
-CREATE DEFINER=`root`@`127.0.0.1` FUNCTION `currentMY` () RETURNS CHAR(12) CHARSET latin1 BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `currentMY` () RETURNS CHAR(12) CHARSET latin1 BEGIN
 SET @year = year(now());
 
 IF month(now()) < 8 THEN
@@ -2234,7 +2237,7 @@ RETURN @currentMY;
 END$$
 
 DROP FUNCTION IF EXISTS `ExtractNumber`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `ExtractNumber` (`in_string` VARCHAR(50)) RETURNS INT(11) NO SQL
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `ExtractNumber` (`in_string` VARCHAR(50)) RETURNS INT(11) NO SQL
 BEGIN
     DECLARE ctrNumber VARCHAR(50);
     DECLARE finNumber VARCHAR(50) DEFAULT '';
@@ -2258,8 +2261,31 @@ BEGIN
     RETURN -1;
 END$$
 
+DROP FUNCTION IF EXISTS `loadAdminCredentialStatusDynamic`$$
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `loadAdminCredentialStatusDynamic` (`csvFile` VARCHAR(128)) RETURNS VARCHAR(128) CHARSET latin1 BEGIN
+
+RETURN CONCAT('/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/stack_sports_reporting/_stack/', csvFile, '.AdminCredentialsStatusDynamic.csv');
+
+/*
+SET @s = CONCAT("
+LOAD DATA LOCAL INFILE '", @inCSV, "'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+");
+
+PREPARE stmt FROM @s;  
+EXECUTE stmt;  
+
+DEALLOCATE PREPARE stmt;
+*/
+
+END$$
+
 DROP FUNCTION IF EXISTS `multiTrim`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `multiTrim` (`string` TEXT, `remove` CHAR(63)) RETURNS TEXT CHARSET latin1 BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `multiTrim` (`string` TEXT, `remove` CHAR(63)) RETURNS TEXT CHARSET latin1 BEGIN
   
   WHILE length(string)>0 and remove LIKE concat('%',substring(string,-1),'%') DO
     set string = substring(string,1,length(string)-1);
@@ -2274,7 +2300,7 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `multiTrim` (`string` TEXT, `remove` 
 END$$
 
 DROP FUNCTION IF EXISTS `PROPER_CASE`$$
-CREATE DEFINER=`root`@`%` FUNCTION `PROPER_CASE` (`str` VARCHAR(255)) RETURNS VARCHAR(255) CHARSET utf8 BEGIN 
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `PROPER_CASE` (`str` VARCHAR(255)) RETURNS VARCHAR(255) CHARSET utf8 BEGIN 
   DECLARE c CHAR(1); 
   DECLARE s VARCHAR(255); 
   DECLARE i INT DEFAULT 1; 
@@ -2305,7 +2331,7 @@ CREATE DEFINER=`root`@`%` FUNCTION `PROPER_CASE` (`str` VARCHAR(255)) RETURNS VA
 END$$
 
 DROP FUNCTION IF EXISTS `SPLIT_STRING`$$
-CREATE DEFINER=`root`@`%` FUNCTION `SPLIT_STRING` (`str` VARCHAR(255), `delim` VARCHAR(12), `pos` INT) RETURNS VARCHAR(255) CHARSET utf8 BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `SPLIT_STRING` (`str` VARCHAR(255), `delim` VARCHAR(12), `pos` INT) RETURNS VARCHAR(255) CHARSET utf8 BEGIN
 RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(str, delim, pos),
        LENGTH(SUBSTRING_INDEX(str, delim, pos-1)) + 1),
        delim, '');
@@ -2313,7 +2339,7 @@ RETURN 1;
 END$$
 
 DROP FUNCTION IF EXISTS `stdSAR`$$
-CREATE DEFINER=`root`@`%` FUNCTION `stdSAR` (`pStr` TEXT) RETURNS VARCHAR(20) CHARSET utf8 BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `stdSAR` (`pStr` TEXT) RETURNS VARCHAR(20) CHARSET utf8 BEGIN
 
 SET @result = '';
 CALL explode(pStr);

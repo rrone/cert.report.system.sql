@@ -2,7 +2,6 @@ USE `ayso1ref_services`;
 
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
-
 /***************************************/
 --  Load SportsConnect certs`
 
@@ -91,7 +90,7 @@ CREATE TEMPORARY TABLE `tmp_1_certs` (
 	`Portal Name` varchar(250)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/1.txt'  
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.txt'  
 	INTO TABLE `tmp_1_certs`   
 	FIELDS TERMINATED BY '\t'   
 	ENCLOSED BY ''  
@@ -147,7 +146,7 @@ CALL `processBSCSV`('crs_1_certs');
 --  Load `eAYSO.MY2017.certs`
 -- CALL `prepEAYSOCSVTable`('eAYSO.MY2016.certs');
 -- 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2016.certs.csv'
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/eAYSO.MY2016.certs.csv'
 -- 	INTO TABLE `eAYSO.MY2016.certs`   
 -- 	FIELDS TERMINATED BY ','   
 -- 	ENCLOSED BY '"'  
@@ -157,7 +156,7 @@ CALL `processBSCSV`('crs_1_certs');
 -- --  Load `eAYSO.MY2017.certs`
 -- CALL `prepEAYSOCSVTable`('eAYSO.MY2017.certs');
 -- 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2017.certs.csv'
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/eAYSO.MY2017.certs.csv'
 -- 	INTO TABLE `eAYSO.MY2017.certs`   
 -- 	FIELDS TERMINATED BY ','   
 -- 	ENCLOSED BY '"'  
@@ -167,7 +166,7 @@ CALL `processBSCSV`('crs_1_certs');
 -- --  Refresh `eAYSO.MY2018.certs`
 -- CALL `prepEAYSOCSVTable`('eAYSO.MY2018.certs');
 -- 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2018.certs.csv'
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/eAYSO.MY2018.certs.csv'
 -- 	INTO TABLE `eAYSO.MY2018.certs`   
 -- 	FIELDS TERMINATED BY ','   
 -- 	ENCLOSED BY '"'  
@@ -177,7 +176,7 @@ CALL `processBSCSV`('crs_1_certs');
 -- --  Refresh `eAYSO.MY2019.certs`
 -- CALL `prepEAYSOCSVTable`('eAYSO.MY2019.certs');
 -- 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.rick.roberts.9/_ayso/s1/reports/data/eAYSO.MY2019.certs.csv'
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/eAYSO.MY2019.certs.csv'
 -- 	INTO TABLE `eAYSO.MY2019.certs`   
 -- 	FIELDS TERMINATED BY ','   
 -- 	ENCLOSED BY '"'  
@@ -212,6 +211,7 @@ CALL `CertTweaks`('crs_shcerts');
 
 -- Refresh all referee certificates - required to remove duplicate records  
 CALL `RefreshRefCerts`();  
+
 
 -- Delete records duplicated across Membership Years
 DROP TABLE IF EXISTS tmp_dupmy;
@@ -282,6 +282,146 @@ CALL `RefreshSuddenCardiacArrestCerts`();
 CALL `RefreshRefSuddenCardiacArrestCerts`();
 CALL `RefreshCertDateErrors`();
 CALL `RefreshCompositeRefCerts`();
+
+
+-- 2021-04-12 : added to update MY from Stack Sports AdminCredentialsStatusDynamic reports
+
+DROP TABLE IF EXISTS `AdminCredentialsStatusDynamic`;
+
+CREATE TABLE `AdminCredentialsStatusDynamic` (
+  `﻿Textbox332` text,
+  `League1` text,
+  `Club1` text,
+  `ClubID1` text,
+  `IDNUM` text,
+  `AltID1` int(11) DEFAULT NULL,
+  `FirstName1` text,
+  `LastName1` text,
+  `DOB1` text,
+  `GenderCode1` text,
+  `email1` text,
+  `RiskSubmitDate1` text,
+  `RiskStatus1` text,
+  `RiskExpireDate1` text,
+  `cardPrinted1` text,
+  `photoInDate1` text,
+  `licLevel1` text,
+  `licNum1` text,
+  `LicObtainDate1` text,
+  `refGrade` text,
+  `refObtainDate` text,
+  `refExpDate` text,
+  `CertificateName2` text,
+  `ccInDate1` text,
+  `ccVerified1` text,
+  `ccVerifyBy1` text,
+  `ccVerifyDate1` text,
+  `ExpirationDateC1` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1B.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1C.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1D.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1F.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1G.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1H.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1N.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1P.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1R.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1S.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1U.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+ALTER TABLE `ayso1ref_services`.`AdminCredentialsStatusDynamic` 
+CHANGE COLUMN `﻿Textbox332` `MY` TEXT NULL DEFAULT NULL;    
+    
+DROP TABLE IF EXISTS `tmp_MY2020`;   
+
+CREATE TEMPORARY TABLE `tmp_MY2020` (
+	`AYSOID` int(11),
+	`First_Name` text,
+	`Last_Name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `tmp_MY2020` SELECT DISTINCT `AltID1`, `FirstName1`, `LastName1` FROM `AdminCredentialsStatusDynamic`;
+     
+UPDATE `crs_rpt_ref_certs` SET `Membership Year` = 'MY2020' WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY2020`);
+UPDATE `crs_rpt_ref_upgrades` SET `Membership Year` = 'MY2020' WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY2020`);
+UPDATE `crs_rpt_ri` SET `Membership Year` = 'MY2020' WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY2020`);
+UPDATE `crs_rpt_rie` SET `Membership Year` = 'MY2020' WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY2020`);
+UPDATE `crs_rpt_nra` SET `Membership Year` = 'MY2020' WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY2020`);
+UPDATE `crs_rpt_ra` SET `Membership Year` = 'MY2020' WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY2020`);
+
+UPDATE `crs_rpt_hrc` SET `Membership Year` = 'MY2020' WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY2020`);
+
+DELETE FROM `crs_rpt_unregistered_refs` WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY2020`);
+
+-- 2021-04-12 : END: added to update MY from Stack Sports AdminCredentialsStatusDynamic reports
+
 
 -- Update Tables for Referee Scheduler
 DROP TABLE IF EXISTS rs_refs;

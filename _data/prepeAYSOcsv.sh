@@ -1,8 +1,11 @@
 #!/bin/zsh
 
-cd ~/Google_Drive.rick.roberts.9/_ayso/s1/reports/data
-cp -f ../20210104.eAYSO.archive/eAYSO* ./
+cd "$(dirname "$0")"
 
-source ../scripts/prep_csv/venv/bin/activate
-python ../scripts/prep_csv/py/prep_eayso_csv.py
+cp -f ../__sports_connect_reports/20210104.eAYSO.archive/eAYSO* ./
+
+source ../scripts/venv/bin/activate
+
+python ../scripts/prep_eayso_csv/py/prep_eayso_csv.py
+
 deactivate
