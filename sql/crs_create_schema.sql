@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.0
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 23, 2021 at 11:28 AM
--- Server version: 5.7.33-0ubuntu0.18.04.1
--- PHP Version: 8.0.3
+-- Generation Time: Jun 09, 2021 at 09:27 AM
+-- Server version: 5.7.34-0ubuntu0.18.04.1
+-- PHP Version: 7.4.20
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -31,7 +31,7 @@ DROP PROCEDURE IF EXISTS `BuildIRITable`$$
 CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `BuildIRITable` ()  BEGIN
 DROP TABLE IF EXISTS tmp_intermediate_referee_instructors;
 CREATE TEMPORARY TABLE tmp_intermediate_referee_instructors (SELECT DISTINCT 
-AYSOID, Name, SAR, CertificationDesc, CertDate FROM crs_rpt_ri WHERE (`CertificationDesc` = 'Referee Instructor' OR `CertificationDesc` = 'Referee Instructor') AND `CertDate` < '2018-09-01');   
+AYSOID, Name, SAR, CertificationDesc, CertDate FROM crs_rpt_ri WHERE (`CertificationDesc` = 'Basic Referee Instructor' OR `CertificationDesc` = 'Referee Instructor') AND `CertDate` < '2018-09-01');   
 
 DROP TABLE IF EXISTS crs_intermediate_referee_instructors;
 CREATE TABLE crs_intermediate_referee_instructors SELECT 
@@ -807,9 +807,9 @@ CREATE TABLE crs_rpt_ref_certs SELECT * FROM
         hrc.*,
 		sh.CertificationDesc AS shCertificationDesc,
 		sh.CertDate AS shCertDate,
-		cdc.CDCCert AS cdcCertficationDesc,
+		cdc.CDCCert AS cdcCertificationDesc,
 		cdc.CDCCertDate AS cdcCertDate, 
-		sca.SCACert AS scaCertficationDesc,
+		sca.SCACert AS scaCertificationDesc,
 		sca.SCACertDate AS scaCertDate 
     FROM
         crs_rpt_hrc hrc

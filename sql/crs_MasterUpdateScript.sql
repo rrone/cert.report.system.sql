@@ -205,6 +205,14 @@ WHERE
     OR CertificationDesc = 'Basic Referee Instructor')
         AND CertDate <= '2018-08-01';        
 
+UPDATE crs_certs 
+SET 
+    CertificationDesc = 'Regional Referee Instructor'
+WHERE
+    (CertificationDesc = 'Referee Instructor'
+    OR CertificationDesc = 'Basic Referee Instructor')
+        AND CertDate > '2018-08-01';        
+
 -- Apply special cases  
 CALL `CertTweaks`('crs_certs');   
 CALL `CertTweaks`('crs_shcerts');   

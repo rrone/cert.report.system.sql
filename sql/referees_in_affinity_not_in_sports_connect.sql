@@ -1,3 +1,5 @@
+DELETE FROM ayso1ref_services.AdminCredentialsStatusDynamic WHERE email1 LIKE 'taidghsemaildump%';
+
 SELECT DISTINCT
     MY,
     League1,
