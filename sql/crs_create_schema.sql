@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 09, 2021 at 09:27 AM
+-- Generation Time: Jun 20, 2021 at 03:31 PM
 -- Server version: 5.7.34-0ubuntu0.18.04.1
 -- PHP Version: 7.4.20
 
@@ -2261,6 +2261,13 @@ BEGIN
     RETURN -1;
 END$$
 
+DROP FUNCTION IF EXISTS `isMYCurrent`$$
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `isMYCurrent` (`strMY` VARCHAR(11)) RETURNS TINYINT(1) BEGIN
+SET @MY = YEAR(STR_TO_DATE(CONCAT(RIGHT(strMY, 4), '0801'),'%Y%m%d'));
+SET @cutoffYear = YEAR(DATE_SUB(CURRENT_DATE(), INTERVAL 4 YEAR));
+RETURN @MY >= @cutoffYear;
+END$$
+
 DROP FUNCTION IF EXISTS `loadAdminCredentialStatusDynamic`$$
 CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `loadAdminCredentialStatusDynamic` (`csvFile` VARCHAR(128)) RETURNS VARCHAR(128) CHARSET latin1 BEGIN
 
@@ -2350,17 +2357,35 @@ FROM temp_explode GROUP BY k INTO @result;
 RETURN @result;
 END$$
 
+DROP FUNCTION IF EXISTS `yyTOyyyy`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `yyTOyyyy` (`mmddyy` TEXT) RETURNS TEXT CHARSET latin1 BEGIN
+
+SET @yymmdd:= DATE_FORMAT(STR_TO_DATE(mmddyy, '%m/%d/%y'),'%Y%m%d');
+
+IF @yymmdd > CURRENT_DATE()+1 THEN
+
+	SET @yymmdd = @yymmdd - 1000000;
+
+END IF;
+
+
+RETURN DATE_FORMAT(STR_TO_DATE(@yymmdd, '%Y%m%d'),'%Y-%m-%d');
+END$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `crs_rpt_lastUpdate`
+-- Table structure for table `crs_not_available`
 --
 
-DROP TABLE IF EXISTS `crs_rpt_lastUpdate`;
-CREATE TABLE `crs_rpt_lastUpdate` (
-  `timestamp` datetime NOT NULL DEFAULT '1901-01-01 00:00:00'
+DROP TABLE IF EXISTS `crs_not_available`;
+CREATE TABLE `crs_not_available` (
+  `id` int(11) NOT NULL,
+  `AYSOID` int(11) DEFAULT NULL,
+  `Name` varchar(45) DEFAULT NULL,
+  `Reason` varchar(265) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -2368,10 +2393,20 @@ CREATE TABLE `crs_rpt_lastUpdate` (
 --
 
 --
--- Indexes for table `crs_rpt_lastUpdate`
+-- Indexes for table `crs_not_available`
 --
-ALTER TABLE `crs_rpt_lastUpdate`
-  ADD UNIQUE KEY `timestamp` (`timestamp`);
+ALTER TABLE `crs_not_available`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `crs_not_available`
+--
+ALTER TABLE `crs_not_available`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

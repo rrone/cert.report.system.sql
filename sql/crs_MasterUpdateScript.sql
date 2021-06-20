@@ -258,9 +258,19 @@ CREATE TABLE crs_refcerts SELECT * FROM
 	tmp_refcerts;
     
 DELETE FROM crs_refcerts WHERE AYSOID IN (SELECT AYSOID FROM crs_duplicateIDs);    
-DELETE FROM crs_refcerts WHERE AYSOID IN (SELECT AYSOID FROM crs_deceased);    
 
-	
+-- Removed those that have moved on 
+DELETE FROM crs_refcerts WHERE AYSOID IN (SELECT AYSOID FROM crs_not_available WHERE Reason = 'deceased');    
+
+-- Removed those that have indicated they are no longer interested in assessing 
+DELETE FROM crs_refcerts 
+WHERE
+    AYSOID IN (SELECT 
+        AYSOID
+    FROM
+        crs_not_available)
+    AND `CertificationDesc` LIKE '%Assessor%';    
+
 -- Refresh Highest Certification table after deletion of duplicate records
 CALL `RefreshHighestCertification`();
 
@@ -517,6 +527,19 @@ UPDATE `crs_rpt_ra` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `cr
 UPDATE `crs_rpt_hrc` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_hrc`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
 DELETE FROM `crs_rpt_unregistered_refs` WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY`);
 
+-- 2021-06-20: Updated to drop registrations more then 4 years old
+DELETE FROM `crs_rpt_ref_certs` WHERE NOT myIsCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_ref_upgrades` WHERE NOT myIsCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_ri` WHERE NOT myIsCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_rie` WHERE NOT myIsCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_nra` WHERE NOT myIsCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_ra` WHERE NOT myIsCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_hrc` WHERE NOT myIsCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_unregistered_refs` WHERE NOT myIsCurrent(`Membership Year`);
+-- 2021-06-20: END: Added to drop registrations more then 4 years old
+
+DROP TABLE IF EXISTS `tmp_MY`;
+
 -- 2021-04-12 : END: added to update MY from Stack Sports AdminCredentialsStatusDynamic reports
 -- 2021-06-14: END: added to update MY from inLeague registrations in 1C & 1P
 
@@ -554,7 +577,7 @@ ALTER TABLE crs_rpt_lastUpdate ADD UNIQUE (`timestamp`);
 CALL `UpdateCompositeMYCerts`();  
 
 UPDATE `s1_composite_my_certs` SET `Zip` = REPLACE(`Zip`, "'", '');
-UPDATE `s1_composite_my_certs` SET `AYSOID` = REPLACE(`Zip`, " ", "");
+UPDATE `s1_composite_my_certs` SET `AYSOID` = REPLACE(`AYSOID`, " ", "");
 ALTER TABLE `s1_composite_my_certs` 
 CHANGE COLUMN `AYSOID` `AYSOID` INT(11); 
 
