@@ -182,9 +182,10 @@ CALL `processBSCSV`('crs_1_certs');
 -- 	ENCLOSED BY '"'  
 -- 	LINES TERMINATED BY '\n'
 -- 	IGNORE 1 ROWS;   
--- 
+--
+-- Still need to add eAYSO certs to crs_certs and crs_shcerts 
 CALL `processEAYSOCSV`();
-
+-- 
 /***************************************/
 --  Process the lot
 
@@ -219,7 +220,6 @@ CALL `CertTweaks`('crs_shcerts');
 
 -- Refresh all referee certificates - required to remove duplicate records  
 CALL `RefreshRefCerts`();  
-
 
 -- Delete records duplicated across Membership Years
 DROP TABLE IF EXISTS tmp_dupmy;
@@ -262,14 +262,15 @@ DELETE FROM crs_refcerts WHERE AYSOID IN (SELECT AYSOID FROM crs_duplicateIDs);
 -- Removed those that have moved on 
 DELETE FROM crs_refcerts WHERE AYSOID IN (SELECT AYSOID FROM crs_not_available WHERE Reason = 'deceased');    
 
--- Removed those that have indicated they are no longer interested in assessing 
+-- Removed those that have indicated they are no longer interested in assessing or instructing 
 DELETE FROM crs_refcerts 
 WHERE
     AYSOID IN (SELECT 
         AYSOID
     FROM
         crs_not_available)
-    AND `CertificationDesc` LIKE '%Assessor%';    
+    AND (`CertificationDesc` LIKE '%Assessor%'
+    OR `CertificationDesc` LIKE '%Instructor%');    
 
 -- Refresh Highest Certification table after deletion of duplicate records
 CALL `RefreshHighestCertification`();
@@ -436,28 +437,14 @@ CREATE TABLE `inLeague_registration` (
   `Gender` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1C20.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2020.Volunteer_Report_Export.csv'
 	INTO TABLE `inLeague_registration`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1C21.Volunteer_Report_Export.csv'
-	INTO TABLE `inLeague_registration`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1P20.Volunteer_Report_Export.csv'
-	INTO TABLE `inLeague_registration`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1P21.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2021.Volunteer_Report_Export.csv'
 	INTO TABLE `inLeague_registration`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -528,14 +515,14 @@ UPDATE `crs_rpt_hrc` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `c
 DELETE FROM `crs_rpt_unregistered_refs` WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY`);
 
 -- 2021-06-20: Updated to drop registrations more then 4 years old
-DELETE FROM `crs_rpt_ref_certs` WHERE NOT myIsCurrent(`Membership Year`);
-DELETE FROM `crs_rpt_ref_upgrades` WHERE NOT myIsCurrent(`Membership Year`);
-DELETE FROM `crs_rpt_ri` WHERE NOT myIsCurrent(`Membership Year`);
-DELETE FROM `crs_rpt_rie` WHERE NOT myIsCurrent(`Membership Year`);
-DELETE FROM `crs_rpt_nra` WHERE NOT myIsCurrent(`Membership Year`);
-DELETE FROM `crs_rpt_ra` WHERE NOT myIsCurrent(`Membership Year`);
-DELETE FROM `crs_rpt_hrc` WHERE NOT myIsCurrent(`Membership Year`);
-DELETE FROM `crs_rpt_unregistered_refs` WHERE NOT myIsCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_ref_certs` WHERE NOT isMYCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_ref_upgrades` WHERE NOT isMYCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_ri` WHERE NOT isMYCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_rie` WHERE NOT isMYCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_nra` WHERE NOT isMYCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_ra` WHERE NOT isMYCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_hrc` WHERE NOT isMYCurrent(`Membership Year`);
+DELETE FROM `crs_rpt_unregistered_refs` WHERE NOT isMYCurrent(`Membership Year`);
 -- 2021-06-20: END: Added to drop registrations more then 4 years old
 
 DROP TABLE IF EXISTS `tmp_MY`;
@@ -585,4 +572,5 @@ CHANGE COLUMN `AYSOID` `AYSOID` INT(11);
 SELECT 
 		*
 FROM
-		`s1_composite_my_certs`;
+		`s1_composite_my_certs`
+ORDER BY `Section`, `Area`, `Region`, `Last Name`;
