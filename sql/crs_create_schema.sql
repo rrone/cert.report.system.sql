@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jun 20, 2021 at 03:31 PM
+-- Generation Time: Jul 23, 2021 at 01:23 PM
 -- Server version: 5.7.34-0ubuntu0.18.04.1
--- PHP Version: 7.4.20
+-- PHP Version: 8.0.8
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -174,6 +174,10 @@ CALL exec_qry(@s);
 
 # Steve Bodnar
 SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 202728607 WHERE `AYSOID` = 79647224;");
+CALL exec_qry(@s);
+
+# Francisco Diaz
+SET @s = CONCAT("UPDATE ", @certTable, " SET `AYSOID` = 58223159 WHERE `AYSOID` = 99561421;");
 CALL exec_qry(@s);
 
 
@@ -1251,9 +1255,9 @@ CREATE TABLE crs_rpt_rie SELECT DISTINCT * FROM
         `crs_refcerts` rc INNER JOIN `crs_refcerts` ar ON rc.AYSOID = ar.AYSOID
     WHERE
         rc.`CertificationDesc` = 'Referee Instructor Evaluator'
-            AND (rc.`Membership Year` = 'MY2020' OR rc.`Membership Year` = 'MY2019')
+            AND rc.`Membership Year` IN ('MY2021','MY2020','MY2019')
             AND ar.`CertificationDesc` LIKE '%Referee Instructor'
-    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(rc.`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', '')) grouped ) ranked
+    GROUP BY `AYSOID`, `SAR`, FIELD(ar.`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', ''), `Membership Year` DESC) grouped ) ranked
     WHERE
         rank = 1
     ORDER BY `Section`, `Area`, `Region`, `Membership Year` DESC, `Last Name`, `First Name`) rie;
