@@ -103,6 +103,7 @@ DELETE FROM `tmp_1_certs` WHERE `Program Name` like '%Do not use%';
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201812_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201905_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201912_certs`;
+INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_202105_certs`;
 
 # -10-30: Correct cross-id contamination with 97815888  
 ALTER TABLE `tmp_1_certs` 
@@ -189,6 +190,15 @@ CALL `processEAYSOCSV`();
 /***************************************/
 --  Process the lot
 
+-- 2021-08-20: fix S/A/R format to remove leading zeros from Region, e.g. '1/B/0003' should be '1/B/3'
+UPDATE crs_certs 
+SET SAR = REPLACE(SAR, '/0', '/');
+UPDATE crs_certs 
+SET SAR = REPLACE(SAR, '/0', '/');
+UPDATE crs_certs 
+SET SAR = REPLACE(SAR, '/0', '/');
+-- END: 2021-08-20: fix S/A/R format to remove leading zeros from Region, e.g. '1/B/0003' should be '1/B/3'
+
 -- 2019-03-18: added because eAYSO is now returning blank dates for invalid dates
 UPDATE crs_certs 
 SET 
@@ -196,8 +206,9 @@ SET
 WHERE
     CertificationDesc LIKE '%Referee%'
         AND CertDate = '';        
+-- END: 2019-03-18: added because eAYSO is now returning blank dates for invalid dates
 
--- -08-07: added because BS is not updating certifications across all portals; each record must be opened for certs to update
+-- 2018-08-07: added because BS is not updating certifications across all portals; each record must be opened for certs to update
 UPDATE crs_certs 
 SET 
     CertificationDesc = 'Intermediate Referee Instructor'
@@ -213,6 +224,7 @@ WHERE
     (CertificationDesc = 'Referee Instructor'
     OR CertificationDesc = 'Basic Referee Instructor')
         AND CertDate > '2018-08-01';        
+-- END: 2018-08-07: added because BS is not updating certifications across all portals; each record must be opened for certs to update
 
 -- Apply special cases  
 CALL `CertTweaks`('crs_certs');   
@@ -436,6 +448,13 @@ CREATE TABLE `inLeague_registration` (
   `DOB` text,
   `Gender` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2019.Volunteer_Report_Export.csv'
+	INTO TABLE `inLeague_registration`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
 
 LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2020.Volunteer_Report_Export.csv'
 	INTO TABLE `inLeague_registration`   
