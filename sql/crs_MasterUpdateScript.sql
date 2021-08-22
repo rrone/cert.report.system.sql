@@ -118,10 +118,12 @@ WHERE
 ALTER TABLE `tmp_1_certs`
 DROP COLUMN `id`,
 DROP PRIMARY KEY;        
-# END: -10-30: Correct cross-id contamination with 97815888     
+# END: -10-30: Correct cross-id contamination with 97815888 
 
+-- 2021.08.22 remove duplicate records
 DROP TABLE IF EXISTS `crs_1_certs`;  
 CREATE TABLE `crs_1_certs` SELECT DISTINCT * FROM `tmp_1_certs`;  
+-- END: remove duplicate records    
 
 -- Clean up imported data
 DELETE FROM `crs_1_certs` WHERE `AYSO Volunteer ID` IS NULL;
@@ -316,7 +318,6 @@ CALL `RefreshRefSuddenCardiacArrestCerts`();
 CALL `RefreshCertDateErrors`();
 CALL `RefreshCompositeRefCerts`();
 
-
 -- 2021-04-12 : added to update MY from Stack Sports AdminCredentialsStatusDynamic reports
 
 DROP TABLE IF EXISTS `AdminCredentialsStatusDynamic`;
@@ -433,15 +434,32 @@ ALTER TABLE `ayso1ref_services`.`AdminCredentialsStatusDynamic`
 CHANGE COLUMN `﻿Textbox332` `MY` TEXT NULL DEFAULT NULL;    
 
 -- 2021-06-14: added to update MY from inLeague registrations in 1C & 1P
+-- 2021-08-21: modified to update MY from inLeague registrations and certifications from e3
+DROP TABLE IF EXISTS `e3_InLeague_certifications`;
 
-DROP TABLE IF EXISTS `inLeague_registration`;
-
-CREATE TABLE `inLeague_registration` (
+CREATE TABLE `e3_InLeague_certifications` (
+  `AYSOID` int(11) DEFAULT NULL,
+  `Full Name` text,
+  `Type` text,
+  `SAR` text,
+  `MY` text,
+  `Safe Haven Date` text,
+  `CDC Date` text,
+  `SCA Date` text,
+  `Ref Cert Desc` text,
+  `Ref Cert Date` text,
+  `Assessor Cert Desc` text,
+  `Assessor Cert Date` text,
+  `Inst Cert Desc` text,
+  `Inst Cert Date` text,
+  `Inst Eval Cert Desc` text,
+  `Inst Eval Cert Date` text,
+  `Coach Cert Desc` text,
+  `Coach Cert Date` text,
+  `Data Source` text,
   `Section` int(11) DEFAULT NULL,
   `Area` text,
   `Region` int(11) DEFAULT NULL,
-  `AYSOID` int(11) DEFAULT NULL,
-  `Membershipyear` text,
   `Volunteer Position` text,
   `LastName` text,
   `FirstName` text,
@@ -449,27 +467,13 @@ CREATE TABLE `inLeague_registration` (
   `Gender` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2019.Volunteer_Report_Export.csv'
-	INTO TABLE `inLeague_registration`   
-	FIELDS TERMINATED BY ','   
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_InLeague.txt'
+	INTO TABLE `e3_InLeague_certifications`   
+	FIELDS TERMINATED BY '\t'   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2020.Volunteer_Report_Export.csv'
-	INTO TABLE `inLeague_registration`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2021.Volunteer_Report_Export.csv'
-	INTO TABLE `inLeague_registration`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
 DROP TABLE IF EXISTS `tmp_MY`;   
 
 CREATE TEMPORARY TABLE `tmp_MY` (
@@ -492,19 +496,14 @@ FROM
             @id:=`AYSOID`
     FROM
         (SELECT DISTINCT
-        `Section`,
-            `Area`,
-            `Region`,
+        `SAR`,
             `AYSOID`,
-            `Membershipyear` as 'MY',
-            `Volunteer Position`,
+            `MY`,
             `LastName`,
-            `FirstName`,
-            `DOB`,
-            `Gender`
+            `FirstName`
     FROM
-        ayso1ref_services.inLeague_registration
-    GROUP BY `AYSOID` , `MY`) grouped) ranked
+        ayso1ref_services.e3_InLeague_certifications
+    GROUP BY `AYSOID` , `MY` DESC) grouped) ranked
 WHERE
     rankID = 1
 ORDER BY `AYSOID`,`MY` DESC;
@@ -524,15 +523,6 @@ DROP TABLE `tmp_MY`;
 ALTER TABLE `copy_MY` RENAME TO `tmp_MY`;
 -- END: remove duplicate records
 
-UPDATE `crs_rpt_ref_certs` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ref_certs`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
-UPDATE `crs_rpt_ref_upgrades` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ref_upgrades`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
-UPDATE `crs_rpt_ri` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ri`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
-UPDATE `crs_rpt_rie` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_rie`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
-UPDATE `crs_rpt_nra` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_nra`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
-UPDATE `crs_rpt_ra` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ra`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
-UPDATE `crs_rpt_hrc` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_hrc`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
-DELETE FROM `crs_rpt_unregistered_refs` WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY`);
-
 -- 2021-06-20: Updated to drop registrations more then 4 years old
 DELETE FROM `crs_rpt_ref_certs` WHERE NOT isMYCurrent(`Membership Year`);
 DELETE FROM `crs_rpt_ref_upgrades` WHERE NOT isMYCurrent(`Membership Year`);
@@ -540,14 +530,46 @@ DELETE FROM `crs_rpt_ri` WHERE NOT isMYCurrent(`Membership Year`);
 DELETE FROM `crs_rpt_rie` WHERE NOT isMYCurrent(`Membership Year`);
 DELETE FROM `crs_rpt_nra` WHERE NOT isMYCurrent(`Membership Year`);
 DELETE FROM `crs_rpt_ra` WHERE NOT isMYCurrent(`Membership Year`);
-DELETE FROM `crs_rpt_hrc` WHERE NOT isMYCurrent(`Membership Year`);
+-- DELETE FROM `crs_rpt_hrc` WHERE NOT isMYCurrent(`Membership Year`);
 DELETE FROM `crs_rpt_unregistered_refs` WHERE NOT isMYCurrent(`Membership Year`);
 -- 2021-06-20: END: Added to drop registrations more then 4 years old
+
+UPDATE `crs_rpt_ref_certs` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ref_certs`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+UPDATE `crs_rpt_ref_upgrades` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ref_upgrades`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+UPDATE `crs_rpt_ri` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ri`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+UPDATE `crs_rpt_rie` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_rie`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+UPDATE `crs_rpt_nra` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_nra`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+UPDATE `crs_rpt_ra` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ra`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+-- UPDATE `crs_rpt_hrc` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_hrc`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+DELETE FROM `crs_rpt_unregistered_refs` WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY`);
 
 DROP TABLE IF EXISTS `tmp_MY`;
 
 -- 2021-04-12 : END: added to update MY from Stack Sports AdminCredentialsStatusDynamic reports
 -- 2021-06-14: END: added to update MY from inLeague registrations in 1C & 1P
+
+DROP TABLE IF EXISTS tmp_e3_certs;
+
+CREATE TABLE tmp_e3_certs SELECT crs.`AYSOID`, `scaCertificationDesc`, `scaCertDate`, `SCA Date` FROM
+    `crs_rpt_ref_certs` crs
+        LEFT JOIN
+    `e3_InLeague_certifications` e3 ON crs.`AYSOID` = e3.`AYSOID`;
+
+UPDATE `tmp_e3_certs` 
+SET 
+    `scaCertificationDesc` = 'e3 Sudden Cardiac Arrest Training',
+    `scaCertDate` = `SCA Date`
+WHERE 
+    `tmp_e3_certs`.`SCA Date` <> '';
+
+UPDATE `crs_rpt_ref_certs` 
+SET 
+    `scaCertificationDesc` = (SELECT `scaCertificationDesc` FROM `tmp_e3_certs` WHERE `crs_rpt_ref_certs`.`AYSOID` = `tmp_e3_certs`.`AYSOID`),
+    `scaCertDate` = (SELECT `scaCertDate` FROM `tmp_e3_certs` WHERE `crs_rpt_ref_certs`.`AYSOID` = `tmp_e3_certs`.`AYSOID`);
+
+DROP TABLE IF EXISTS tmp_e3_certs;
+                
+-- 2021-08-21: END: modified to update MY from inLeague registrations and certifications from e3
 
 -- Update Tables for Referee Scheduler
 DROP TABLE IF EXISTS rs_refs;
