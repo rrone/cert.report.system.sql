@@ -13,6 +13,20 @@ CREATE TEMPORARY TABLE `e3_inLeague_reports` (
   `Gender` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2017.Volunteer_Report_Export.csv'
+	INTO TABLE `e3_inLeague_reports`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2018.Volunteer_Report_Export.csv'
+	INTO TABLE `e3_inLeague_reports`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
 LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2019.Volunteer_Report_Export.csv'
 	INTO TABLE `e3_inLeague_reports`   
 	FIELDS TERMINATED BY ','   

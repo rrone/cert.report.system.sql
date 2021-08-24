@@ -276,7 +276,7 @@ DELETE FROM crs_refcerts WHERE AYSOID IN (SELECT AYSOID FROM crs_duplicateIDs);
 -- Removed those that have moved on 
 DELETE FROM crs_refcerts WHERE AYSOID IN (SELECT AYSOID FROM crs_not_available WHERE Reason = 'deceased');    
 
--- Removed those that have indicated they are no longer interested in assessing or instructing 
+-- Removed those that have indicated they are no longer available for assessing or instructing 
 DELETE FROM crs_refcerts 
 WHERE
     AYSOID IN (SELECT 
