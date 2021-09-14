@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jul 23, 2021 at 01:23 PM
--- Server version: 5.7.34-0ubuntu0.18.04.1
--- PHP Version: 8.0.8
+-- Generation Time: Sep 14, 2021 at 01:22 PM
+-- Server version: 5.7.35-0ubuntu0.18.04.1
+-- PHP Version: 7.4.23
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -217,6 +217,111 @@ SELECT DISTINCT `AYSOID`, `Name`, `FirstName` AS 'First Name', `LastName` AS 'La
 ORDER BY `SAR`, `Last Name`, `First Name`;
 END$$
 
+DROP PROCEDURE IF EXISTS `e3_inLeague_reports`$$
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `e3_inLeague_reports` ()  BEGIN
+
+SET @s = "
+DROP TABLE IF EXISTS `e3_inLeague_reports`;
+
+CREATE TEMPORARY TABLE `e3_inLeague_reports` (
+  `Section` int(11) DEFAULT NULL,
+  `Area` text,
+  `Region` int(11) DEFAULT NULL,
+  `AYSOID` int(11) DEFAULT NULL,
+  `Membershipyear` text,
+  `Volunteer Position` text,
+  `LastName` text,
+  `FirstName` text,
+  `DOB` text,
+  `Gender` text,
+  `Street` text,
+  `City` text,
+  `State` text,
+  `Zip` text,
+  `HomePhone` text,
+  `CellPhone` text,
+  `Email` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2016.Volunteer_Report_Export.csv'
+	INTO TABLE `e3_inLeague_reports`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2017.Volunteer_Report_Export.csv'
+	INTO TABLE `e3_inLeague_reports`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2018.Volunteer_Report_Export.csv'
+	INTO TABLE `e3_inLeague_reports`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2019.Volunteer_Report_Export.csv'
+	INTO TABLE `e3_inLeague_reports`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2020.Volunteer_Report_Export.csv'
+	INTO TABLE `e3_inLeague_reports`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2021.Volunteer_Report_Export.csv'
+	INTO TABLE `e3_inLeague_reports`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
+UPDATE `e3_inLeague_reports` SET `Zip` = replace(`Zip`,'''','');
+
+DROP TABLE IF EXISTS `e3_inLeague`;
+
+CREATE TABLE `e3_inLeague` SELECT DISTINCT
+  `AYSOID`,
+  `Section`,
+  `Area`,
+  `Region`,
+  `Membershipyear`,
+  `Volunteer Position`,
+  `LastName`,
+  `FirstName`,
+  `DOB`,
+  `Gender`,
+  `Street`,
+  `City`,
+  `State`,
+  `Zip`,
+  FORMAT_AS_PHONE_NUMBER(`HomePhone`) AS `HomePhone`,
+  FORMAT_AS_PHONE_NUMBER(`CellPhone`) AS `CellPhone`,
+  `Email`
+
+FROM
+    `ayso1ref_services`.`e3_inLeague_reports`
+WHERE
+    Region IN (13 , 20, 70, 76, 78);
+    
+SELECT 
+    *
+FROM
+    `e3_inLeague`;   
+";
+
+END$$
+
 DROP PROCEDURE IF EXISTS `eAYSOHighestRefCert`$$
 CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `eAYSOHighestRefCert` (IN `tableName` VARCHAR(128))  BEGIN
 
@@ -292,11 +397,337 @@ DEALLOCATE PREPARE stmt;
 END$$
 
 DROP PROCEDURE IF EXISTS `exec_qry`$$
-CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `exec_qry` (IN `p_sql` VARCHAR(256))  BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `exec_qry` (IN `p_sql` TEXT)  BEGIN
 SET @tquery = p_sql;
   PREPARE stmt FROM @tquery;
   EXECUTE stmt;
   DEALLOCATE PREPARE stmt;
+END$$
+
+DROP PROCEDURE IF EXISTS `load_historical_certs`$$
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `load_historical_certs` ()  BEGIN
+
+SET @@global.sql_mode= '';
+
+/***************************************/
+--  Load SportsConnect certs`
+
+-- init table crs_certs
+SET @s = "
+DROP TABLE IF EXISTS crs_certs;
+
+CREATE TABLE `crs_certs` (
+	`Program Name` text,
+	`Membership Year` varchar(200),
+	`Volunteer Role` text,
+    `IDNUM` text,
+	`AYSOID` varchar(20),
+	`Name` longtext,
+	`First Name` text,
+	`Last Name` text,
+	`Address` text,
+	`City` text,
+	`State` text,
+	`Zip` text,
+	`Home Phone` text,
+	`Cell Phone` text,
+	`Email` text,
+	`Gender` text,
+	`CertificationDesc` text,
+	`CertDate` varchar(10) CHARACTER SET utf8,
+	`SAR` varchar(98) NOT NULL DEFAULT '',
+	`Section` varchar(32) NOT NULL,
+	`Area` varchar(32) NOT NULL,
+	`Region` varchar(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE crs_certs AUTO_INCREMENT = 0; 
+ALTER TABLE crs_certs ADD INDEX (`AYSOID`);
+ALTER TABLE crs_certs ADD INDEX (`Membership Year`);
+
+-- init table crs_shcerts
+DROP TABLE IF EXISTS crs_shcerts;
+
+CREATE TABLE `crs_shcerts` (
+	`Program Name` text,
+	`Membership Year` text,
+	`Volunteer Role` text,
+    `IDNUM` text,
+	`AYSOID` varchar(20),
+	`Name` longtext,
+	`First Name` text,
+	`Last Name` text,
+	`Address` text,
+	`City` text,
+	`State` text,
+	`Zip` text,
+	`Home Phone` text,
+	`Cell Phone` text,
+	`Email` text,
+	`Gender` text,
+	`CertificationDesc` text,
+	`CertDate` varchar(10) CHARACTER SET utf8,
+	`SAR` varchar(98) NOT NULL DEFAULT '',
+	`Section` varchar(32) NOT NULL,
+	`Area` varchar(32) NOT NULL,
+	`Region` varchar(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `crs_shcerts` 
+AUTO_INCREMENT = 0, 
+ADD INDEX (`aysoid`);
+
+-- Refresh Section BS data table `crs_1_certs`
+DROP TABLE IF EXISTS `tmp_1_certs`;   
+
+CREATE TEMPORARY TABLE `tmp_1_certs` (
+	`Program Name` text,
+	`Program AYSO Membership Year` text,
+	`Volunteer Role` text,
+    `IDNUM` text,
+	`AYSO Volunteer ID` int(11),
+	`Volunteer First Name` text,
+	`Volunteer Last Name` text,
+	`Volunteer Address` text,
+	`Volunteer City` text,
+	`Volunteer State` text,
+	`Volunteer Zip` text,
+	`Volunteer Phone` text,
+	`Volunteer Cell` text,
+	`Volunteer Email` text,
+	`Gender` text,
+	`AYSO Certifications` text,
+	`Date of Last AYSO Certification Update` text,
+	`Portal Name` varchar(250)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.txt'  
+	INTO TABLE `tmp_1_certs`   
+	FIELDS TERMINATED BY '\t'   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;   
+
+DELETE FROM `tmp_1_certs` WHERE `Program Name` like '%Do not use%';
+
+-- Restore Region deleted programs & volunteers in past seasons
+INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201812_certs`;
+INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201905_certs`;
+INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201912_certs`;
+INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_202105_certs`;
+
+# -10-30: Correct cross-id contamination with 97815888  
+ALTER TABLE `tmp_1_certs` 
+ADD COLUMN `id` INT NOT NULL AUTO_INCREMENT AFTER `Portal Name`,
+ADD PRIMARY KEY (`id`);
+
+DELETE FROM `tmp_1_certs` 
+WHERE
+    `AYSO Volunteer ID` = 97815888
+    AND `Gender` = 'F';
+        
+ALTER TABLE `tmp_1_certs`
+DROP COLUMN `id`,
+DROP PRIMARY KEY;        
+# END: -10-30: Correct cross-id contamination with 97815888 
+
+-- 2021.08.22 remove duplicate records
+DROP TABLE IF EXISTS `crs_1_certs`;  
+CREATE TABLE `crs_1_certs` SELECT DISTINCT * FROM `tmp_1_certs`;  
+-- END: remove duplicate records    
+
+-- Clean up imported data
+DELETE FROM `crs_1_certs` WHERE `AYSO Volunteer ID` IS NULL;
+UPDATE `crs_1_certs` SET `Program Name` = REPLACE(`Program Name`, '\"', '');
+UPDATE `crs_1_certs` SET `Volunteer Role` = REPLACE(`Volunteer Role`, '\"', '');
+UPDATE `crs_1_certs` SET `Volunteer Address` = REPLACE(`Volunteer Address`, '\"', '');
+UPDATE `crs_1_certs` SET `Volunteer City` = REPLACE(`Volunteer City`, '\"', '');
+UPDATE `crs_1_certs` SET `Portal Name` = REPLACE(`Portal Name`, '\"', '');
+
+ALTER TABLE `crs_1_certs` 
+ADD INDEX (`AYSO Volunteer ID`),
+ADD INDEX (`Portal Name`);
+
+# Maureen Reid 73895502 registered Section 1 in error lives in Pennsylvania
+DELETE FROM `crs_1_certs` WHERE `AYSO Volunteer ID` = 73895502;
+
+CALL `processBSCSV`('crs_1_certs');  
+
+/***************************************/
+-- 2021-01-06: eAYSO report files are no longer available.  No need to update.
+-- Load eAYSO certs`
+
+-- Load `eAYSO.MY2017.certs`
+CALL `prepEAYSOCSVTable`('eAYSO.MY2016.certs');
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/eAYSO.MY2016.certs.csv'
+	INTO TABLE `eAYSO.MY2016.certs`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY '\"'  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;   
+
+--  Load `eAYSO.MY2017.certs`
+CALL `prepEAYSOCSVTable`('eAYSO.MY2017.certs');
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/eAYSO.MY2017.certs.csv'
+	INTO TABLE `eAYSO.MY2017.certs`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY '\"'  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;   
+	
+--  Refresh `eAYSO.MY2018.certs`
+CALL `prepEAYSOCSVTable`('eAYSO.MY2018.certs');
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/eAYSO.MY2018.certs.csv'
+	INTO TABLE `eAYSO.MY2018.certs`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY '\"'  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;   
+
+--  Refresh `eAYSO.MY2019.certs`
+CALL `prepEAYSOCSVTable`('eAYSO.MY2019.certs');
+
+LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/eAYSO.MY2019.certs.csv'
+	INTO TABLE `eAYSO.MY2019.certs`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY '\"'  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;   
+--
+-- Still need to add eAYSO certs to crs_certs and crs_shcerts 
+CALL `processEAYSOCSV`();";
+
+CALL exec_qry(@s);
+
+END$$
+
+DROP PROCEDURE IF EXISTS `mergeAdminCredentialsStatusDynamic`$$
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `mergeAdminCredentialsStatusDynamic` ()  BEGIN
+
+DROP TABLE IF EXISTS `temp1`;
+
+CREATE TABLE `temp1` (SELECT DISTINCT `AYSOID`,
+    `Address`,
+    `City`,
+    `State`,
+    `Zip`,
+    `Home Phone`,
+    `Cell Phone`
+    FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID` AND @my <> `Membership Year`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`,
+            @my:=`Membership Year`
+    FROM
+        (SELECT DISTINCT
+        `AYSOID`,
+            `Membership Year`,
+            `Address`,
+            `City`,
+            `State`,
+            `Zip`,
+            `Home Phone`,
+            `Cell Phone`
+    FROM
+        crs_certs t
+	ORDER BY `Membership Year` DESC) ordered
+    GROUP BY `AYSOID`) ranked
+WHERE
+    rank = 1);
+
+INSERT INTO `crs_certs`(
+SELECT 
+    `MY` AS `Program Name`,
+    RIGHT(`MY`, 6) AS `Membership Year`,
+    'Volunteer' AS 'Volunteer Role',
+    `IDNUM1`,
+    `AltID` AS `AYSOID`,
+    CONCAT(`FirstName`, ' ', `LastName`) AS `Name`,
+    `FirstName` AS `First Name`,
+    `LastName` AS `Last Name`,
+    `Address`,
+    `City`,
+    `State`,
+    `Zip`,
+    `Home Phone`,
+    `Cell Phone`,
+    `email` AS `Email`,
+    `GenderCode` AS `Gender`,
+    `CertificateName` AS `CertificationDesc`,
+    `ccInDate` AS `CertDate`,
+    CONCAT(ExtractNumber(`League`),
+            '/',
+            ExtractAlpha(SUBSTRING_INDEX(TRIM(`League`), ' ', -1)),
+            '/',
+            ExtractNumber(`Club`)) AS `SAR`,
+    ExtractNumber(`League`) AS `Section`,
+    ExtractAlpha(SUBSTRING_INDEX(TRIM(`League`), ' ', -1)) AS `Area`,
+    ExtractNumber(`Club`) AS `Region`
+FROM
+    ayso1ref_services.AdminCredentialsStatusDynamic a INNER JOIN temp1 t ON a.`AltID` = t.`AYSOID`
+WHERE `ccInDate` <> '' 
+	AND NOT `CertificateName` IN ('CEUs eCompleted', 'Instructor Completed', 'Management Training', '')
+ORDER BY `IDNUM1` , `Membership Year`);    
+   
+   
+INSERT INTO `crs_certs`(
+SELECT DISTINCT
+    `MY` AS `Program Name`,
+    RIGHT(`MY`, 6) AS `Membership Year`,
+    'Volunteer' AS 'Volunteer Role',
+    `IDNUM1`,
+    `AltID` AS `AYSOID`,
+    CONCAT(`FirstName`, ' ', `LastName`) AS `Name`,
+    `FirstName` AS `First Name`,
+    `LastName` AS `Last Name`,
+    `Address`,
+    `City`,
+    `State`,
+    `Zip`,
+    `Home Phone`,
+    `Cell Phone`,
+    `email` AS `Email`,
+    `GenderCode` AS `Gender`,
+    `refGrade1` AS `CertificationDesc`,
+    STR_TO_DATE(`refObtainDate1`, "%m/%d/%Y") as `CertDate`,
+    CONCAT(ExtractNumber(`League`),
+            '/',
+            ExtractAlpha(SUBSTRING_INDEX(TRIM(`League`), ' ', -1)),
+            '/',
+            ExtractNumber(`Club`)) AS `SAR`,
+    ExtractNumber(`League`) AS `Section`,
+    ExtractAlpha(SUBSTRING_INDEX(TRIM(`League`), ' ', -1)) AS `Area`,
+    ExtractNumber(`Club`) AS `Region`
+FROM
+    ayso1ref_services.AdminCredentialsStatusDynamic a INNER JOIN temp1 t ON a.`AltID` = t.`AYSOID`
+    WHERE `refObtainDate1` <> ''
+ORDER BY `IDNUM1` , `Membership Year`);
+
+DROP TABLE IF EXISTS `temp1`;
+
+-- remove duplicate records
+DROP TABLE IF EXISTS `copy_crs_certs`;
+CREATE TABLE `copy_crs_certs` LIKE `crs_certs`;
+ 
+INSERT INTO `copy_crs_certs`
+SELECT DISTINCT * FROM `crs_certs`; 
+
+DELETE FROM crs_certs 
+WHERE
+    AYSOID IN (SELECT 
+        AYSOID
+    FROM
+        crs_not_available); 
+DROP TABLE IF EXISTS `crs_certs`;
+ 
+ALTER TABLE `copy_crs_certs` RENAME TO `crs_certs`;
+-- END: remove duplicate records
+
+
 END$$
 
 DROP PROCEDURE IF EXISTS `prepEAYSOCSVTable`$$
@@ -367,10 +798,11 @@ EXECUTE stmt;
 
 DEALLOCATE PREPARE stmt; 
 
-SET @s = CONCAT(" INSERT INTO crs_certs SELECT 
+SET @s = CONCAT(" INSERT INTO crs_2020_certs SELECT 
     `Program Name`,
     CONCAT('MY',`Program AYSO Membership Year`) AS `Membership Year`,
     `Volunteer Role`,
+    '' AS IDNUM,
     TRIM(`AYSO Volunteer ID`) AS AYSOID,
 	PROPER_CASE(CONCAT(`Volunteer First Name`, @space, `Volunteer Last Name`)) AS `Name`,
     PROPER_CASE(`Volunteer First Name`) AS `First Name`,
@@ -406,10 +838,11 @@ EXECUTE stmt;
 
 DEALLOCATE PREPARE stmt;  
 
-SET @s = CONCAT(" INSERT INTO crs_shcerts SELECT 
+SET @s = CONCAT(" INSERT INTO crs_2020_shcerts SELECT 
     `Program Name`,
     CONCAT('MY',`Program AYSO Membership Year`) AS `Membership Year`,
     `Volunteer Role`,
+    '' AS IDNUM,
     TRIM(`AYSO Volunteer ID`) AS AYSOID,
 	PROPER_CASE(CONCAT(`Volunteer First Name`, @space, `Volunteer Last Name`)) AS `Name`,
     PROPER_CASE(`Volunteer First Name`) AS `First Name`,
@@ -528,10 +961,11 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 -- 
 -- DELETE FROM `eAYSO_certs` WHERE AYSOID = 0;
 
-INSERT INTO `crs_certs` SELECT 
+INSERT INTO `crs_2020_certs` SELECT 
 	`Membership Year` AS `Program Name`,
     `Membership Year`,
     'Volunteer' AS `Volunteer Role`,
+	'' AS IDNUM,
     TRIM(BOTH ' ' FROM `AYSOID`) as `AYSOID`,
 	PROPER_CASE(`Name`) AS `Name`,
     PROPER_CASE(`FirstName`) AS `First Name`,
@@ -553,10 +987,11 @@ INSERT INTO `crs_certs` SELECT
 FROM `eAYSO_certs`;
 
 
-INSERT INTO `crs_shcerts` SELECT 
+INSERT INTO `crs_2020_shcerts` SELECT 
 	`Membership Year` AS `Program Name`,
     `Membership Year`,
     'Volunteer' AS `Volunteer Role`,
+	'' AS IDNUM,
     TRIM(BOTH ' ' FROM `AYSOID`) as `AYSOID`,
 	PROPER_CASE(`Name`) AS `Name`,
     PROPER_CASE(`FirstName`) AS `First Name`,
@@ -835,7 +1270,6 @@ DROP TABLE IF EXISTS crs_cdc;
 SET @s = CONCAT("
 CREATE TABLE crs_cdc SELECT 
 	`Program Name`,
-	`Membership Year`,
 	`Volunteer Role`,
 	`AYSOID`,
 	`Name`,
@@ -854,7 +1288,8 @@ CREATE TABLE crs_cdc SELECT
 	`SAR`,
 	`Section`,
 	`Area`,
-	`Region`
+	`Region`,
+    `Membership Year` 
 FROM
     (SELECT 
         *
@@ -867,7 +1302,7 @@ FROM
         crs_certs
     WHERE
         `CertificationDesc` LIKE '%Concussion%' 
-    GROUP BY `AYSOID`, `CertDate` DESC, `Membership Year` DESC, `SAR`) con ) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `CertDate` DESC, `SAR`) con ) ordered) ranked
 WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `Last Name`;
@@ -881,6 +1316,31 @@ DEALLOCATE PREPARE stmt;
 
 ALTER TABLE crs_cdc ADD INDEX (`AYSOID`);
 
+END$$
+
+DROP PROCEDURE IF EXISTS `RefreshCurrentMY`$$
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshCurrentMY` ()  BEGIN
+
+DROP TABLE IF EXISTS `crs_current_my`;
+
+CREATE TABLE `crs_current_my`
+SELECT 
+    DISTINCT `AYSOID`, `Membership Year`
+FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID` AND `Membership Year` < @my, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`,
+            @my:=`Membership Year`
+    FROM
+        (SELECT DISTINCT
+        `AYSOID`, `Membership Year`
+    FROM
+        crs_refcerts
+    ORDER BY AYSOID, `Membership Year` DESC) ordered
+    GROUP BY AYSOID, `Membership Year`) ranked
+WHERE
+    rank = 1;
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshDupicateRefCerts`$$
@@ -1020,10 +1480,10 @@ FROM
             AND `CertificationDesc` <> 'Z-Online Regional Referee'
             AND `CertificationDesc` <> 'Z-Online Safe Haven Referee'
             AND `CertificationDesc` <> 'Safe Haven Referee'
-    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', '')) grouped ) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) grouped ) ranked
     WHERE
         rankID = 1
-    ORDER BY `AYSOID`, `Membership Year` DESC, `Section`, `Area`, `Region`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', 'U-8 Official & Safe Haven Referee', ''), `Section`, `Area`, `Region`, `Last Name`, `First Name`, AYSOID;
+    ORDER BY `AYSOID`, `Membership Year` DESC, `Section`, `Area`, `Region`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', 'U-8 Official', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', ''), `Section`, `Area`, `Region`, `Last Name`, `First Name`, AYSOID;
 ");
 
 PREPARE stmt FROM @s;
@@ -1049,9 +1509,9 @@ CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshNationalRefereeAsse
 SET @id:= 0;
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
-DROP TABLE IF EXISTS tmp_nra;
+DROP TABLE IF EXISTS `crs_rpt_nra`;
 
-CREATE TEMPORARY TABLE tmp_nra SELECT * FROM
+CREATE TEMPORARY TABLE `crs_rpt_nra` SELECT * FROM
     (SELECT 
         `AYSOID`,
 		`Name`,
@@ -1070,7 +1530,7 @@ CREATE TEMPORARY TABLE tmp_nra SELECT * FROM
 		`Section`,
 		`Area`,
         `Region`,
-		`Membership Year`
+		`Membership Year` 
     FROM
         (SELECT 
         *,
@@ -1082,8 +1542,7 @@ CREATE TEMPORARY TABLE tmp_nra SELECT * FROM
     FROM
         `crs_refcerts`
     WHERE
-        `CertificationDesc` LIKE 'National Referee Assessor' AND
-        (`Membership Year` = 'MY2020' OR `Membership Year` = 'MY2019' )
+        `CertificationDesc` LIKE 'National Referee Assessor' 
     ORDER BY `Membership Year` DESC, `SAR`) ordered
     GROUP BY `AYSOID` 
     ) ranked
@@ -1092,10 +1551,7 @@ CREATE TEMPORARY TABLE tmp_nra SELECT * FROM
 	GROUP BY `Email`
     ORDER BY CertificationDesc , `Section` , `Area` , `Last Name` , `First Name` , `AYSOID`) ra;
     
-    DROP TABLE IF EXISTS crs_rpt_nra;
-
-	CREATE TABLE crs_rpt_nra SELECT * FROM tmp_nra
-    ORDER BY CertificationDesc , `Section` , `Area` , `Last Name` , `First Name` , `AYSOID`;
+    UPDATE `crs_rpt_nra` SET `Membership Year` = (SELECT `Membership Year` FROM `crs_current_my` my WHERE `crs_rpt_nra`.`AYSOID` = my.`AYSOID`);
     
 END$$
 
@@ -1128,7 +1584,7 @@ WHERE
 
 UPDATE `crs_refcerts` 
 SET 
-    `CertificationDesc` = 'U-8 Official'
+    `CertificationDesc` = '8U Official'
 WHERE
     `CertificationDesc` = 'U-8 Official & Safe Haven Referee';
 END$$
@@ -1203,12 +1659,15 @@ CREATE TABLE crs_rpt_ra SELECT * FROM
             AND NOT `CertificationDesc` LIKE '%Safe Haven%'
             AND NOT `CertificationDesc` LIKE 'Assistant%'
             AND NOT `CertificationDesc` LIKE '%Official%'
-	ORDER BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor') ) ordered            
+  	ORDER BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor') ) ordered         
     GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Assessor', 'Referee Assessor')) ranked
     WHERE
         rank = 1
     GROUP BY `Email`
     ORDER BY CertificationDesc , `Section` , `Area` , `Region` , `Last Name` , `First Name` , AYSOID) ra;
+    
+	UPDATE `crs_rpt_ra` SET `Membership Year` = (SELECT `Membership Year` FROM `crs_current_my` my WHERE `crs_rpt_ra`.`AYSOID` = my.`AYSOID`);
+
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshRefereeInstructorEvaluators`$$
@@ -1255,12 +1714,13 @@ CREATE TABLE crs_rpt_rie SELECT DISTINCT * FROM
         `crs_refcerts` rc INNER JOIN `crs_refcerts` ar ON rc.AYSOID = ar.AYSOID
     WHERE
         rc.`CertificationDesc` = 'Referee Instructor Evaluator'
-            AND rc.`Membership Year` IN ('MY2021','MY2020','MY2019')
             AND ar.`CertificationDesc` LIKE '%Referee Instructor'
-    GROUP BY `AYSOID`, `SAR`, FIELD(ar.`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', ''), `Membership Year` DESC) grouped ) ranked
+    GROUP BY `AYSOID`, `SAR`, FIELD(ar.`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Referee Instructor', ''), `Membership Year` DESC) grouped ) ranked 
     WHERE
         rank = 1
     ORDER BY `Section`, `Area`, `Region`, `Membership Year` DESC, `Last Name`, `First Name`) rie;
+
+    UPDATE `crs_rpt_rie` SET `Membership Year` = (SELECT `Membership Year` FROM `crs_current_my` my WHERE `crs_rpt_rie`.`AYSOID` = my.`AYSOID`);
 
 END$$
 
@@ -1312,10 +1772,12 @@ CREATE TABLE crs_rpt_ri SELECT * FROM
             AND NOT `CertificationDesc` LIKE '%Webinar%'
             AND NOT `CertificationDesc` LIKE '%Online%'
             AND NOT `CertificationDesc` LIKE '%Safe Haven%'
-		ORDER BY `AYSOID` , `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Regional Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ordered
+		ORDER BY `AYSOID`, `Membership Year` DESC, `SAR`, FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Regional Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ordered 
     GROUP BY `AYSOID` , FIELD(`CertificationDesc`, 'National Referee Instructor', 'Advanced Referee Instructor', 'Intermediate Referee Instructor', 'Regional Referee Instructor', 'Referee Instructor', 'Basic Referee Instructor', 'Grade2 Referee Instructor')) ranked
     WHERE
         rank = 1) ri;
+
+    UPDATE `crs_rpt_ri` SET `Membership Year` = (SELECT `Membership Year` FROM `crs_current_my` my WHERE `crs_rpt_ri`.`AYSOID` = my.`AYSOID`);
     
 END$$
 
@@ -1366,7 +1828,8 @@ CREATE TEMPORARY TABLE tmp_ref_upgrades SELECT DISTINCT course.`AYSOID`,
     course.`Section`,
     course.`Area`,
     course.`Region`,
-    course.`Membership Year` FROM
+    course.`Membership Year`
+FROM
     tmp_NatRC course
         LEFT JOIN
     tmp_NatR upgraded ON course.`AYSOID` = upgraded.`AYSOID`
@@ -1388,7 +1851,7 @@ CREATE TEMPORARY TABLE tmp_AdvRC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Advanced Referee Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`) ordered) ranked 
 WHERE
     rank = 1;
 
@@ -1417,8 +1880,8 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`SAR`,
 		course.`Section`,
 		course.`Area`,
-		course.`Region`, 
-		course.`Membership Year`
+		course.`Region`,
+		course.`Membership Year` 
     FROM
         tmp_AdvRC course LEFT JOIN tmp_AdvR upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -1439,7 +1902,7 @@ CREATE TEMPORARY TABLE tmp_IntRC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Intermediate Referee Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`) ordered) ranked 
 WHERE
     rank = 1;
 
@@ -1468,8 +1931,8 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`SAR`,
 		course.`Section`,
 		course.`Area`,
-		course.`Region`, 
-		course.`Membership Year`
+		course.`Region`,
+		course.`Membership Year` 
     FROM
         tmp_IntRC course LEFT JOIN tmp_IntR upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -1493,7 +1956,7 @@ CREATE TEMPORARY TABLE tmp_RAC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Referee Assessor Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`) ordered) ranked 
 WHERE
     rank = 1;
 
@@ -1522,8 +1985,8 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`SAR`,
 		course.`Section`,
 		course.`Area`,
-		course.`Region`, 
-		course.`Membership Year`
+		course.`Region`,
+		course.`Membership Year` 
     FROM
         tmp_RAC course LEFT JOIN tmp_RA upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -1543,7 +2006,7 @@ CREATE TEMPORARY TABLE tmp_NRAC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('National Referee Assessor Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`) ordered) ranked 
 WHERE
     rank = 1;
 
@@ -1572,8 +2035,8 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`SAR`,
 		course.`Section`,
 		course.`Area`,
-		course.`Region`, 
-		course.`Membership Year`
+		course.`Region`,
+		course.`Membership Year` 
     FROM
         tmp_NRAC course LEFT JOIN tmp_NRA upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -1593,7 +2056,7 @@ CREATE TEMPORARY TABLE tmp_RIC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Referee Instructor Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`) ordered) ranked 
 WHERE
     rank = 1;
 
@@ -1603,6 +2066,7 @@ CREATE TEMPORARY TABLE tmp_RI SELECT `AYSOID`, `CertDate` FROM
     crs_refcerts
 WHERE
     LOWER(`CertificationDesc`) = LOWER('Referee Instructor') OR 
+    LOWER(`CertificationDesc`) = LOWER('Regional Referee Instructor') OR 
     LOWER(`CertificationDesc`) = LOWER('Intermediate Referee Instructor');
 
 INSERT INTO tmp_ref_upgrades SELECT DISTINCT
@@ -1623,8 +2087,8 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`SAR`,
 		course.`Section`,
 		course.`Area`,
-		course.`Region`, 
-		course.`Membership Year`
+		course.`Region`,
+		course.`Membership Year` 
     FROM
         tmp_RIC course LEFT JOIN tmp_RI upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -1644,7 +2108,7 @@ CREATE TEMPORARY TABLE tmp_ARIC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Advanced Referee Instructor Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`) ordered) ranked 
 WHERE
     rank = 1;
 
@@ -1673,8 +2137,8 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`SAR`,
 		course.`Section`,
 		course.`Area`,
-		course.`Region`, 
-		course.`Membership Year`
+		course.`Region`,
+		course.`Membership Year` 
     FROM
         tmp_ARIC course LEFT JOIN tmp_ARI upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -1695,7 +2159,7 @@ CREATE TEMPORARY TABLE tmp_RIEC SELECT * FROM
         `crs_refcerts`
     WHERE
         LOWER(`CertificationDesc`) = LOWER('Referee Instructor Evaluator Course')
-    GROUP BY `AYSOID` , `Membership Year` DESC, `SAR`) ordered) ranked
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`) ordered) ranked 
 WHERE
     rank = 1;
 
@@ -1724,8 +2188,8 @@ INSERT INTO tmp_ref_upgrades SELECT DISTINCT
 		course.`SAR`,
 		course.`Section`,
 		course.`Area`,
-		course.`Region`, 
-		course.`Membership Year`
+		course.`Region`,
+		course.`Membership Year` 
     FROM
         tmp_RIEC course LEFT JOIN tmp_RIE upgraded ON course.`AYSOID` = upgraded.`AYSOID`
     WHERE
@@ -1744,6 +2208,8 @@ ORDER BY FIELD(`CertificationDesc`,
         'Referee Instructor Course',
         'Advanced Referee Instructor Course',
         'Referee Instructor Evaluator Course'), `Section` , `Area` , `Region` , `CertDate`;
+
+    UPDATE `crs_rpt_ref_upgrades` SET `Membership Year` = (SELECT `Membership Year` FROM `crs_current_my` my WHERE `crs_rpt_ref_upgrades`.`AYSOID` = my.`AYSOID`);
         
 END$$
 
@@ -1788,14 +2254,15 @@ FROM
         *
     FROM
         `crs_refcerts`
-    GROUP BY `AYSOID` , `Membership Year` DESC) ranked
-    ) ordered
+    GROUP BY `AYSOID`, `Membership Year` DESC, `SAR`) ordered) ranked
     WHERE
         rank = 1) s1
 WHERE `Volunteer Role` LIKE '%Referee' 
 	AND `CertificationDesc` = '' 
     AND NOT `Volunteer Role` LIKE 'TEST%'
 ORDER BY `Section`, `Area`, `Region`;
+
+UPDATE `crs_rpt_nocerts` SET `Membership Year` = (SELECT `Membership Year` FROM `crs_current_my` my WHERE `crs_rpt_nocerts`.`AYSOID` = my.`AYSOID`);
 
 END$$
 
@@ -1827,6 +2294,7 @@ CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshSafeHavenCerts` () 
 SET @id:= 0;
 
 DROP TABLE IF EXISTS crs_rpt_safehaven;
+
 SET @s = CONCAT("
 CREATE TABLE crs_rpt_safehaven SELECT 
 		`AYSOID`,
@@ -1846,8 +2314,8 @@ CREATE TABLE crs_rpt_safehaven SELECT
 		`SAR`,
 		`Section`,
 		`Area`,
-		`Region`,
-		`Membership Year`
+        `Region`,
+        `Membership Year`
     FROM
         (SELECT 
 			*,
@@ -1879,8 +2347,8 @@ CREATE TABLE crs_rpt_safehaven SELECT
         crs_shcerts sh RIGHT JOIN crs_rpt_hrc hrc USING (`AYSOID`)
 	WHERE sh.`CertificationDesc` LIKE '%AYSOs Safe Haven'
 		OR sh.`CertificationDesc` LIKE '%Refugio Seguro de AYSO'
-    ORDER BY `AYSOID`, sh.`CertDate` DESC, sh.`Membership Year` DESC, `SAR`) ordered
-    GROUP BY `AYSOID`, `CertDate`, `Membership Year`) ranked
+    ORDER BY `AYSOID`, sh.`CertDate` DESC, `SAR`) ordered
+    GROUP BY `AYSOID`, `CertDate`) ranked
 WHERE
     rank = 1
 ORDER BY `Section`, `Area`, `Region`, `Last Name`, `First Name`");
@@ -1892,6 +2360,9 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 ALTER TABLE crs_rpt_safehaven ADD INDEX (`AYSOID`);
+
+UPDATE `crs_rpt_safehaven` SET `Membership Year` = (SELECT `Membership Year` FROM `crs_current_my` my WHERE `crs_rpt_safehaven`.`AYSOID` = my.`AYSOID`);
+
 END$$
 
 DROP PROCEDURE IF EXISTS `RefreshSection8RefereeInstructors`$$
@@ -1904,7 +2375,6 @@ DROP TABLE IF EXISTS crs_rpt_s8_ri;
 
 SET @s = CONCAT("
 	CREATE TABLE crs_rpt_s8_ri SELECT DISTINCT
-	`MY`,
 	`AYSO ID`,
 	`Volunteer First Name`,
 	`Volunteer Last Name`,
@@ -1964,12 +2434,11 @@ DROP PROCEDURE IF EXISTS `RefreshSuddenCardiacArrestCerts`$$
 CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` PROCEDURE `RefreshSuddenCardiacArrestCerts` ()  BEGIN
 SET @id:= 0;
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
 DROP TABLE IF EXISTS crs_sca;
+
 SET @s = CONCAT("
 CREATE TABLE crs_sca SELECT 
-	`Program Name`,
-	`Membership Year`,
-	`Volunteer Role`,
 	`AYSOID`,
 	`Name`,
 	`First Name`,
@@ -1987,22 +2456,25 @@ CREATE TABLE crs_sca SELECT
 	`SAR`,
 	`Section`,
 	`Area`,
-	`Region`
+	`Region`,
+    `Membership Year`
 FROM
     (SELECT 
         *
     FROM
         (SELECT 
         *,
-            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
-            @id:=`AYSOID`
+            @rank:=IF(@id = `AYSOID`, @my <>  @rank + 1, 1) AS rank,
+            @id:=`AYSOID`,
+            @my:=`Membership Year`
     FROM (SELECT * FROM 
         crs_certs
     WHERE
-        `CertificationDesc` LIKE '%Sudden Cardiac Arrest Training' 
-    GROUP BY `AYSOID`, `CertDate` DESC, `Membership Year` DESC, `SAR`) con ) ordered) ranked
+        `CertificationDesc` LIKE '%Sudden Cardiac Arrest%' 
+	ORDER BY `Membership Year`, `AYSOID`, `CertDate` DESC) ordered 
+    GROUP BY `AYSOID`, `SAR`) ranked
 WHERE
-    rank = 1
+    rank = 1) s
 ORDER BY `Section` , `Area` , `Region` , `Last Name`;
 ");
     
@@ -2013,6 +2485,33 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 ALTER TABLE crs_sca ADD INDEX (`AYSOID`);
+
+UPDATE `crs_sca` SET `Membership Year` = (SELECT `Membership Year` FROM `crs_current_my` my WHERE NOT my.`Membership Year` IS NULL AND `crs_sca`.`AYSOID` = my.`AYSOID`);
+
+-- 2021-08-30: Added as Sports Connect Volunteer Certification reports no longer being updated
+DROP TABLE IF EXISTS tmp_e3_certs;
+
+CREATE TABLE tmp_e3_certs SELECT crs.`AYSOID`, `scaCertificationDesc`, `scaCertDate`, `SCA Date` FROM
+    `crs_rpt_ref_certs` crs
+        LEFT JOIN
+    `e3_InLeague_certifications` e3 ON crs.`AYSOID` = e3.`AYSOID`;
+
+UPDATE `tmp_e3_certs` 
+SET 
+    `scaCertificationDesc` = 'e3 Sudden Cardiac Arrest Training',
+    `scaCertDate` = `SCA Date`
+WHERE 
+    `tmp_e3_certs`.`SCA Date` <> '';
+
+UPDATE `crs_sca` 
+SET 
+    `CertificationDesc` = (SELECT `scaCertificationDesc` FROM `tmp_e3_certs` WHERE `crs_sca`.`AYSOID` = `tmp_e3_certs`.`AYSOID`),
+    `CertDate` = (SELECT `scaCertDate` FROM `tmp_e3_certs` WHERE `crs_sca`.`AYSOID` = `tmp_e3_certs`.`AYSOID`);
+                
+-- 2021-08-21: END: modified to update MY from inLeague registrations and certifications from e3
+
+DROP TABLE IF EXISTS tmp_e3_certs;
+
 
 END$$
 
@@ -2240,6 +2739,33 @@ SET @currentMY = CONCAT('MY', @year);
 RETURN @currentMY;
 END$$
 
+DROP FUNCTION IF EXISTS `ExtractAlpha`$$
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `ExtractAlpha` (`in_string` VARCHAR(50)) RETURNS TEXT CHARSET latin1 BEGIN
+
+    DECLARE ctrNumber varchar(50);
+    DECLARE finText text default ' ';
+    DECLARE sChar varchar(2);
+    DECLARE inti INTEGER default 1;
+
+    IF length(in_string) > 0 THEN
+
+        WHILE(inti <= length(in_string)) DO
+            SET sChar= SUBSTRING(in_string,inti,1);
+            SET ctrNumber= FIND_IN_SET(sChar,'0,1,2,3,4,5,6,7,8,9');
+
+            IF ctrNumber = 0 THEN
+               SET finText=CONCAT(finText,sChar);
+            ELSE
+               SET finText=CONCAT(finText,'');
+            END IF;
+            SET inti=inti+1;
+        END WHILE;
+        RETURN TRIM(finText);
+    ELSE
+        RETURN '';
+    END IF;
+END$$
+
 DROP FUNCTION IF EXISTS `ExtractNumber`$$
 CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `ExtractNumber` (`in_string` VARCHAR(50)) RETURNS INT(11) NO SQL
 BEGIN
@@ -2265,10 +2791,18 @@ BEGIN
     RETURN -1;
 END$$
 
+DROP FUNCTION IF EXISTS `format_as_phone_number`$$
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `format_as_phone_number` (`Phone` TEXT) RETURNS TEXT CHARSET latin1 BEGIN
+DECLARE n text;
+IF Phone = '' THEN RETURN ''; END IF; 
+SET n = CONCAT(LEFT(Phone, 3), '-', SUBSTRING(Phone, 4,3), '-', RIGHT(Phone,4));
+RETURN n;
+END$$
+
 DROP FUNCTION IF EXISTS `isMYCurrent`$$
 CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `isMYCurrent` (`strMY` VARCHAR(11)) RETURNS TINYINT(1) BEGIN
 SET @MY = YEAR(STR_TO_DATE(CONCAT(RIGHT(strMY, 4), '0801'),'%Y%m%d'));
-SET @cutoffYear = YEAR(DATE_SUB(CURRENT_DATE(), INTERVAL 4 YEAR));
+SET @cutoffYear = YEAR(DATE_SUB(CURRENT_DATE(), INTERVAL 5 YEAR));
 RETURN @MY >= @cutoffYear;
 END$$
 
@@ -2362,7 +2896,7 @@ RETURN @result;
 END$$
 
 DROP FUNCTION IF EXISTS `yyTOyyyy`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `yyTOyyyy` (`mmddyy` TEXT) RETURNS TEXT CHARSET latin1 BEGIN
+CREATE DEFINER=`s2vzjyga9n1ho`@`localhost` FUNCTION `yyTOyyyy` (`mmddyy` TEXT) RETURNS TEXT CHARSET latin1 BEGIN
 
 SET @yymmdd:= DATE_FORMAT(STR_TO_DATE(mmddyy, '%m/%d/%y'),'%Y%m%d');
 
