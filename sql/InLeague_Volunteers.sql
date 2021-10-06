@@ -20,7 +20,10 @@ CREATE TEMPORARY TABLE `e3_inLeague_reports` (
   `Email` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2016.Volunteer_Report_Export.csv'
 	INTO TABLE `e3_inLeague_reports`   
 	FIELDS TERMINATED BY ','   

@@ -105,6 +105,9 @@ LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.txt
 
 DELETE FROM `tmp_1_certs` WHERE `Program Name` like '%Do not use%';
 
+ALTER TABLE `tmp_1_certs`
+ADD COLUMN `IDNUM` text NULL AFTER `Volunteer Role`;
+
 -- Restore Region deleted programs & volunteers in past seasons
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201812_certs`;
 INSERT INTO `tmp_1_certs` SELECT * FROM `crs_1_201905_certs`;
@@ -123,6 +126,7 @@ WHERE
         
 ALTER TABLE `tmp_1_certs`
 DROP COLUMN `id`,
+DROP COLUMN `IDNUM`,
 DROP PRIMARY KEY;        
 # END: -10-30: Correct cross-id contamination with 97815888 
 
@@ -243,6 +247,7 @@ CREATE TABLE `crs_shcerts` (SELECT * FROM
 
 **************************************/
 
+<<<<<<< Updated upstream
 -- 2021-04-12 : added to update MY from Stack Sports AdminCredentialsStatusDynamic reports
 
 DROP TABLE IF EXISTS `AdminCredentialsStatusDynamic`;
@@ -430,19 +435,27 @@ LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volun
 
 -- 2021-08-30: Added as Sports Connect Volunteer Certification reports no longer being updated
 DROP TABLE IF EXISTS tmp_e3_certs;
+=======
+ALTER TABLE `ayso1ref_services`.`crs_1_certs` 
+CHANGE COLUMN `Volunteer Zip` `Volunteer Zip` INT;
 
-CREATE TABLE tmp_e3_certs SELECT crs.`AYSOID`, `scaCertificationDesc`, `scaCertDate`, `SCA Date` FROM
-    `crs_rpt_ref_certs` crs
-        LEFT JOIN
-    `e3_InLeague_certifications` e3 ON crs.`AYSOID` = e3.`AYSOID`;
+UPDATE `crs_1_certs` SET `Volunteer Address` = REPLACE(`Volunteer Address`, '  ', ' ');
 
-UPDATE `tmp_e3_certs` 
-SET 
-    `scaCertificationDesc` = 'e3 Sudden Cardiac Arrest Training',
-    `scaCertDate` = `SCA Date`
-WHERE 
-    `tmp_e3_certs`.`SCA Date` <> '';
+DROP TABLE IF EXISTS `1.Addresses`;
 
+CREATE TABLE `1.Addresses` SELECT DISTINCT
+    `AYSO Volunteer ID` AS `AYSOID`,
+    `Volunteer Address` AS `Address`,
+    `Volunteer City` AS `City`,
+    `Volunteer State` AS `State`,
+    `Volunteer Zip` AS `Zipcode`
+FROM
+    `crs_1_certs`;
+>>>>>>> Stashed changes
+
+-- 2021-04-12 : added to update MY from Stack Sports AdminCredentialsStatusDynamic reports
+
+<<<<<<< Updated upstream
 UPDATE `crs_rpt_ref_certs` 
 SET 
     `scaCertificationDesc` = (SELECT `scaCertificationDesc` FROM `tmp_e3_certs` WHERE `crs_rpt_ref_certs`.`AYSOID` = `tmp_e3_certs`.`AYSOID`),
@@ -588,3 +601,301 @@ SELECT
 FROM
     `s1_composite_my_certs`
 ORDER BY `Section` , `Area` , `Region` , `Last Name`;
+=======
+-- DROP TABLE IF EXISTS `AdminCredentialsStatusDynamic`;
+-- 
+-- CREATE TABLE `AdminCredentialsStatusDynamic` (
+--   `﻿Textbox332` text,
+--   `League1` text,
+--   `Club1` text,
+--   `ClubID1` text,
+--   `IDNUM` text,
+--   `AltID1` int(11) DEFAULT NULL,
+--   `FirstName1` text,
+--   `LastName1` text,
+--   `DOB1` text,
+--   `GenderCode1` text,
+--   `email1` text,
+--   `RiskSubmitDate1` text,
+--   `RiskStatus1` text,
+--   `RiskExpireDate1` text,
+--   `cardPrinted1` text,
+--   `photoInDate1` text,
+--   `licLevel1` text,
+--   `licNum1` text,
+--   `LicObtainDate1` text,
+--   `refGrade` text,
+--   `refObtainDate` text,
+--   `refExpDate` text,
+--   `CertificateName2` text,
+--   `ccInDate1` text,
+--   `ccVerified1` text,
+--   `ccVerifyBy1` text,
+--   `ccVerifyDate1` text,
+--   `ExpirationDateC1` text
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1B.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1C.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1D.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1F.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1G.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1H.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1N.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1P.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1R.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1S.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1U.AdminCredentialsStatusDynamic.csv'
+-- 	INTO TABLE `AdminCredentialsStatusDynamic`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- ALTER TABLE `ayso1ref_services`.`AdminCredentialsStatusDynamic` 
+-- CHANGE COLUMN `﻿Textbox332` `MY` TEXT NULL DEFAULT NULL;    
+-- 
+-- -- 2021-06-14: added to update MY from inLeague registrations in 1C & 1P
+-- -- 2021-08-21: modified to update MY from inLeague registrations and certifications from e3
+-- DROP TABLE IF EXISTS `e3_InLeague_certifications`;
+-- 
+-- CREATE TABLE `e3_InLeague_certifications` (
+--   `AYSOID` int(11) DEFAULT NULL,
+--   `Full Name` text,
+--   `Type` text,
+--   `SAR` text,
+--   `MY` text,
+--   `Safe Haven Date` text,
+--   `CDC Date` text,
+--   `SCA Date` text,
+--   `Ref Cert Desc` text,
+--   `Ref Cert Date` text,
+--   `Assessor Cert Desc` text,
+--   `Assessor Cert Date` text,
+--   `Inst Cert Desc` text,
+--   `Inst Cert Date` text,
+--   `Inst Eval Cert Desc` text,
+--   `Inst Eval Cert Date` text,
+--   `Coach Cert Desc` text,
+--   `Coach Cert Date` text,
+--   `Data Source` text,
+--   `Section` int(11) DEFAULT NULL,
+--   `Area` text,
+--   `Region` int(11) DEFAULT NULL,
+--   `Volunteer Position` text,
+--   `LastName` text,
+--   `FirstName` text,
+--   `DOB` text,
+--   `Gender` text
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_InLeague.txt'
+-- 	INTO TABLE `e3_InLeague_certifications`   
+-- 	FIELDS TERMINATED BY '\t'   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+-- 
+-- DROP TABLE IF EXISTS `tmp_MY`;   
+-- 
+-- CREATE TEMPORARY TABLE `tmp_MY` (
+-- 	`AYSOID` int(11),
+--     `MY` text,
+-- 	`First_Name` text,
+-- 	`Last_Name` text
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- 
+-- INSERT INTO `tmp_MY` SELECT DISTINCT `AltID1`, RIGHT(`MY`,6),`FirstName1`, `LastName1` FROM `AdminCredentialsStatusDynamic`;
+-- INSERT INTO `tmp_MY` SELECT 
+--     `AYSOID`,
+--     `MY`,
+--     `FirstName`,
+--     `LastName`
+-- FROM
+--     (SELECT 
+--         *,
+--             @rankID:=IF(@id = `AYSOID`, @rankID + 1, 1) AS rankID,
+--             @id:=`AYSOID`
+--     FROM
+--         (SELECT DISTINCT
+--         `SAR`,
+--             `AYSOID`,
+--             `MY`,
+--             `LastName`,
+--             `FirstName`
+--     FROM
+--         ayso1ref_services.e3_InLeague_certifications
+--     GROUP BY `AYSOID` , `MY` DESC) grouped) ranked
+-- WHERE
+--     rankID = 1
+-- ORDER BY `AYSOID`,`MY` DESC;
+-- 
+-- DELETE FROM `tmp_MY` WHERE `AYSOID` = 0;
+-- 
+-- -- remove duplicate records
+-- DROP TABLE IF EXISTS `copy_MY`;
+-- CREATE TABLE `copy_MY` LIKE `tmp_MY`;
+-- 
+-- INSERT INTO `copy_MY`
+-- SELECT * FROM `tmp_MY`
+-- GROUP BY `AYSOID`; 
+-- 
+-- DROP TABLE `tmp_MY`;
+-- 
+-- ALTER TABLE `copy_MY` RENAME TO `tmp_MY`;
+-- -- END: remove duplicate records
+-- 
+-- -- 2021-06-20: Updated to drop registrations more then 4 years old
+-- DELETE FROM `crs_rpt_ref_certs` WHERE NOT isMYCurrent(`Membership Year`);
+-- DELETE FROM `crs_rpt_ref_upgrades` WHERE NOT isMYCurrent(`Membership Year`);
+-- DELETE FROM `crs_rpt_ri` WHERE NOT isMYCurrent(`Membership Year`);
+-- DELETE FROM `crs_rpt_rie` WHERE NOT isMYCurrent(`Membership Year`);
+-- DELETE FROM `crs_rpt_nra` WHERE NOT isMYCurrent(`Membership Year`);
+-- DELETE FROM `crs_rpt_ra` WHERE NOT isMYCurrent(`Membership Year`);
+-- -- DELETE FROM `crs_rpt_hrc` WHERE NOT isMYCurrent(`Membership Year`);
+-- DELETE FROM `crs_rpt_unregistered_refs` WHERE NOT isMYCurrent(`Membership Year`);
+-- -- 2021-06-20: END: Added to drop registrations more then 4 years old
+-- 
+-- UPDATE `crs_rpt_ref_certs` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ref_certs`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+-- UPDATE `crs_rpt_ref_upgrades` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ref_upgrades`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+-- UPDATE `crs_rpt_ri` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ri`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+-- UPDATE `crs_rpt_rie` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_rie`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+-- UPDATE `crs_rpt_nra` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_nra`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+-- UPDATE `crs_rpt_ra` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_ra`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+-- -- UPDATE `crs_rpt_hrc` SET `Membership Year` = (SELECT `MY` FROM `tmp_MY` WHERE `crs_rpt_hrc`.`AYSOID` = `tmp_MY`.`AYSOID`) WHERE `AYSOID` IN (SELECT `AYSOID` FROM `tmp_MY`);
+-- DELETE FROM `crs_rpt_unregistered_refs` WHERE `AYSOID` in (SELECT `AYSOID` FROM `tmp_MY`);
+-- 
+-- DROP TABLE IF EXISTS `tmp_MY`;
+-- 
+-- -- 2021-04-12 : END: added to update MY from Stack Sports AdminCredentialsStatusDynamic reports
+-- -- 2021-06-14: END: added to update MY from inLeague registrations in 1C & 1P
+-- 
+-- DROP TABLE IF EXISTS tmp_e3_certs;
+-- 
+-- CREATE TABLE tmp_e3_certs SELECT crs.`AYSOID`, `scaCertificationDesc`, `scaCertDate`, `SCA Date` FROM
+--     `crs_rpt_ref_certs` crs
+--         LEFT JOIN
+--     `e3_InLeague_certifications` e3 ON crs.`AYSOID` = e3.`AYSOID`;
+-- 
+-- UPDATE `tmp_e3_certs` 
+-- SET 
+--     `scaCertificationDesc` = 'e3 Sudden Cardiac Arrest Training',
+--     `scaCertDate` = `SCA Date`
+-- WHERE 
+--     `tmp_e3_certs`.`SCA Date` <> '';
+-- 
+-- UPDATE `crs_rpt_ref_certs` 
+-- SET 
+--     `scaCertificationDesc` = (SELECT `scaCertificationDesc` FROM `tmp_e3_certs` WHERE `crs_rpt_ref_certs`.`AYSOID` = `tmp_e3_certs`.`AYSOID`),
+--     `scaCertDate` = (SELECT `scaCertDate` FROM `tmp_e3_certs` WHERE `crs_rpt_ref_certs`.`AYSOID` = `tmp_e3_certs`.`AYSOID`);
+-- 
+-- DROP TABLE IF EXISTS tmp_e3_certs;
+--                 
+-- -- 2021-08-21: END: modified to update MY from inLeague registrations and certifications from e3
+-- 
+-- -- Update Tables for Referee Scheduler
+-- DROP TABLE IF EXISTS rs_refs;
+-- CREATE TABLE rs_refs SELECT 
+-- 	* 
+-- FROM crs_rpt_hrc;
+-- ALTER TABLE rs_refs ADD INDEX (`AYSOID`);
+-- 
+-- DROP TABLE IF EXISTS tmp_refUpdate;
+-- CREATE TEMPORARY TABLE tmp_refUpdate SELECT 
+-- 	*
+-- FROM
+-- 	(SELECT 
+-- 		hrc.*
+-- 	FROM
+-- 		crs_rpt_hrc hrc
+-- 	LEFT JOIN rs_refs r ON r.AYSOID = hrc.AYSOID
+-- 	WHERE
+-- 		r.AYSOID IS NULL) new;
+-- 				
+-- INSERT INTO rs_refNicknames (`AYSOID`, `Name`, `Nickname`)
+-- SELECT AYSOID, Name, Name FROM tmp_refUpdate;
+-- 
+-- -- Update timestamp table  
+-- SET time_zone='+00:00';
+-- DROP TABLE IF EXISTS `crs_rpt_lastUpdate`;  
+-- CREATE TABLE `crs_rpt_lastUpdate` SELECT NOW() AS timestamp;
+-- ALTER TABLE crs_rpt_lastUpdate
+-- CHANGE COLUMN `timestamp` `timestamp` DATETIME NOT NULL DEFAULT '1901-01-01 00:00:00' ;
+-- ALTER TABLE crs_rpt_lastUpdate ADD UNIQUE (`timestamp`);
+--  
+-- -- Update Composite Cert table  
+-- CALL `UpdateCompositeMYCerts`();  
+-- 
+-- UPDATE `s1_composite_my_certs` SET `Zip` = REPLACE(`Zip`, "'", '');
+-- UPDATE `s1_composite_my_certs` SET `AYSOID` = REPLACE(`AYSOID`, " ", "");
+-- ALTER TABLE `s1_composite_my_certs` 
+-- CHANGE COLUMN `AYSOID` `AYSOID` INT(11); 
+-- 
+-- -- Select the composite results for download
+-- SELECT 
+-- 		*
+-- FROM
+-- 		`s1_composite_my_certs`
+-- ORDER BY `Section`, `Area`, `Region`, `Last Name`;
+-- 
+>>>>>>> Stashed changes
