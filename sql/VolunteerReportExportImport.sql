@@ -26,6 +26,8 @@ CREATE TEMPORARY TABLE `1.VolunteerReportExport` (
   `Email` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE INDEX `idx_VolunteerReportExport_AYSOID`  ON `1.VolunteerReportExport` (AYSOID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+
 LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2016.Volunteer_Report_Export.csv'
 	INTO TABLE `1.VolunteerReportExport`   
 	FIELDS TERMINATED BY ','   
@@ -73,6 +75,13 @@ DELETE FROM `1.VolunteerReportExport` WHERE `LastName` in ('Volunteer1');
 /* fix Rich Fichtelman's data */
 UPDATE `1.VolunteerReportExport` SET `AYSOID` = '99811580' WHERE `AYSOID` = '203143317';
 
+
+/* fix wise asses */
+UPDATE `1.VolunteerReportExport` SET `Street` = '' WHERE `Street` = 'Street';
+UPDATE `1.VolunteerReportExport` SET `City` = '' WHERE `City` = 'City';
+UPDATE `1.VolunteerReportExport` SET `HomePhone` = '' WHERE `HomePhone` = '123-456-7890';
+UPDATE `1.VolunteerReportExport` SET `CellPhone` = '' WHERE `CellPhone` = '123-456-7890';
+
 DROP TABLE IF EXISTS `VolunteerReportExport`;
 
 CREATE TABLE `VolunteerReportExport` SELECT DISTINCT `AYSOID`,
@@ -111,9 +120,17 @@ DROP TABLE IF EXISTS `1.VolunteerReportExport`;
 ALTER TABLE `VolunteerReportExport` 
 RENAME TO  `1.VolunteerReportExport`;
 
+DELETE FROM `1.VolunteerReportExport` WHERE `AYSOID` IS NULL;
+
 CREATE INDEX `idx_1.VolunteerReportExport_AYSOID`  ON `1.VolunteerReportExport` (AYSOID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
+/* Save as 19-21.VolunteerReport_InLeague.csv */
 SELECT 
-    *
+    vre.*
 FROM
-    `1.VolunteerReportExport`;
+    `1.VolunteerReportExport` vre
+        LEFT JOIN
+    `1.AdminLicenseGrade` alg ON vre.AYSOID = alg.AYSOID
+WHERE
+    vre.`Region` IN (13 , 20, 70, 76, 78)
+        AND vre.`MY` >= 'MY2019';

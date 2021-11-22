@@ -22,12 +22,17 @@ UPDATE `1.CompositeRefereeCertificates` c SET `SAR` = `Section`;
 UPDATE `1.CompositeRefereeCertificates` c SET `SAR` = CONCAT(`SAR`, '/' , `Area`) WHERE NOT `Area` = '';
 UPDATE `1.CompositeRefereeCertificates` c SET `SAR` = CONCAT(`SAR`, '/', `Region`) WHERE NOT `Region` = '';
 
-UPDATE `1.CompositeRefereeCertificates` c SET `Address` = (SELECT `Street` FROM `1.VolunteerReportExport` WHERE c.AYSOID = `1.VolunteerReportExport`.`AYSOID` LIMIT 1);
-UPDATE `1.CompositeRefereeCertificates` c SET `City` = (SELECT `City` FROM `1.VolunteerReportExport` WHERE c.AYSOID = `1.VolunteerReportExport`.`AYSOID` LIMIT 1);
-UPDATE `1.CompositeRefereeCertificates` c SET `State` = (SELECT `State` FROM `1.VolunteerReportExport`WHERE c.AYSOID = `1.VolunteerReportExport`.`AYSOID` LIMIT 1);
-UPDATE `1.CompositeRefereeCertificates` c SET `Zipcode` = (SELECT `Zip` FROM `1.VolunteerReportExport` WHERE c.AYSOID = `1.VolunteerReportExport`.`AYSOID` LIMIT 1);
-UPDATE `1.CompositeRefereeCertificates` c SET `Home_Phone` = (SELECT `HomePhone` FROM `1.VolunteerReportExport` WHERE c.AYSOID = `1.VolunteerReportExport`.`AYSOID` LIMIT 1);
-UPDATE `1.CompositeRefereeCertificates` c SET `Cell_Phone` = (SELECT `CellPhone` FROM `1.VolunteerReportExport` WHERE c.AYSOID = `1.VolunteerReportExport`.`AYSOID` LIMIT 1);
+UPDATE `1.CompositeRefereeCertificates` c
+        INNER JOIN
+    `1.VolunteerReportExport` vre ON c.`AYSOID` = vre.`AYSOID` 
+SET 
+    c.`Address` = vre.`Street`,
+    c.`City` = vre.`City`,
+    c.`State` = vre.`State`,
+    c.`Zipcode` = vre.`Zip`,
+    c.`Home_Phone` = vre.`HomePhone`,
+    c.`Cell_Phone` = vre.`CellPhone`;
+    
 
 DROP TABLE IF EXISTS `tmp_sh_cert`;
 CREATE TEMPORARY TABLE `tmp_sh_cert` SELECT DISTINCT `AdminID`, `CertificateName`, `CertificateDate` FROM
@@ -52,8 +57,7 @@ CREATE INDEX `idx_tmp_sca_cert_AdminID`  ON `tmp_sca_cert` (AdminID) COMMENT '' 
 
 DROP TABLE IF EXISTS `tmp_risk_cert`;
 CREATE TEMPORARY TABLE `tmp_risk_cert` SELECT DISTINCT `AdminID`, `RiskStatus` AS `CertificateName`, `RiskExpireDate` AS `CertificateDate` FROM
-    `1.AdminCredentialsStatusDynamic`
-WHERE `RiskExpireDate` <> ''    ;
+    `1.AdminCredentialsStatusDynamic`;
 CREATE INDEX `idx_tmp_risk_cert_AdminID`  ON .`tmp_risk_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `crs_rpt_ref_certs`;
@@ -76,6 +80,73 @@ FROM
         LEFT JOIN
     `tmp_risk_cert` risk ON c.`AdminID` = risk.`AdminID`;
 
+-- Add InLeague certs
+
+INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
+  '' AS `AdminID`,
+  vcv.`MY`,
+  REPLACE(REPLACE(REPLACE(vcv.`SAR`, '/0','/'), '/0','/'), '/0','/') AS `SAR`,
+  vcv.`Section`,
+  vcv.`Area`,
+  vcv.`Region`,
+  `FirstName` AS `First_Name`,
+  `LastName` AS `Last_Name`,
+  `Street` AS `Address`,
+  vcv.`City`,
+  vcv.`State`,
+  `Zip` AS `Zipcode`,
+  `HomePhone` AS `Home_Phone`,
+  `CellPhone` AS `Cell_Phone`,
+  vcv.`Gender`,
+  vcv.`Email`,
+  `Ref_Cert_Desc` AS `CertificationDesc`,
+  `Ref_Cert_Date` AS `CertificationDate`,
+  vcv.`Safe_Haven_Date`,
+  `CDC_Date` AS `Concussion_Awareness_Date`,
+  `SCA_Date` AS `Sudden_Cardiac_Arrest_Date`,
+  'InLeague' AS `RiskStatus`,
+  CONCAT(CAST(RIGHT(vcv.`MY`,4) AS UNSIGNED) + 1, '-07-31') AS `RiskExpireDate` 
+FROM
+    `1.Volunteer_Certs_VolunteerReport_InLeague` vcv
+        LEFT JOIN
+    crs_rpt_ref_certs rc ON vcv.AYSOID = rc.AYSOID;
+    
+UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
+UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
+UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
+
+SELECT *  FROM `crs_rpt_ref_certs` WHERE `RiskExpireDate` IS NULL;
+
+-- Update Tables for Referee Scheduler
+DROP TABLE IF EXISTS `rs_refs`;
+CREATE TABLE `rs_refs` SELECT * FROM
+    `crs_rpt_ref_certs`;
+ALTER TABLE `rs_refs` ADD INDEX (`AYSOID`);
+
+ALTER TABLE `rs_refs` 
+ADD COLUMN `Name` TEXT NULL AFTER `Region`;
+
+UPDATE `rs_refs` SET `Name` = CONCAT(`First_Name`, ' ', `Last_Name`); 
+
+/* fix Nate Nguyen */
+UPDATE `rs_refs` SET AYSOID = 66584088 WHERE AYSOID = 203000005;
+/* end fix */
+
+DROP TABLE IF EXISTS tmp_refUpdate;
+CREATE TEMPORARY TABLE tmp_refUpdate SELECT 
+	*
+FROM
+	(SELECT 
+		r.*
+	FROM
+		rs_refs r
+	LEFT JOIN `rs_refNicknames` n ON r.AYSOID = n.AYSOID
+	WHERE
+		n.AYSOID IS NULL) new;
+				
+INSERT INTO `rs_refNicknames` (`AYSOID`, `Name`, `Nickname`)
+SELECT `AYSOID`, `Name`, `Name` FROM tmp_refUpdate;
+
 -- Update timestamp table  
 SET time_zone='+00:00';
 DROP TABLE IF EXISTS `crs_rpt_lastUpdate`;  
@@ -87,4 +158,5 @@ ALTER TABLE crs_rpt_lastUpdate ADD UNIQUE (`timestamp`);
 SELECT 
     *
 FROM
-    `crs_rpt_ref_certs`;
+    `crs_rpt_ref_certs`
+    ORDER BY `AYSOID`, `AdminID`, `RiskExpireDate` DESC;

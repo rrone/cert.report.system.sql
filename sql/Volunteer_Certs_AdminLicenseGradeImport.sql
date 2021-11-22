@@ -96,6 +96,7 @@ WHERE
     `Full Name` = '*** Volunteer not found ***';
 
 DELETE FROM `1.Volunteer_Certs_AdminLicenseGrade` WHERE `Full Name` = '*** Volunteer not found ***';
+
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `SAR` = REPLACE(`SAR`, '/0','/');
@@ -120,6 +121,8 @@ CREATE TABLE `Volunteer_Certs_AdminLicenseGrade` SELECT `AYSOID`,
 
 CREATE INDEX `idx_Volunteer_Certs_AdminLicenseGrade_AYSOID_AdminID`  ON `Volunteer_Certs_AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
+DELETE FROM `1.Volunteer_Certs_AdminLicenseGrade` WHERE `AdminID` IS NULL;
+
 DROP TABLE IF EXISTS `1.Volunteer_Certs_AdminLicenseGrade`;
 
 ALTER TABLE `Volunteer_Certs_AdminLicenseGrade` 
@@ -142,8 +145,10 @@ UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'z-Online 
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'z-Online Regional Referee Course' WHERE `e3 Ref Cert Desc` = 'z-Online Regional Referee without Safe Haven---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official---Intermediate Referee Course';
+UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official---Z-Online Regional Referee Course';
-
+UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official---Z-Online Regional Referee Course';
+UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official';
 
 SELECT 
     *
@@ -151,7 +156,7 @@ FROM
     `1.Volunteer_Certs_AdminLicenseGrade`
 WHERE
     `e3 Ref Cert Desc` <> `AS_CertificationDesc`
---        OR `e3 Ref Cert Date` <> `AS_CertificationDate`
+
 ORDER BY FIELD(`e3 Ref Cert Desc`,
         'National Referee',
         'National 2 Referee',
@@ -165,4 +170,4 @@ ORDER BY FIELD(`e3 Ref Cert Desc`,
         'U-8 Official & Safe Haven Referee',
         'Z-Online Regional Referee Course',
         'Z-Online 8U Official',
-        ''), `SAR`,`e3 Ref Cert Date`;
+        ''), `SAR`,`e3 Ref Cert Date`

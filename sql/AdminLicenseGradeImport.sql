@@ -86,13 +86,8 @@ WHERE NOT `CertificationDesc` LIKE '%Referee%'
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDesc` = 'Assistant Referee' WHERE `CertificationDesc` = 'Asst. Referee';
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDesc` = '8U Official' WHERE `CertificationDesc` = 'U-8 Official';
 
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '08/30/2015' WHERE `AdminID` = '50144-988173';
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '01/05/2018' WHERE `AdminID` = '56070-301841';
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '09/04/2018' WHERE `AdminID` = '56070-301841';
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '09/15/2019' WHERE `AdminID` = '87797-269632';
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '09/18/2016' WHERE `AdminID` = '89012-550811';
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '09/08/2021' WHERE `AdminID` = '45202-107703';
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '11/21/2009' WHERE `AdminID` = '52302-859192';
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '10/29/1997' WHERE `AdminID` = '10177-661663';
 
 UPDATE `1.AdminLicenseGrade`  SET `Section` = ExtractNumber(`Section`);
@@ -134,7 +129,7 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
     ORDER BY `AdminID`, `MY` DESC) ordered
     GROUP BY `AdminID`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) grouped
     WHERE rank = 1
-		AND NOT `AYSOID` IS NULL
+		AND NOT `AdminID` IS NULL
     ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Asst. Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', ''), `Area`, `Region`, `Last_Name`;
         
 
@@ -143,24 +138,25 @@ DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
 ALTER TABLE `AdminLicenseGrade` 
 RENAME TO  `1.AdminLicenseGrade`;
 
--- SELECT 
---     *
--- FROM
---     `1.AdminLicenseGrade`
--- ORDER BY FIELD(`CertificationDesc`,
---         'National Referee',
---         'National 2 Referee',
---         'Advanced Referee',
---         'Intermediate Referee',
---         'Regional Referee',
---         'Regional Referee & Safe Haven Referee',
---         'Assistant Referee',
---         'Assistant Referee & Safe Haven Referee',
---         '8U Official',
---         'U-8 Official & Safe Haven Referee',
---         'Z-Online 8U Official',
---         '') , `Area` , `Region` , `Last_Name` , `MY`;
+SELECT 
+    *
+FROM
+    `1.AdminLicenseGrade`
+ORDER BY FIELD(`CertificationDesc`,
+        'National Referee',
+        'National 2 Referee',
+        'Advanced Referee',
+        'Intermediate Referee',
+        'Regional Referee',
+        'Regional Referee & Safe Haven Referee',
+        'Assistant Referee',
+        'Assistant Referee & Safe Haven Referee',
+        '8U Official',
+        'U-8 Official & Safe Haven Referee',
+        'Z-Online 8U Official',
+        '') , `Area` , `Region` , `Last_Name` , `MY`;
 
+/* save as alg_new.csv */
 SELECT 
     alg.*
 FROM

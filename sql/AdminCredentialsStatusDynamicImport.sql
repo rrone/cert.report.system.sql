@@ -6,6 +6,9 @@ DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 
 CREATE TABLE `1.AdminCredentialsStatusDynamic` (
     `MY` TEXT,
+    `Textbox80` TEXT,
+	`Textbox81` TEXT,
+	`Textbox82` TEXT,
     `CertificateName` TEXT,
     `League` TEXT,
     `Club` TEXT,
@@ -74,7 +77,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.201
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
-    
+        
 UPDATE `1.AdminCredentialsStatusDynamic` SET `MY` = RIGHT(`MY`,6);
 
 DELETE FROM `1.AdminCredentialsStatusDynamic` WHERE `League` IS NULL;
