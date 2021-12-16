@@ -132,8 +132,8 @@ FROM
         `1.AdminCredentialsStatusDynamic`
 	WHERE `CertificateName` IN ('AYSOs Safe Haven') 
     AND NOT `ccVerifyDate` = ''
-    ORDER BY `AdminID`, `MY` DESC) ordered
-    GROUP BY `AdminID`) grouped
+    ORDER BY `AdminID`) ordered
+    GROUP BY `AdminID`, `MY`) grouped
 WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
@@ -166,8 +166,8 @@ FROM
         `1.AdminCredentialsStatusDynamic`
 	WHERE `CertificateName` IN ('Concussion Awareness') 
     AND NOT `ccVerifyDate` = ''
-    ORDER BY `AdminID`, `MY` DESC) ordered
-    GROUP BY `AdminID`) grouped
+    ORDER BY `AdminID`) ordered
+    GROUP BY `AdminID`, `MY`) grouped
 WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
@@ -200,8 +200,8 @@ FROM
         `1.AdminCredentialsStatusDynamic`
 	WHERE `CertificateName` IN ('Sudden Cardiac Arrest') 
     AND NOT `ccVerifyDate` = ''
-    ORDER BY `AdminID`, `MY` DESC) ordered
-    GROUP BY `AdminID`) grouped
+    ORDER BY `AdminID`) ordered
+    GROUP BY `AdminID`, `MY`) grouped
 WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
@@ -212,12 +212,67 @@ DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
 UPDATE `AdminCredentialsStatusDynamic` c SET `CertificateDate` = str_to_date(`CertificateDate`, '%m/%d/%Y');
 UPDATE `AdminCredentialsStatusDynamic` c SET `RiskExpireDate` = str_to_date(`RiskExpireDate`, '%m/%d/%Y') WHERE `RiskExpireDate` <> '';
 
+DROP TABLE IF EXISTS `tmp_dup_AdminCredentialsStatusDynamic`;
+
+CREATE  TABLE `tmp_dup_AdminCredentialsStatusDynamic` SELECT `AdminID` FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `AdminCredentialsStatusDynamic`
+    ORDER BY `MY` DESC) ordered
+    GROUP BY `AYSOID`) grouped
+WHERE
+    `rank` = 1 AND `AYSOID` <> '';
+
+CREATE INDEX `idx_tmp_dup_AdminCredentialsStatusDynamic`  ON `tmp_dup_AdminCredentialsStatusDynamic` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+
+DELETE FROM `AdminCredentialsStatusDynamic` 
+WHERE
+    `AYSOID` <> ''
+    AND `AdminID` NOT IN (SELECT 
+        `AdminID`
+    FROM
+        `tmp_dup_AdminCredentialsStatusDynamic`);   
+
 DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 
-ALTER TABLE `AdminCredentialsStatusDynamic` 
-RENAME TO  `1.AdminCredentialsStatusDynamic`;
+CREATE TABLE `1.AdminCredentialsStatusDynamic` SELECT `AYSOID`,
+    `AdminID`,
+    `MY`,
+    `CertificateName`,
+    `CertificateDate`,
+    `Section`,
+    `Area`,
+    `Region`,
+    `FirstName`,
+    `LastName`,
+    `DOB`,
+    `Gender`,
+    `email`,
+    `RiskStatus`,
+    `RiskExpireDate` FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = CONCAT(`AdminID`,`CertificateName`), @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`,`CertificateName`)
+    FROM
+        (SELECT 
+        *
+    FROM
+        `AdminCredentialsStatusDynamic`
+    ORDER BY `AYSOID` , `MY` DESC) ordered
+    GROUP BY `AdminID`, `CertificateName`) grouped
+WHERE
+    rank = 1
+ORDER BY `Section` , `Area` , `Region` , `LastName`;
 
 SELECT 
     *
 FROM
     `1.AdminCredentialsStatusDynamic`;
+    

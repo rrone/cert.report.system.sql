@@ -109,13 +109,12 @@ INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
 FROM
     `1.Volunteer_Certs_VolunteerReport_InLeague` vcv
         LEFT JOIN
-    crs_rpt_ref_certs rc ON vcv.AYSOID = rc.AYSOID;
+    crs_rpt_ref_certs rc ON vcv.AYSOID = rc.AYSOID
+WHERE vcv.`MY` > rc.`MY`;
     
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
-
-SELECT *  FROM `crs_rpt_ref_certs` WHERE `RiskExpireDate` IS NULL;
 
 -- Update Tables for Referee Scheduler
 DROP TABLE IF EXISTS `rs_refs`;
@@ -159,4 +158,4 @@ SELECT
     *
 FROM
     `crs_rpt_ref_certs`
-    ORDER BY `AYSOID`, `AdminID`, `RiskExpireDate` DESC;
+ORDER BY `RiskExpireDate` , `AYSOID` , `AdminID` DESC;

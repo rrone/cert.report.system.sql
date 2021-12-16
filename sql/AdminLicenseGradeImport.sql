@@ -66,6 +66,10 @@ LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.201
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;
 
+DELETE FROM `1.AdminLicenseGrade` 
+WHERE
+    `AdminID` IS NULL;  
+    
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2017' WHERE `MY` IS NULL;
 
 /* Bocanegra erroneous cert */ 
@@ -126,17 +130,43 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
         *
     FROM
         `1.AdminLicenseGrade`
-    ORDER BY `AdminID`, `MY` DESC) ordered
+    ORDER BY `MY` DESC) ordered
     GROUP BY `AdminID`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) grouped
     WHERE rank = 1
 		AND NOT `AdminID` IS NULL
     ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Asst. Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', ''), `Area`, `Region`, `Last_Name`;
-        
 
 DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
 
 ALTER TABLE `AdminLicenseGrade` 
 RENAME TO  `1.AdminLicenseGrade`;
+
+DROP TABLE IF EXISTS `tmp_dup_AdminLicenseGrade`;
+
+CREATE TEMPORARY TABLE `tmp_dup_AdminLicenseGrade` SELECT `AdminID` FROM
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `1.AdminLicenseGrade`
+    ORDER BY `MY` DESC) ordered
+    GROUP BY `AYSOID`) grouped
+WHERE
+    `rank` = 1 AND `AYSOID` <> '';
+
+CREATE INDEX `idx_tmp_dup_AdminLicenseGrade`  ON `tmp_dup_AdminLicenseGrade` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+
+DELETE FROM `1.AdminLicenseGrade` 
+WHERE
+    `AYSOID` <> ''
+    AND `AdminID` NOT IN (SELECT 
+        `AdminID`
+    FROM
+        `tmp_dup_AdminLicenseGrade`);   
 
 SELECT 
     *

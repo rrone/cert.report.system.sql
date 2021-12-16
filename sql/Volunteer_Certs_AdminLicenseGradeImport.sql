@@ -145,11 +145,13 @@ UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'z-Online 
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'z-Online Regional Referee Course' WHERE `e3 Ref Cert Desc` = 'z-Online Regional Referee without Safe Haven---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official---Intermediate Referee Course';
+UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official & Safe Haven Referee---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official---Z-Online Regional Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official---Z-Online Regional Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official';
 
+/* Save as ./yyyymmdd/yyyymmdd.import_errors.csv */
 SELECT 
     *
 FROM
