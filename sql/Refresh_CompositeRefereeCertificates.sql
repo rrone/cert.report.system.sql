@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS `1.CompositeRefereeCertificates`;
 CREATE TABLE `1.CompositeRefereeCertificates` SELECT * FROM
     `1.AdminLicenseGradeRefereeHighest`;
     
-CREATE INDEX `idx_1.CompositeRefereeCertificates_AYSOID_AdminID`  ON `1.CompositeRefereeCertificates` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+CREATE INDEX `idx_1.CompositeRefereeCertificates_AYSOID_AdminID_Email`  ON `1.CompositeRefereeCertificates` (AYSOID, AdminID, Email) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 ALTER TABLE `1.CompositeRefereeCertificates` 
 ADD COLUMN `SAR` TEXT NULL AFTER `MY`,
@@ -15,8 +15,7 @@ ADD COLUMN `Address` TEXT NULL AFTER `Last_Name`,
 ADD COLUMN `City` TEXT NULL AFTER `Address`,
 ADD COLUMN `State` TEXT NULL AFTER `City`,
 ADD COLUMN `Zipcode` TEXT NULL AFTER `State`,
-ADD COLUMN `Home_Phone` TEXT NULL AFTER `Zipcode`,
-ADD COLUMN `Cell_Phone` TEXT NULL AFTER `Home_Phone`;
+ADD COLUMN `Cell_Phone` TEXT NULL AFTER `Zipcode`;
 
 UPDATE `1.CompositeRefereeCertificates` c SET `SAR` = `Section`;
 UPDATE `1.CompositeRefereeCertificates` c SET `SAR` = CONCAT(`SAR`, '/' , `Area`) WHERE NOT `Area` = '';
@@ -30,10 +29,18 @@ SET
     c.`City` = vre.`City`,
     c.`State` = vre.`State`,
     c.`Zipcode` = vre.`Zip`,
-    c.`Home_Phone` = vre.`HomePhone`,
     c.`Cell_Phone` = vre.`CellPhone`;
     
-
+UPDATE `1.CompositeRefereeCertificates` c
+        INNER JOIN
+    `1.Volunteer_Contact_Information` vci ON c.`Email` = vci.`Email` 
+SET 
+    c.`Address` = vci.`Address`,
+    c.`City` = vci.`City`,
+    c.`State` = vci.`State`,
+    c.`Zipcode` = vci.`Zip_Code`,
+    c.`Cell_Phone` = vci.`Cell_Phone`;
+    
 DROP TABLE IF EXISTS `tmp_sh_cert`;
 CREATE TEMPORARY TABLE `tmp_sh_cert` SELECT DISTINCT `AdminID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
@@ -59,6 +66,8 @@ DROP TABLE IF EXISTS `tmp_risk_cert`;
 CREATE TEMPORARY TABLE `tmp_risk_cert` SELECT DISTINCT `AdminID`, `RiskStatus` AS `CertificateName`, `RiskExpireDate` AS `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`;
 CREATE INDEX `idx_tmp_risk_cert_AdminID`  ON .`tmp_risk_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+
+UPDATE `1.CompositeRefereeCertificates`  SET `CertificationDesc` = '8U Official' WHERE `CertificationDesc` LIKE 'U-8 Official%';
 
 DROP TABLE IF EXISTS `crs_rpt_ref_certs`;
 
@@ -95,7 +104,6 @@ INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
   vcv.`City`,
   vcv.`State`,
   `Zip` AS `Zipcode`,
-  `HomePhone` AS `Home_Phone`,
   `CellPhone` AS `Cell_Phone`,
   vcv.`Gender`,
   vcv.`Email`,

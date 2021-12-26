@@ -15,7 +15,7 @@ CREATE TABLE `1.AdminLicenseGrade` (
     `Last_Name` TEXT,
     `DOB` TEXT,
     `Gender` TEXT,
-    `Email` TEXT,
+    `Email` VARCHAR(255),
     `CertificationDesc` TEXT,
     `CertificationDate` TEXT,
     `MY` TEXT
