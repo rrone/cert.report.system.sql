@@ -61,6 +61,25 @@ SET
     h.`CertificationDesc` = vc.`e3 Ref Cert Desc`,
     h.`CertificationDate` = vc.`e3 Ref Cert Date`;
 
+INSERT INTO `1.AdminLicenseGradeRefereeHighest`
+SELECT vre.`AYSOID`,
+    '' AS `AdminID`,
+    vre.`MY`,
+    vre.`Section`,
+    vre.`Area`,
+    vre.`Region`,
+    vre.`FirstName` AS `First_Name`,
+    vre.`LastName` AS`Last_Name`,
+    vre.`Gender`,
+    vre.`Email`,
+    vre.`Ref_Cert_Desc` AS `CertificationDesc`,
+    vre.`Ref_Cert_Date` AS `CertificationDate` 
+FROM
+    `1.Volunteer_Certs_VolunteerReport_InLeague` vre
+        LEFT JOIN
+    `1.AdminLicenseGrade` alg ON vre.AYSOID = alg.AYSOID
+WHERE alg.`AdminID` IS NULL;
+
 DELETE FROM `1.AdminLicenseGradeRefereeHighest` WHERE `CertificationDesc` = '';
 
 SELECT 

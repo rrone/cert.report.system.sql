@@ -42,28 +42,28 @@ SET
     c.`Cell_Phone` = vci.`Cell_Phone`;
     
 DROP TABLE IF EXISTS `tmp_sh_cert`;
-CREATE TEMPORARY TABLE `tmp_sh_cert` SELECT DISTINCT `AdminID`, `CertificateName`, `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_sh_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Safe Haven';
 CREATE INDEX `idx_tmp_sh_cert_AdminID`  ON `tmp_sh_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_cdc_cert`;
-CREATE TEMPORARY TABLE `tmp_cdc_cert` SELECT DISTINCT `AdminID`, `CertificateName`, `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_cdc_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Concussion%';
 CREATE INDEX `idx_tmp_cdc_cert_AdminID`  ON `tmp_cdc_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_sca_cert`;
-CREATE TEMPORARY TABLE `tmp_sca_cert` SELECT DISTINCT `AdminID`, `CertificateName`, `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_sca_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Cardiac%';
 CREATE INDEX `idx_tmp_sca_cert_AdminID`  ON `tmp_sca_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_risk_cert`;
-CREATE TEMPORARY TABLE `tmp_risk_cert` SELECT DISTINCT `AdminID`, `RiskStatus` AS `CertificateName`, `RiskExpireDate` AS `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_risk_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `RiskStatus` AS `CertificateName`, `RiskExpireDate` AS `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`;
 CREATE INDEX `idx_tmp_risk_cert_AdminID`  ON .`tmp_risk_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
@@ -119,6 +119,17 @@ FROM
         LEFT JOIN
     crs_rpt_ref_certs rc ON vcv.AYSOID = rc.AYSOID
 WHERE vcv.`MY` > rc.`MY`;
+
+/* 2021-01-03: Add InLeague volunteers to crs_rpt_ref_certs */
+UPDATE `crs_rpt_ref_certs` crs
+        INNER JOIN
+    `1.Volunteer_Certs_VolunteerReport_InLeague` vc ON crs.`AYSOID` = vc.`AYSOID` AND crs.`AdminID` = ''
+SET 
+    crs.`Safe_Haven_Date` = vc.`Safe_Haven_Date`,
+    crs.`Concussion_Awareness_Date` = vc.`CDC_Date`,
+    crs.`Sudden_Cardiac_Arrest_Date` = vc.`SCA_Date`,
+	crs.`RiskStatus` = 'InLeague',
+	crs.`RiskExpireDate`  = CONCAT(CAST(RIGHT(vc.`MY`,4) AS UNSIGNED) + 1, '-07-31');
     
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');

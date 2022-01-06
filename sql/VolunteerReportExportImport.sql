@@ -132,5 +132,5 @@ FROM
         LEFT JOIN
     `1.AdminLicenseGrade` alg ON vre.AYSOID = alg.AYSOID
 WHERE
-    vre.`Region` IN (13 , 20, 70, 76, 78)
-        AND vre.`MY` >= 'MY2019';
+    vre.`MY` >= 'MY2019'
+        AND vre.`Region` IN (13 , 20, 70, 76, 78);
