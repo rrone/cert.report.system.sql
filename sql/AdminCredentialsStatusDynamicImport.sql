@@ -206,6 +206,74 @@ WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
 
+INSERT INTO `AdminCredentialsStatusDynamic` (SELECT
+  `AYSOID`,
+  `AdminID`,
+  `MY`,
+  `CertificateName` AS `CertificateDesc`,
+  `ccVerifyDate` AS `CertificateDate`,
+  ExtractNumber(`League`) AS `Section`,
+  RIGHT(`League`, 1) AS `Area`,
+  ExtractNumber(`Club`) AS `Region`,
+  `FirstName`,
+  `LastName`,
+  format_date(`DOB`) AS `DOB`,
+  `GenderCode`,
+  `email`,
+  `RiskStatus`,
+  `RiskExpireDate`
+FROM 
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
+            @id:=`AdminID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `1.AdminCredentialsStatusDynamic`
+	WHERE `CertificateName` IN ('SafeSport') 
+    AND NOT `ccVerifyDate` = ''
+    ORDER BY `AdminID`) ordered
+    GROUP BY `AdminID`, `MY`) grouped
+WHERE
+    rank = 1	
+ORDER BY `Area` , `Region` , `LastName`);
+
+INSERT INTO `AdminCredentialsStatusDynamic` (SELECT
+  `AYSOID`,
+  `AdminID`,
+  `MY`,
+  `CertificateName` AS `CertificateDesc`,
+  `ccVerifyDate` AS `CertificateDate`,
+  ExtractNumber(`League`) AS `Section`,
+  RIGHT(`League`, 1) AS `Area`,
+  ExtractNumber(`Club`) AS `Region`,
+  `FirstName`,
+  `LastName`,
+  format_date(`DOB`) AS `DOB`,
+  `GenderCode`,
+  `email`,
+  `RiskStatus`,
+  `RiskExpireDate`
+FROM 
+    (SELECT 
+        *,
+            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
+            @id:=`AdminID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `1.AdminCredentialsStatusDynamic`
+	WHERE `CertificateName` IN ('CA Mandated Fingerprinting') 
+    AND NOT `ccVerifyDate` = ''
+    ORDER BY `AdminID`) ordered
+    GROUP BY `AdminID`, `MY`) grouped
+WHERE
+    rank = 1	
+ORDER BY `Area` , `Region` , `LastName`);
+
 /* Rich Fichtelman duplicate registration */
 DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
  

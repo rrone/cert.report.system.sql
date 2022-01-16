@@ -62,6 +62,20 @@ WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Cardiac%';
 CREATE INDEX `idx_tmp_sca_cert_AdminID`  ON `tmp_sca_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
+DROP TABLE IF EXISTS `tmp_ss_cert`;
+CREATE TEMPORARY TABLE `tmp_ss_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
+    `1.AdminCredentialsStatusDynamic`
+WHERE
+    `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE 'SafeSport';
+CREATE INDEX `idx_tmp_ss_cert_AdminID`  ON `tmp_ss_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+
+DROP TABLE IF EXISTS `tmp_ls_cert`;
+CREATE TEMPORARY TABLE `tmp_ls_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
+    `1.AdminCredentialsStatusDynamic`
+WHERE
+    `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Fingerprinting';
+CREATE INDEX `idx_tmp_ls_cert_AdminID`  ON `tmp_ls_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+
 DROP TABLE IF EXISTS `tmp_risk_cert`;
 CREATE TEMPORARY TABLE `tmp_risk_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `RiskStatus` AS `CertificateName`, `RiskExpireDate` AS `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`;
@@ -86,6 +100,10 @@ FROM
     `tmp_cdc_cert` cdc ON c.`AdminID` = cdc.`AdminID`
         LEFT JOIN
     `tmp_sca_cert` sca ON c.`AdminID` = sca.`AdminID`
+        LEFT JOIN
+    `tmp_ss_cert` ss ON c.`AdminID` = sca.`AdminID`
+        LEFT JOIN
+    `tmp_ls_cert` ls ON c.`AdminID` = sca.`AdminID`
         LEFT JOIN
     `tmp_risk_cert` risk ON c.`AdminID` = risk.`AdminID`;
 
@@ -112,6 +130,8 @@ INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
   vcv.`Safe_Haven_Date`,
   `CDC_Date` AS `Concussion_Awareness_Date`,
   `SCA_Date` AS `Sudden_Cardiac_Arrest_Date`,
+  `SafeSport_Date` AS `SafeSport_Date`,
+  `LiveScan_Date` AS `LiveScan_Date`,
   'InLeague' AS `RiskStatus`,
   CONCAT(CAST(RIGHT(vcv.`MY`,4) AS UNSIGNED) + 1, '-07-31') AS `RiskExpireDate` 
 FROM
@@ -128,6 +148,8 @@ SET
     crs.`Safe_Haven_Date` = vc.`Safe_Haven_Date`,
     crs.`Concussion_Awareness_Date` = vc.`CDC_Date`,
     crs.`Sudden_Cardiac_Arrest_Date` = vc.`SCA_Date`,
+    crs.`SafeSport_Date` = vc.`SafeSport_Date`,
+    crs.`LiveScan_Date` = vc.`LiveScan_Date`,
 	crs.`RiskStatus` = 'InLeague',
 	crs.`RiskExpireDate`  = CONCAT(CAST(RIGHT(vc.`MY`,4) AS UNSIGNED) + 1, '-07-31');
     
