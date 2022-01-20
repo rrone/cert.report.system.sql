@@ -90,6 +90,8 @@ CREATE TABLE `crs_rpt_ref_certs` SELECT
     sh.`CertificateDate` AS `Safe_Haven_Date`,
     cdc.`CertificateDate` AS `Concussion_Awareness_Date`,
     sca.`CertificateDate` AS `Sudden_Cardiac_Arrest_Date`,
+    ss.`CertificateDate` AS `SafeSport_Date`,
+    ls.`CertificateDate` AS `LiveScan_Date`,
     risk.`CertificateName` AS `RiskStatus`,
     risk.`CertificateDate` AS `RiskExpireDate`
 FROM
@@ -101,9 +103,9 @@ FROM
         LEFT JOIN
     `tmp_sca_cert` sca ON c.`AdminID` = sca.`AdminID`
         LEFT JOIN
-    `tmp_ss_cert` ss ON c.`AdminID` = sca.`AdminID`
+    `tmp_ss_cert` ss ON c.`AdminID` = ss.`AdminID`
         LEFT JOIN
-    `tmp_ls_cert` ls ON c.`AdminID` = sca.`AdminID`
+    `tmp_ls_cert` ls ON c.`AdminID` = ls.`AdminID`
         LEFT JOIN
     `tmp_risk_cert` risk ON c.`AdminID` = risk.`AdminID`;
 
@@ -130,8 +132,8 @@ INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
   vcv.`Safe_Haven_Date`,
   `CDC_Date` AS `Concussion_Awareness_Date`,
   `SCA_Date` AS `Sudden_Cardiac_Arrest_Date`,
-  `SafeSport_Date` AS `SafeSport_Date`,
-  `LiveScan_Date` AS `LiveScan_Date`,
+  vcv.`SafeSport_Date` AS `SafeSport_Date`,
+  vcv.`LiveScan_Date` AS `LiveScan_Date`,
   'InLeague' AS `RiskStatus`,
   CONCAT(CAST(RIGHT(vcv.`MY`,4) AS UNSIGNED) + 1, '-07-31') AS `RiskExpireDate` 
 FROM
