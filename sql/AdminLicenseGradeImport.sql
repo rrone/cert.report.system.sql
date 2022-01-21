@@ -23,7 +23,7 @@ CREATE TABLE `1.AdminLicenseGrade` (
 
 CREATE INDEX `idx_1.AdminLicenseGrade_AYSOID_AdminID`  ON `1.AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2021.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2021.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -32,7 +32,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.202
 
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2021' WHERE `MY` IS NULL;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2020.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2020.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -41,7 +41,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.202
 
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2020' WHERE `MY` IS NULL;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2019.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2019.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -50,7 +50,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.201
 
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2019' WHERE `MY` IS NULL;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2018.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2018.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -59,7 +59,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.201
 
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2018' WHERE `MY` IS NULL;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2017.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2017.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -120,7 +120,7 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
     `Email`,
     `CertificationDesc`,
     `CertificationDate`,
-    `MY` FROM        
+    `MY` FROM
     (SELECT 
         *,
             @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
@@ -130,11 +130,27 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
         *
     FROM
         `1.AdminLicenseGrade`
-    ORDER BY `MY` DESC) ordered
-    GROUP BY `AdminID`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) grouped
-    WHERE rank = 1
-		AND NOT `AdminID` IS NULL
-    ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Asst. Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', ''), `Area`, `Region`, `Last_Name`;
+    WHERE
+        `CertificationDesc` LIKE '%Referee%'
+            OR `CertificationDesc` LIKE '%Official%'
+    ORDER BY `MY` DESC , FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) ordered
+    GROUP BY `AdminID`) grouped
+WHERE
+    rank = 1 AND NOT `AdminID` IS NULL
+ORDER BY FIELD(`CertificationDesc`,
+        'National Referee',
+        'National 2 Referee',
+        'Advanced Referee',
+        'Intermediate Referee',
+        'Regional Referee',
+        'Regional Referee & Safe Haven Referee',
+        'Assistant Referee',
+        'Asst. Referee',
+        'Assistant Referee & Safe Haven Referee',
+        '8U Official',
+        'U-8 Official & Safe Haven Referee',
+        'Z-Online 8U Official',
+        '') , `Area` , `Region` , `Last_Name`;
 
 DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
 

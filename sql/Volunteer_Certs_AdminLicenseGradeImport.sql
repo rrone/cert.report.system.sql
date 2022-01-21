@@ -40,49 +40,14 @@ CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
 
 CREATE INDEX `idx_1.Volunteer_Certs_AdminLicenseGrade_AYSOID_AdminID`  ON `1.Volunteer_Certs_AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_alg1.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.Volunteer_Certs_AdminLicenseGrade.csv'
 	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_alg2.csv'
-	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_alg3.csv'
-	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_alg4.csv'
-	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_alg5.csv'
-	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_alg6.csv'
-	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/Volunteer_Certs_alg_new.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.Volunteer_Certs_alg_new.csv'
 	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
@@ -121,12 +86,12 @@ CREATE TABLE `Volunteer_Certs_AdminLicenseGrade` SELECT `AYSOID`,
 
 CREATE INDEX `idx_Volunteer_Certs_AdminLicenseGrade_AYSOID_AdminID`  ON `Volunteer_Certs_AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-DELETE FROM `1.Volunteer_Certs_AdminLicenseGrade` WHERE `AdminID` IS NULL;
-
 DROP TABLE IF EXISTS `1.Volunteer_Certs_AdminLicenseGrade`;
 
 ALTER TABLE `Volunteer_Certs_AdminLicenseGrade` 
 RENAME TO  `1.Volunteer_Certs_AdminLicenseGrade`;
+
+DELETE FROM `1.Volunteer_Certs_AdminLicenseGrade` WHERE `AdminID` IS NULL;
 
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'Advanced Referee' WHERE `e3 Ref Cert Desc` = 'National 2 Referee';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'Advanced Referee' WHERE `e3 Ref Cert Desc` = 'National 2 Referee---National Referee Course';
@@ -145,11 +110,26 @@ UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'z-Online 
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'z-Online Regional Referee Course' WHERE `e3 Ref Cert Desc` = 'z-Online Regional Referee without Safe Haven---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official---Intermediate Referee Course';
+UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official & Safe Haven Referee';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official & Safe Haven Referee---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official---Z-Online Regional Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official---Z-Online Regional Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official';
+
+/* refresh AS Certification Desc */
+UPDATE `1.Volunteer_Certs_AdminLicenseGrade` vc
+        INNER JOIN
+    `1.AdminLicenseGrade` alg ON vc.`AdminID` = alg.`AdminID` 
+SET 
+    vc.`AS_CertificationDesc` = alg.`CertificationDesc`,
+    vc.`AS_CertificationDate` = alg.`CertificationDate`;
+    
+-- SELECT * FROM `1.Volunteer_Certs_AdminLicenseGrade` vc;
+-- SELECT * FROM `1.AdminLicenseGrade` alg;     
+-- SELECT * FROM `1.Volunteer_Certs_AdminLicenseGrade` vc
+--         INNER JOIN
+--     `1.AdminLicenseGrade` alg ON vc.`AdminID` = alg.`AdminID`;     
 
 /* Save as ./yyyymmdd/yyyymmdd.import_errors.csv */
 SELECT 
@@ -158,7 +138,6 @@ FROM
     `1.Volunteer_Certs_AdminLicenseGrade`
 WHERE
     `e3 Ref Cert Desc` <> `AS_CertificationDesc`
-
 ORDER BY FIELD(`e3 Ref Cert Desc`,
         'National Referee',
         'National 2 Referee',
