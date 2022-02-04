@@ -201,4 +201,4 @@ SELECT
     *
 FROM
     `crs_rpt_ref_certs`
-ORDER BY `RiskExpireDate` , `AYSOID` , `AdminID` DESC;
+ORDER BY `Area`, `Region`, `Last_Name`, `AdminID`;

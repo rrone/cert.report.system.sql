@@ -282,7 +282,7 @@ UPDATE `AdminCredentialsStatusDynamic` c SET `RiskExpireDate` = str_to_date(`Ris
 
 DROP TABLE IF EXISTS `tmp_dup_AdminCredentialsStatusDynamic`;
 
-CREATE  TABLE `tmp_dup_AdminCredentialsStatusDynamic` SELECT `AdminID` FROM
+CREATE TEMPORARY TABLE `tmp_dup_AdminCredentialsStatusDynamic` SELECT `AdminID` FROM
     (SELECT 
         *,
             @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,

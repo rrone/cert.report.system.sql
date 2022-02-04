@@ -12,6 +12,7 @@ CREATE TABLE `1.AdminLicenseGradeRefereeHighest` SELECT DISTINCT `AYSOID`,
     `Region`,
     `First_Name`,
     `Last_Name`,
+    `DOB`,
     `Gender`,
     `Email`,
     `CertificationDesc`,
@@ -34,6 +35,7 @@ ORDER BY FIELD(`CertificationDesc`,
         '') , `Area` , `Region` , `Last_Name`;
 
 CREATE INDEX `idx_1.AdminLicenseGradeRefereeHighest_AYSOID_AdminID`  ON `1.AdminLicenseGradeRefereeHighest` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+CREATE INDEX `idx_1.AdminLicenseGradeRefereeHighest_Last_Name_DOB`  ON `1.AdminLicenseGradeRefereeHighest` (Last_Name, DOB) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 /* update MYs in InLeague Regions to fix import errors */
 UPDATE `1.AdminLicenseGradeRefereeHighest` h
@@ -42,24 +44,23 @@ UPDATE `1.AdminLicenseGradeRefereeHighest` h
 SET 
     h.`MY` = v.`MY`
 WHERE
-    h.`AdminID` = ''
-    AND v.`MY` > h.`MY`;
+    v.`MY` > h.`MY`;
     
+/* update CertDesc in InLeague Regions to fix Highest Report */
 UPDATE `1.AdminLicenseGradeRefereeHighest` h
         INNER JOIN
-    `1.AdminCredentialsStatusDynamic` acsd ON h.`AYSOID` = acsd.`AYSOID` 
+    `1.Volunteer_Certs_VolunteerReport_InLeague` v ON h.`AYSOID` = v.`AYSOID` 
 SET 
-    h.`MY` = acsd.`MY`
-WHERE
-    h.`MY` IS NULL;
+    h.`CertificationDesc` = v.`Ref_Cert_Desc`,
+    h.`CertificationDate` = v.`Ref_Cert_Date`;
 
-/* update CertDesc in Highest Report */
-UPDATE `1.AdminLicenseGradeRefereeHighest` h
+/* update AYSOID in Highest Report for those in InLeague registered in AS */    
+UPDATE 
+    `1.Volunteer_Certs_VolunteerReport_InLeague` v
         INNER JOIN
-    `1.Volunteer_Certs_AdminLicenseGrade` vc ON h.`AYSOID` = vc.`AYSOID` 
-SET 
-    h.`CertificationDesc` = vc.`e3 Ref Cert Desc`,
-    h.`CertificationDate` = vc.`e3 Ref Cert Date`;
+    `1.AdminLicenseGradeRefereeHighest` h ON h.`Last_Name` = v.`LastName` AND h.`DOB` = v .`DOB`
+SET      h.`AYSOID` = v.`AYSOID`
+WHERE h.`AYSOID` = '';
 
 INSERT INTO `1.AdminLicenseGradeRefereeHighest`
 SELECT vre.`AYSOID`,
@@ -70,6 +71,7 @@ SELECT vre.`AYSOID`,
     vre.`Region`,
     vre.`FirstName` AS `First_Name`,
     vre.`LastName` AS`Last_Name`,
+    vre.`DOB`,
     vre.`Gender`,
     vre.`Email`,
     vre.`Ref_Cert_Desc` AS `CertificationDesc`,
@@ -79,6 +81,54 @@ FROM
         LEFT JOIN
     `1.AdminLicenseGrade` alg ON vre.AYSOID = alg.AYSOID
 WHERE alg.`AdminID` IS NULL;
+    
+DROP TABLE IF EXISTS `tmpAdminLicenseGradeRefereeHighest`;
+
+CREATE TEMPORARY TABLE `tmpAdminLicenseGradeRefereeHighest` SELECT 
+        `AYSOID`, 
+        `AdminID`, 
+        `MY`, 
+        `Section`, 
+        `Area`,
+        `Region`, 
+        `First_Name`,
+        `Last_Name`, 
+        `DOB`, 
+        `Gender`, 
+        `Email`, 
+        `CertificationDesc`, 
+        `CertificationDate`
+        FROM (SELECT *,
+            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
+            @id:=`AYSOID`
+    FROM
+        (SELECT 
+        *
+    FROM
+        `1.AdminLicenseGradeRefereeHighest`
+	WHERE NOT `AYSOID` = ''
+    ORDER BY `AdminID` DESC) ordered
+    GROUP BY `AYSOID`) grouped
+WHERE
+    rank = 1
+ORDER BY `Section` , `Area` , `Region` , `Last_Name`;
+
+SELECT 
+    *
+FROM
+    `tmpAdminLicenseGradeRefereeHighest` v;
+
+INSERT INTO `tmpAdminLicenseGradeRefereeHighest` SELECT * 
+FROM `1.AdminLicenseGradeRefereeHighest`
+WHERE `AYSOID` = '';
+
+ALTER TABLE `tmpAdminLicenseGradeRefereeHighest` 
+DROP COLUMN `DOB`;
+
+DROP TABLE IF EXISTS `1.AdminLicenseGradeRefereeHighest`;
+
+ALTER TABLE `tmpAdminLicenseGradeRefereeHighest` 
+RENAME TO  `1.AdminLicenseGradeRefereeHighest`;
 
 DELETE FROM `1.AdminLicenseGradeRefereeHighest` WHERE `CertificationDesc` = '';
 

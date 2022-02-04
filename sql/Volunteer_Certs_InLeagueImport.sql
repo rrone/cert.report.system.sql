@@ -67,6 +67,8 @@ UPDATE `1.Volunteer_Certs_VolunteerReport_InLeague` SET `Ref_Cert_Desc` = '' WHE
 UPDATE `1.Volunteer_Certs_VolunteerReport_InLeague` SET `Ref_Cert_Desc` = 'Regional Referee' WHERE `Ref_Cert_Desc` = 'Regional Referee & Safe Haven Referee';
 UPDATE `1.Volunteer_Certs_VolunteerReport_InLeague` SET `Ref_Cert_Desc` = '' WHERE `Ref_Cert_Desc` LIKE '%Course';
 
+UPDATE `1.Volunteer_Certs_VolunteerReport_InLeague` c SET `DOB` = str_to_date(`DOB`, '%m/%d/%Y') WHERE `DOB` <> '';
+
 DELETE FROM `1.Volunteer_Certs_VolunteerReport_InLeague` WHERE `Ref_Cert_Desc` = '';
 
 SELECT 

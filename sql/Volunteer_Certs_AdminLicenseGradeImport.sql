@@ -29,8 +29,8 @@ CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
   `Area` text,
   `Region` text,
   `First_Name` text,
-  `Last_Name` text,
-  `DOB` text,
+  `Last_Name` varchar(60),
+  `DOB` varchar(20),
   `Gender` text,
   `Email` text,
   `AS_CertificationDesc` text,
@@ -39,6 +39,7 @@ CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE INDEX `idx_1.Volunteer_Certs_AdminLicenseGrade_AYSOID_AdminID`  ON `1.Volunteer_Certs_AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+CREATE INDEX `idx_1.Volunteer_Certs_AdminLicenseGrade_Last_Name_DOB`  ON `1.Volunteer_Certs_AdminLicenseGrade` (Last_Name, DOB) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.Volunteer_Certs_AdminLicenseGrade.csv'
 	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
