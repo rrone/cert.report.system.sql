@@ -42,7 +42,7 @@ CREATE TABLE `1.Volunteer_Certs_VolunteerReport_InLeague` (
 
 CREATE INDEX `idx_1.Volunteer_Certs_VolunteerReport_InLeague`  ON `1.Volunteer_Certs_VolunteerReport_InLeague` (AYSOID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/19-21.Volunteer_Certs_VolunteerReport_InLeague.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/19-21.Volunteer_Certs_VolunteerReport_InLeague.csv'
 	INTO TABLE `1.Volunteer_Certs_VolunteerReport_InLeague`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  

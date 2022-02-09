@@ -43,35 +43,35 @@ CREATE TABLE `1.AdminCredentialsStatusDynamic` (
 )  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2021.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `1.AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2020.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `1.AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2019.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `1.AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2018.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `1.AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2017.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `1.AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  

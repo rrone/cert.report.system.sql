@@ -41,14 +41,14 @@ CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
 CREATE INDEX `idx_1.Volunteer_Certs_AdminLicenseGrade_AYSOID_AdminID`  ON `1.Volunteer_Certs_AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 CREATE INDEX `idx_1.Volunteer_Certs_AdminLicenseGrade_Last_Name_DOB`  ON `1.Volunteer_Certs_AdminLicenseGrade` (Last_Name, DOB) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.Volunteer_Certs_AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.Volunteer_Certs_AdminLicenseGrade.csv'
 	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.Volunteer_Certs_alg_new.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.Volunteer_Certs_alg_new.csv'
 	INTO TABLE `1.Volunteer_Certs_AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  

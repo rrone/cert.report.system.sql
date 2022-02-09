@@ -28,42 +28,42 @@ CREATE TEMPORARY TABLE `1.VolunteerReportExport` (
 
 CREATE INDEX `idx_VolunteerReportExport_AYSOID`  ON `1.VolunteerReportExport` (AYSOID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2016.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2016.Volunteer_Report_Export.csv'
 	INTO TABLE `1.VolunteerReportExport`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2017.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.Volunteer_Report_Export.csv'
 	INTO TABLE `1.VolunteerReportExport`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2018.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.Volunteer_Report_Export.csv'
 	INTO TABLE `1.VolunteerReportExport`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2019.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.Volunteer_Report_Export.csv'
 	INTO TABLE `1.VolunteerReportExport`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2020.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.Volunteer_Report_Export.csv'
 	INTO TABLE `1.VolunteerReportExport`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2021.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.Volunteer_Report_Export.csv'
 	INTO TABLE `1.VolunteerReportExport`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  

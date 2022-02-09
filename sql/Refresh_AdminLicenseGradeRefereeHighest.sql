@@ -113,11 +113,6 @@ WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `Last_Name`;
 
-SELECT 
-    *
-FROM
-    `tmpAdminLicenseGradeRefereeHighest` v;
-
 INSERT INTO `tmpAdminLicenseGradeRefereeHighest` SELECT * 
 FROM `1.AdminLicenseGradeRefereeHighest`
 WHERE `AYSOID` = '';

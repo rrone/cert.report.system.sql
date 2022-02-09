@@ -23,7 +23,7 @@ CREATE TABLE `1.AdminLicenseGrade` (
 
 CREATE INDEX `idx_1.AdminLicenseGrade_AYSOID_AdminID`  ON `1.AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2021.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -32,7 +32,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2021.
 
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2021' WHERE `MY` IS NULL;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2020.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -41,7 +41,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2020.
 
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2020' WHERE `MY` IS NULL;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2019.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -50,7 +50,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2019.
 
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2019' WHERE `MY` IS NULL;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2018.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -59,7 +59,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2018.
 
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2018' WHERE `MY` IS NULL;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/_data/1.2017.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminLicenseGrade.csv'
 	INTO TABLE `1.AdminLicenseGrade`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
