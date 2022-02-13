@@ -339,7 +339,15 @@ WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `LastName`;
 
-SELECT 
-    *
+SELECT DISTINCT
+    `AYSOID`,
+    `AdminID`,
+    `MY`,
+    `Section`,
+    `Area`,
+    `Region`,
+    `FirstName`,
+    `LastName`
 FROM
-    `1.AdminCredentialsStatusDynamic`;
+    `1.AdminCredentialsStatusDynamic`
+WHERE NOT AYSOID = '';

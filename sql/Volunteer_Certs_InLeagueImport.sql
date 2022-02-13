@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS `1.Volunteer_Certs_VolunteerReport_InLeague`;
 
 CREATE TABLE `1.Volunteer_Certs_VolunteerReport_InLeague` (
   `AYSOID` VARCHAR(20),
+  `AdminID` VARCHAR(20),
   `Full_Name` text,
   `Type` text,
   `SAR` text,
@@ -23,6 +24,7 @@ CREATE TABLE `1.Volunteer_Certs_VolunteerReport_InLeague` (
   `Inst_Eval_Cert_Date` text,
   `Coach_Cert_Desc` text,
   `Coach_Cert_Date` text,
+  `_MY_` text,
   `Data_Source` text,
   `Section` Text,
   `Area` text,
@@ -40,7 +42,8 @@ CREATE TABLE `1.Volunteer_Certs_VolunteerReport_InLeague` (
   `Email` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE INDEX `idx_1.Volunteer_Certs_VolunteerReport_InLeague`  ON `1.Volunteer_Certs_VolunteerReport_InLeague` (AYSOID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+CREATE INDEX `idx_1.Volunteer_Certs_VolunteerReport_InLeague_AYSOID`  ON `1.Volunteer_Certs_VolunteerReport_InLeague` (AYSOID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+CREATE INDEX `idx_1.Volunteer_Certs_VolunteerReport_InLeague_AdminID`  ON `1.Volunteer_Certs_VolunteerReport_InLeague` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/19-21.Volunteer_Certs_VolunteerReport_InLeague.csv'
 	INTO TABLE `1.Volunteer_Certs_VolunteerReport_InLeague`   
