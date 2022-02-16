@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS `1.Volunteer_Certs_AdminLicenseGrade`;
 
 CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
   `AYSOID` varchar(20),
+  `AdminID` VARCHAR(20),
   `Full Name` text,
   `Type` text,
   `SAR` text,
@@ -24,7 +25,8 @@ CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
   `Coach Cert Desc` text,
   `Coach Cert Date` text,
   `Data Source` text,
-  `AdminID` VARCHAR(20),
+  `_AdminID_` varchar(20),
+  `_MY_` text,
   `Section` text,
   `Area` text,
   `Region` text,
@@ -32,7 +34,7 @@ CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
   `Last_Name` varchar(60),
   `DOB` varchar(20),
   `Gender` text,
-  `Email` text,
+  `Email` varchar(60),
   `AS_CertificationDesc` text,
   `AS_CertificationDate` text,
     PRIMARY KEY (`AdminID`)
@@ -85,7 +87,7 @@ CREATE TABLE `Volunteer_Certs_AdminLicenseGrade` SELECT `AYSOID`,
     `AS_CertificationDate` FROM
     `1.Volunteer_Certs_AdminLicenseGrade`;
 
-CREATE INDEX `idx_Volunteer_Certs_AdminLicenseGrade_AYSOID_AdminID`  ON `Volunteer_Certs_AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+CREATE INDEX `idx_Volunteer_Certs_AdminLicenseGrade_AdminID`  ON `Volunteer_Certs_AdminLicenseGrade` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `1.Volunteer_Certs_AdminLicenseGrade`;
 

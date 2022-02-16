@@ -17,8 +17,8 @@ CREATE TABLE `1.AdminCredentialsStatusDynamic` (
     `AdminID` VARCHAR(20),
     `AYSOID` VARCHAR(20),
     `FirstName` TEXT,
-    `LastName` TEXT,
-    `DOB` TEXT,
+    `LastName` VARCHAR(60),
+    `DOB` VARCHAR(20),
     `GenderCode` TEXT,
     `email` TEXT,
     `IDVerified1` TEXT,
@@ -81,6 +81,9 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminCredentialsStatusDy
 UPDATE `1.AdminCredentialsStatusDynamic` SET `MY` = RIGHT(`MY`,6);
 
 DELETE FROM `1.AdminCredentialsStatusDynamic` WHERE `League` IS NULL;
+
+/* Rich Fichtelman duplicate registration */
+DELETE FROM `1.AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
 
 DROP TABLE IF EXISTS `AdminCredentialsStatusDynamic`;
 
@@ -274,9 +277,6 @@ WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
 
-/* Rich Fichtelman duplicate registration */
-DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
- 
 UPDATE `AdminCredentialsStatusDynamic` c SET `CertificateDate` = str_to_date(`CertificateDate`, '%m/%d/%Y');
 UPDATE `AdminCredentialsStatusDynamic` c SET `RiskExpireDate` = str_to_date(`RiskExpireDate`, '%m/%d/%Y') WHERE `RiskExpireDate` <> '';
 
@@ -306,7 +306,27 @@ WHERE
         `AdminID`
     FROM
         `tmp_dup_AdminCredentialsStatusDynamic`);   
+        
+DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
 
+CREATE TABLE `1.AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
+    `AdminID`,
+    `MY`,
+    EXTRACTNUMBER(`League`) AS `Section`,
+    RIGHT(`League`, 1) AS `Area`,
+    EXTRACTNUMBER(`Club`) AS `Region`,
+    `FirstName` AS `First_Name`,
+    `LastName` AS `Last_Name`,
+    format_date(`DOB`) AS `DOB`,
+    `GenderCode` AS `Gender`,
+    `Email`,
+    `refGrade1` AS `CertificationDesc`,
+    format_date(`refObtainDate1`) AS `CertificationDate` FROM
+    `1.AdminCredentialsStatusDynamic`
+    WHERE NOT `refGrade1` = ''; 
+
+CREATE INDEX `idx_AdminLicenseGrade_AdminID`  ON `1.AdminLicenseGrade` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+   
 DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 
 CREATE TABLE `1.AdminCredentialsStatusDynamic` SELECT `AYSOID`,
@@ -349,5 +369,15 @@ SELECT DISTINCT
     `FirstName`,
     `LastName`
 FROM
-    `1.AdminCredentialsStatusDynamic`
-WHERE NOT AYSOID = '';
+    `1.AdminCredentialsStatusDynamic`;
+
+/* save as alg_new.csv */
+SELECT 
+    alg.*
+FROM
+    `1.AdminLicenseGrade` alg
+        LEFT JOIN
+    `1.Volunteer_Certs_AdminLicenseGrade` vc ON alg.`AdminID` = vc.`AdminID`
+WHERE
+    alg.`AYSOID` <> ''
+        AND vc.`AdminID` IS NULL;

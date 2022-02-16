@@ -24,8 +24,8 @@ CREATE TABLE `1.Volunteer_Certs_VolunteerReport_InLeague` (
   `Inst_Eval_Cert_Date` text,
   `Coach_Cert_Desc` text,
   `Coach_Cert_Date` text,
-  `_MY_` text,
   `Data_Source` text,
+  `_MY_` text,
   `Section` Text,
   `Area` text,
   `Region` text,
@@ -77,4 +77,4 @@ DELETE FROM `1.Volunteer_Certs_VolunteerReport_InLeague` WHERE `Ref_Cert_Desc` =
 SELECT 
     *
 FROM
-    `1.Volunteer_Certs_VolunteerReport_InLeague`;    
+    `1.Volunteer_Certs_VolunteerReport_InLeague`;

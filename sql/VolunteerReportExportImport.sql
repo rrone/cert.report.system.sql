@@ -125,7 +125,7 @@ DELETE FROM `1.VolunteerReportExport` WHERE `AYSOID` IS NULL;
 CREATE INDEX `idx_1.VolunteerReportExport_AYSOID`  ON `1.VolunteerReportExport` (AYSOID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 /* Save as 19-21.VolunteerReport_InLeague.csv */
-SELECT 
+SELECT DISTINCT
     vre.*
 FROM
     `1.VolunteerReportExport` vre
