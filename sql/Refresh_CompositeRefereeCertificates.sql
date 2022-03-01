@@ -66,7 +66,7 @@ DROP TABLE IF EXISTS `tmp_ss_cert`;
 CREATE TEMPORARY TABLE `tmp_ss_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
-    `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE 'SafeSport';
+    `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%SafeSport%';
 CREATE INDEX `idx_tmp_ss_cert_AdminID`  ON `tmp_ss_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_ls_cert`;
@@ -110,7 +110,6 @@ FROM
     `tmp_risk_cert` risk ON c.`AdminID` = risk.`AdminID`;
 
 -- Add InLeague certs
-
 INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
   '' AS `AdminID`,
   vcv.`MY`,
@@ -201,4 +200,4 @@ SELECT
     *
 FROM
     `crs_rpt_ref_certs`
-ORDER BY `Area`, `Region`, `Last_Name`, `AdminID`;
+ORDER BY `RiskExpireDate` , `AYSOID` , `AdminID` DESC;

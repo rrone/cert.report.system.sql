@@ -10,8 +10,8 @@ CREATE TABLE `1.AdminLicenseGradeRefereeHighest` SELECT DISTINCT `AYSOID`,
     `Section`,
     `Area`,
     `Region`,
-    `First_Name`,
-    `Last_Name`,
+    `FirstName` AS `First_Name`,
+    `LastName` AS `Last_Name`,
     `DOB`,
     `Gender`,
     `Email`,
@@ -33,6 +33,9 @@ ORDER BY FIELD(`CertificationDesc`,
         'U-8 Official & Safe Haven Referee',
         'Z-Online 8U Official',
         '') , `Area` , `Region` , `Last_Name`;
+
+ALTER TABLE `ayso1ref_services`.`1.AdminLicenseGrade` 
+CHANGE COLUMN `DOB` `DOB` VARCHAR(20) NULL DEFAULT NULL ;
 
 CREATE INDEX `idx_1.AdminLicenseGradeRefereeHighest_AYSOID_AdminID`  ON `1.AdminLicenseGradeRefereeHighest` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 CREATE INDEX `idx_1.AdminLicenseGradeRefereeHighest_Last_Name_DOB`  ON `1.AdminLicenseGradeRefereeHighest` (Last_Name, DOB) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;

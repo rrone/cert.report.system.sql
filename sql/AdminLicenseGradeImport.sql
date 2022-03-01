@@ -4,67 +4,66 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
 
-CREATE TABLE `1.AdminLicenseGrade` (
-    `Section` TEXT,
-    `Area` TEXT,
-    `Region` TEXT,
-    `Admin_ID` TEXT,
-    `AdminID` VARCHAR(20),
-    `AYSOID` VARCHAR(20),
-    `First_Name` TEXT,
-    `Last_Name` varchar(60),
-    `DOB` varchar(20),
-    `Gender` TEXT,
-    `Email` VARCHAR(255),
-    `CertificationDesc` TEXT,
-    `CertificationDate` TEXT,
-    `MY` TEXT
-)  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
+CREATE TABLE `1.AdminLicenseGrade` SELECT `AYSOID`,
+    `AdminID`,
+	`MY`,
+	ExtractNumber(`League`) AS `Section`,
+	RIGHT(`League`, 1) AS `Area`,
+	ExtractNumber(`Club`) AS `Region`,
+    `FirstName`,
+    `LastName`,
+    format_date(`DOB`) AS `DOB`,
+    `GenderCode` AS `Gender`,
+    `Email`,
+    `refGrade1` AS `CertificationDesc`,
+    format_date(`refObtainDate1`) AS `CertificationDate`
+FROM 
+	`AdminCredentialsStatusDynamic`;
 
 CREATE INDEX `idx_1.AdminLicenseGrade_AYSOID_AdminID`  ON `1.AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminLicenseGrade.csv'
-	INTO TABLE `1.AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2021' WHERE `MY` IS NULL;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminLicenseGrade.csv'
-	INTO TABLE `1.AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2020' WHERE `MY` IS NULL;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminLicenseGrade.csv'
-	INTO TABLE `1.AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2019' WHERE `MY` IS NULL;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminLicenseGrade.csv'
-	INTO TABLE `1.AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
-
-UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2018' WHERE `MY` IS NULL;
-
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminLicenseGrade.csv'
-	INTO TABLE `1.AdminLicenseGrade`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2021.AdminLicenseGrade.csv'
+-- 	INTO TABLE `1.AdminLicenseGrade`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;
+-- 
+-- UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2021' WHERE `MY` IS NULL;
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2020.AdminLicenseGrade.csv'
+-- 	INTO TABLE `1.AdminLicenseGrade`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;
+-- 
+-- UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2020' WHERE `MY` IS NULL;
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2019.AdminLicenseGrade.csv'
+-- 	INTO TABLE `1.AdminLicenseGrade`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;
+-- 
+-- UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2019' WHERE `MY` IS NULL;
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2018.AdminLicenseGrade.csv'
+-- 	INTO TABLE `1.AdminLicenseGrade`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;
+-- 
+-- UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2018' WHERE `MY` IS NULL;
+-- 
+-- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2017.AdminLicenseGrade.csv'
+-- 	INTO TABLE `1.AdminLicenseGrade`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY ''  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;
 
 DELETE FROM `1.AdminLicenseGrade` 
 WHERE
@@ -94,18 +93,6 @@ UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '01/05/2018' WHERE `Admi
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '09/04/2018' WHERE `AdminID` = '56070-301841';
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '10/29/1997' WHERE `AdminID` = '10177-661663';
 
-UPDATE `1.AdminLicenseGrade`  SET `Section` = ExtractNumber(`Section`);
-
-UPDATE `1.AdminLicenseGrade`  SET `Area` = RIGHT(`Area`, 1);
-
-UPDATE `1.AdminLicenseGrade`  SET `Region` = ExtractNumber(`Region`);
-
-UPDATE `1.AdminLicenseGrade`  SET `Email` = LOWER(`Email`);
-
-UPDATE `1.AdminLicenseGrade`  SET `DOB` = format_date(`DOB`);
-
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = format_date(`CertificationDate`);
-
 DROP TABLE IF EXISTS `AdminLicenseGrade`;
 
 CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
@@ -113,8 +100,8 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
     `Section`,
     `Area`,
     `Region`,
-    `First_Name`,
-    `Last_Name`,
+    `FirstName`,
+    `LastName`,
     `DOB`,
     `Gender`,
     `Email`,
@@ -130,27 +117,11 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
         *
     FROM
         `1.AdminLicenseGrade`
-    WHERE
-        `CertificationDesc` LIKE '%Referee%'
-            OR `CertificationDesc` LIKE '%Official%'
-    ORDER BY `MY` DESC , FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) ordered
-    GROUP BY `AdminID`) grouped
-WHERE
-    rank = 1 AND NOT `AdminID` IS NULL
-ORDER BY FIELD(`CertificationDesc`,
-        'National Referee',
-        'National 2 Referee',
-        'Advanced Referee',
-        'Intermediate Referee',
-        'Regional Referee',
-        'Regional Referee & Safe Haven Referee',
-        'Assistant Referee',
-        'Asst. Referee',
-        'Assistant Referee & Safe Haven Referee',
-        '8U Official',
-        'U-8 Official & Safe Haven Referee',
-        'Z-Online 8U Official',
-        '') , `Area` , `Region` , `Last_Name`;
+    ORDER BY `MY` DESC) ordered
+    GROUP BY `AdminID`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) grouped
+    WHERE rank = 1
+		AND NOT `AdminID` IS NULL
+    ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Asst. Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', ''), `Area`, `Region`, `LastName`;
 
 DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
 
@@ -200,7 +171,7 @@ ORDER BY FIELD(`CertificationDesc`,
         '8U Official',
         'U-8 Official & Safe Haven Referee',
         'Z-Online 8U Official',
-        '') , `Area` , `Region` , `Last_Name` , `MY`;
+        '') , `Area` , `Region` , `LastName` , `MY`;
 
 /* save as alg_new.csv */
 SELECT 

@@ -5,7 +5,7 @@ CREATE TEMPORARY TABLE `e3_inLeague_reports` (
   `Area` text,
   `Region` int(11) DEFAULT NULL,
   `AYSOID` int(11) DEFAULT NULL,
-  `Membershipyear` text,
+  `MY` text,
   `Volunteer Position` text,
   `LastName` text,
   `FirstName` text,
@@ -20,46 +20,42 @@ CREATE TEMPORARY TABLE `e3_inLeague_reports` (
   `Email` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2016.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2016.Volunteer_Report_Export.csv'
 	INTO TABLE `e3_inLeague_reports`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2017.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.Volunteer_Report_Export.csv'
 	INTO TABLE `e3_inLeague_reports`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2018.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.Volunteer_Report_Export.csv'
 	INTO TABLE `e3_inLeague_reports`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2019.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.Volunteer_Report_Export.csv'
 	INTO TABLE `e3_inLeague_reports`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2020.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.Volunteer_Report_Export.csv'
 	INTO TABLE `e3_inLeague_reports`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2021.Volunteer_Report_Export.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.Volunteer_Report_Export.csv'
 	INTO TABLE `e3_inLeague_reports`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -75,8 +71,7 @@ CREATE TABLE `e3_inLeague` SELECT DISTINCT
   `Section`,
   `Area`,
   `Region`,
-  `Membershipyear`,
-  `Volunteer Position`,
+  `MY`,
   `LastName`,
   `FirstName`,
   `DOB`,
@@ -97,4 +92,4 @@ WHERE
 SELECT 
     *
 FROM
-    `e3_inLeague`;   
+    `e3_inLeague`;  

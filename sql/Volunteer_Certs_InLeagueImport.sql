@@ -52,11 +52,11 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/19-21.Volunteer_Certs_Volunteer
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;
 
-ALTER TABLE `ayso1ref_services`.`1.Volunteer_Certs_VolunteerReport_InLeague` 
+ALTER TABLE `1.Volunteer_Certs_VolunteerReport_InLeague` 
 CHANGE COLUMN `Section` `Section` TEXT AFTER `SAR`,
 CHANGE COLUMN `Area` `Area` TEXT AFTER `Section`,
 CHANGE COLUMN `Region` `Region` TEXT AFTER `Area`,
-ADD COLUMN `SafeSport_Date` TEXT NULL AFTER `SCA_DATE`,
+ADD COLUMN `SafeSport_Date` TEXT NULL AFTER `SCA_Date`,
 ADD COLUMN `LiveScan_Date` TEXT NULL AFTER `SafeSport_Date`;
     
 UPDATE `1.Volunteer_Certs_VolunteerReport_InLeague` SET `Ref_Cert_Desc` = SUBSTRING_INDEX(`Ref_Cert_Desc`,'---',1), `Ref_Cert_Date` = SUBSTRING_INDEX(`Ref_Cert_Date`,'---',1);

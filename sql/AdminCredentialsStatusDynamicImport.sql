@@ -2,9 +2,9 @@ USE `ayso1ref_services`;
 
 SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
-DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
+DROP TABLE IF EXISTS `AdminCredentialsStatusDynamic`;
 
-CREATE TABLE `1.AdminCredentialsStatusDynamic` (
+CREATE TABLE `AdminCredentialsStatusDynamic` (
     `MY` TEXT,
     `Textbox80` TEXT,
 	`Textbox81` TEXT,
@@ -20,7 +20,7 @@ CREATE TABLE `1.AdminCredentialsStatusDynamic` (
     `LastName` VARCHAR(60),
     `DOB` VARCHAR(20),
     `GenderCode` TEXT,
-    `email` TEXT,
+    `email` VARCHAR(60),
     `IDVerified1` TEXT,
     `IDVerifiedBY1` TEXT,
     `IDVerifiedDate1` TEXT,
@@ -44,50 +44,51 @@ CREATE TABLE `1.AdminCredentialsStatusDynamic` (
 
 
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminCredentialsStatusDynamic.csv'
-	INTO TABLE `1.AdminCredentialsStatusDynamic`   
+	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminCredentialsStatusDynamic.csv'
-	INTO TABLE `1.AdminCredentialsStatusDynamic`   
+	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminCredentialsStatusDynamic.csv'
-	INTO TABLE `1.AdminCredentialsStatusDynamic`   
+	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminCredentialsStatusDynamic.csv'
-	INTO TABLE `1.AdminCredentialsStatusDynamic`   
+	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminCredentialsStatusDynamic.csv'
-	INTO TABLE `1.AdminCredentialsStatusDynamic`   
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
         
-UPDATE `1.AdminCredentialsStatusDynamic` SET `MY` = RIGHT(`MY`,6);
+UPDATE `AdminCredentialsStatusDynamic` SET `MY` = RIGHT(`MY`,6);
 
-DELETE FROM `1.AdminCredentialsStatusDynamic` WHERE `League` IS NULL;
+DELETE FROM `AdminCredentialsStatusDynamic` WHERE `League` IS NULL;
 
 /* Rich Fichtelman duplicate registration */
-DELETE FROM `1.AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
+DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
 
-DROP TABLE IF EXISTS `AdminCredentialsStatusDynamic`;
+DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 
-CREATE TABLE `AdminCredentialsStatusDynamic` (
+CREATE TABLE `1.AdminCredentialsStatusDynamic` (
   `AYSOID` VARCHAR(20),
   `AdminID` VARCHAR(20),
   `MY` text,
@@ -98,16 +99,16 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
   `Region` text,
   `FirstName` text,
   `LastName` text,
-  `DOB` text,
+  `DOB` VARCHAR(20),
   `Gender` text,
-  `email` text,
+  `email` VARCHAR(60),
   `RiskStatus` text,
   `RiskExpireDate` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE INDEX `idx_AdminCredentialsStatusDynamic_AYSOID_AdminID`  ON `AdminCredentialsStatusDynamic` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+CREATE INDEX `idx_AdminCredentialsStatusDynamic_AYSOID_AdminID`  ON `1.AdminCredentialsStatusDynamic` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-INSERT INTO `AdminCredentialsStatusDynamic` (SELECT
+INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AYSOID`,
   `AdminID`,
   `MY`,
@@ -132,7 +133,7 @@ FROM
         (SELECT 
         *
     FROM
-        `1.AdminCredentialsStatusDynamic`
+        `AdminCredentialsStatusDynamic`
 	WHERE `CertificateName` IN ('AYSOs Safe Haven') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
@@ -141,7 +142,7 @@ WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
 
-INSERT INTO `AdminCredentialsStatusDynamic` (SELECT
+INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AYSOID`,
   `AdminID`,
   `MY`,
@@ -166,7 +167,7 @@ FROM
         (SELECT 
         *
     FROM
-        `1.AdminCredentialsStatusDynamic`
+        `AdminCredentialsStatusDynamic`
 	WHERE `CertificateName` IN ('Concussion Awareness') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
@@ -175,7 +176,7 @@ WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
 
-INSERT INTO `AdminCredentialsStatusDynamic` (SELECT
+INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AYSOID`,
   `AdminID`,
   `MY`,
@@ -200,7 +201,7 @@ FROM
         (SELECT 
         *
     FROM
-        `1.AdminCredentialsStatusDynamic`
+        `AdminCredentialsStatusDynamic`
 	WHERE `CertificateName` IN ('Sudden Cardiac Arrest') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
@@ -209,7 +210,7 @@ WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
 
-INSERT INTO `AdminCredentialsStatusDynamic` (SELECT
+INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AYSOID`,
   `AdminID`,
   `MY`,
@@ -234,7 +235,7 @@ FROM
         (SELECT 
         *
     FROM
-        `1.AdminCredentialsStatusDynamic`
+        `AdminCredentialsStatusDynamic`
 	WHERE `CertificateName` IN ('SafeSport') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
@@ -243,7 +244,7 @@ WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
 
-INSERT INTO `AdminCredentialsStatusDynamic` (SELECT
+INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AYSOID`,
   `AdminID`,
   `MY`,
@@ -268,7 +269,7 @@ FROM
         (SELECT 
         *
     FROM
-        `1.AdminCredentialsStatusDynamic`
+        `AdminCredentialsStatusDynamic`
 	WHERE `CertificateName` IN ('CA Mandated Fingerprinting') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
@@ -276,9 +277,9 @@ FROM
 WHERE
     rank = 1	
 ORDER BY `Area` , `Region` , `LastName`);
-
-UPDATE `AdminCredentialsStatusDynamic` c SET `CertificateDate` = str_to_date(`CertificateDate`, '%m/%d/%Y');
-UPDATE `AdminCredentialsStatusDynamic` c SET `RiskExpireDate` = str_to_date(`RiskExpireDate`, '%m/%d/%Y') WHERE `RiskExpireDate` <> '';
+ 
+UPDATE `1.AdminCredentialsStatusDynamic` c SET `CertificateDate` = str_to_date(`CertificateDate`, '%m/%d/%Y');
+UPDATE `1.AdminCredentialsStatusDynamic` c SET `RiskExpireDate` = str_to_date(`RiskExpireDate`, '%m/%d/%Y') WHERE `RiskExpireDate` <> '';
 
 DROP TABLE IF EXISTS `tmp_dup_AdminCredentialsStatusDynamic`;
 
@@ -291,7 +292,7 @@ CREATE TEMPORARY TABLE `tmp_dup_AdminCredentialsStatusDynamic` SELECT `AdminID` 
         (SELECT 
         *
     FROM
-        `AdminCredentialsStatusDynamic`
+        `1.AdminCredentialsStatusDynamic`
     ORDER BY `MY` DESC) ordered
     GROUP BY `AYSOID`) grouped
 WHERE
@@ -299,7 +300,7 @@ WHERE
 
 CREATE INDEX `idx_tmp_dup_AdminCredentialsStatusDynamic`  ON `tmp_dup_AdminCredentialsStatusDynamic` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-DELETE FROM `AdminCredentialsStatusDynamic` 
+DELETE FROM `1.AdminCredentialsStatusDynamic` 
 WHERE
     `AYSOID` <> ''
     AND `AdminID` NOT IN (SELECT 
@@ -307,29 +308,9 @@ WHERE
     FROM
         `tmp_dup_AdminCredentialsStatusDynamic`);   
         
-DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
+DROP TABLE IF EXISTS `tmp_AdminCredentialsStatusDynamic`;
 
-CREATE TABLE `1.AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
-    `AdminID`,
-    `MY`,
-    EXTRACTNUMBER(`League`) AS `Section`,
-    RIGHT(`League`, 1) AS `Area`,
-    EXTRACTNUMBER(`Club`) AS `Region`,
-    `FirstName` AS `First_Name`,
-    `LastName` AS `Last_Name`,
-    format_date(`DOB`) AS `DOB`,
-    `GenderCode` AS `Gender`,
-    `Email`,
-    `refGrade1` AS `CertificationDesc`,
-    format_date(`refObtainDate1`) AS `CertificationDate` FROM
-    `1.AdminCredentialsStatusDynamic`
-    WHERE NOT `refGrade1` = ''; 
-
-CREATE INDEX `idx_AdminLicenseGrade_AdminID`  ON `1.AdminLicenseGrade` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
-   
-DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
-
-CREATE TABLE `1.AdminCredentialsStatusDynamic` SELECT `AYSOID`,
+CREATE TABLE `tmp_AdminCredentialsStatusDynamic` SELECT `AYSOID`,
     `AdminID`,
     `MY`,
     `CertificateName`,
@@ -352,32 +333,19 @@ CREATE TABLE `1.AdminCredentialsStatusDynamic` SELECT `AYSOID`,
         (SELECT 
         *
     FROM
-        `AdminCredentialsStatusDynamic`
+        `1.AdminCredentialsStatusDynamic`
     ORDER BY `AYSOID` , `MY` DESC) ordered
     GROUP BY `AdminID`, `CertificateName`) grouped
 WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `LastName`;
 
-SELECT DISTINCT
-    `AYSOID`,
-    `AdminID`,
-    `MY`,
-    `Section`,
-    `Area`,
-    `Region`,
-    `FirstName`,
-    `LastName`
+DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
+
+ALTER TABLE `tmp_AdminCredentialsStatusDynamic` 
+RENAME TO  `1.AdminCredentialsStatusDynamic`;
+
+SELECT 
+    *
 FROM
     `1.AdminCredentialsStatusDynamic`;
-
-/* save as alg_new.csv */
-SELECT 
-    alg.*
-FROM
-    `1.AdminLicenseGrade` alg
-        LEFT JOIN
-    `1.Volunteer_Certs_AdminLicenseGrade` vc ON alg.`AdminID` = vc.`AdminID`
-WHERE
-    alg.`AYSOID` <> ''
-        AND vc.`AdminID` IS NULL;
