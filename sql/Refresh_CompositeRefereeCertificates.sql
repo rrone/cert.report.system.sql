@@ -157,6 +157,11 @@ SET
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
+/* fix Matthew Gonzalez-Valenzuela */
+UPDATE `crs_rpt_ref_certs` SET `CertificationDesc`='Intermediate Referee', `CertificationDate`='2022-02-22' WHERE AdminID='69526-398429';
+/* fix Richard Bronshvag */
+UPDATE `crs_rpt_ref_certs` SET `AYSOID` = '69026725' WHERE `AdminID` = '52423-428440';
+/* end fixes */
 
 -- Update Tables for Referee Scheduler
 DROP TABLE IF EXISTS `rs_refs`;
@@ -170,8 +175,8 @@ ADD COLUMN `Name` TEXT NULL AFTER `Region`;
 UPDATE `rs_refs` SET `Name` = CONCAT(`First_Name`, ' ', `Last_Name`); 
 
 /* fix Nate Nguyen */
-UPDATE `rs_refs` SET AYSOID = 66584088 WHERE AYSOID = 203000005;
-/* end fix */
+UPDATE `rs_refs` SET AYSOID = '66584088' WHERE AYSOID = '203000005';
+/* end fixes */
 
 DROP TABLE IF EXISTS tmp_refUpdate;
 CREATE TEMPORARY TABLE tmp_refUpdate SELECT 
@@ -186,7 +191,18 @@ FROM
 		n.AYSOID IS NULL) new;
 				
 INSERT INTO `rs_refNicknames` (`AYSOID`, `Name`, `Nickname`)
-SELECT `AYSOID`, `Name`, `Name` FROM tmp_refUpdate;
+SELECT DISTINCT `AYSOID`, `Name`, `Name` FROM tmp_refUpdate;
+
+/* remove duplicates from `rs_refNicknames` */
+DROP TABLE IF EXISTS tmp_refNicknames;
+CREATE TABLE tmp_refNicknames SELECT DISTINCT `AYSOID`, `Name`, `Nickname` FROM `rs_refNicknames`;
+
+TRUNCATE TABLE `rs_refNicknames`;
+ALTER TABLE `rs_refNicknames` AUTO_INCREMENT=0;
+INSERT INTO `rs_refNicknames` (`AYSOID`, `Name`, `Nickname`)
+SELECT `AYSOID`, `Name`, `Nickname` FROM tmp_refNicknames;
+DROP TABLE IF EXISTS tmp_refNicknames;
+/* end remove */
 
 -- Update timestamp table  
 SET time_zone='+00:00';

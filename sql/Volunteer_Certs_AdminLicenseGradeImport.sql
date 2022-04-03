@@ -26,7 +26,6 @@ CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
   `Coach Cert Date` text,
   `Data Source` text,
   `_AdminID_` varchar(20),
-  `_MY_` text,
   `Section` text,
   `Area` text,
   `Region` text,
@@ -37,6 +36,7 @@ CREATE TABLE `1.Volunteer_Certs_AdminLicenseGrade` (
   `Email` varchar(60),
   `AS_CertificationDesc` text,
   `AS_CertificationDate` text,
+  `_MY_` text,
     PRIMARY KEY (`AdminID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -113,6 +113,7 @@ UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'z-Online 
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = 'z-Online Regional Referee Course' WHERE `e3 Ref Cert Desc` = 'z-Online Regional Referee without Safe Haven---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official---Intermediate Referee Course';
+UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = '8U Official---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official & Safe Haven Referee';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'U-8 Official & Safe Haven Referee---Intermediate Referee Course';
 UPDATE `1.Volunteer_Certs_AdminLicenseGrade` SET `e3 Ref Cert Desc` = '8U Official' WHERE `e3 Ref Cert Desc` = 'Z-Online 8U Official---Intermediate Referee Course';

@@ -16,7 +16,7 @@ CREATE TEMPORARY TABLE `VCI` (
   `Cell_Phone` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.Volunteer_Contact_Information.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.Volunteer_Details.csv'
 	INTO TABLE `VCI`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  

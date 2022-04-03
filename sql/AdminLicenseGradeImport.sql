@@ -22,49 +22,6 @@ FROM
 
 CREATE INDEX `idx_1.AdminLicenseGrade_AYSOID_AdminID`  ON `1.AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2021.AdminLicenseGrade.csv'
--- 	INTO TABLE `1.AdminLicenseGrade`   
--- 	FIELDS TERMINATED BY ','   
--- 	ENCLOSED BY ''  
--- 	LINES TERMINATED BY '\n'
--- 	IGNORE 1 ROWS;
--- 
--- UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2021' WHERE `MY` IS NULL;
--- 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2020.AdminLicenseGrade.csv'
--- 	INTO TABLE `1.AdminLicenseGrade`   
--- 	FIELDS TERMINATED BY ','   
--- 	ENCLOSED BY ''  
--- 	LINES TERMINATED BY '\n'
--- 	IGNORE 1 ROWS;
--- 
--- UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2020' WHERE `MY` IS NULL;
--- 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2019.AdminLicenseGrade.csv'
--- 	INTO TABLE `1.AdminLicenseGrade`   
--- 	FIELDS TERMINATED BY ','   
--- 	ENCLOSED BY ''  
--- 	LINES TERMINATED BY '\n'
--- 	IGNORE 1 ROWS;
--- 
--- UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2019' WHERE `MY` IS NULL;
--- 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2018.AdminLicenseGrade.csv'
--- 	INTO TABLE `1.AdminLicenseGrade`   
--- 	FIELDS TERMINATED BY ','   
--- 	ENCLOSED BY ''  
--- 	LINES TERMINATED BY '\n'
--- 	IGNORE 1 ROWS;
--- 
--- UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2018' WHERE `MY` IS NULL;
--- 
--- LOAD DATA LOCAL INFILE '/Users/rick/Google_Drive.ayso1sra/s1/reports/_data/1.2017.AdminLicenseGrade.csv'
--- 	INTO TABLE `1.AdminLicenseGrade`   
--- 	FIELDS TERMINATED BY ','   
--- 	ENCLOSED BY ''  
--- 	LINES TERMINATED BY '\n'
--- 	IGNORE 1 ROWS;
-
 DELETE FROM `1.AdminLicenseGrade` 
 WHERE
     `AdminID` IS NULL;  
@@ -117,10 +74,10 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
         *
     FROM
         `1.AdminLicenseGrade`
-    ORDER BY `MY` DESC) ordered
+    ORDER BY `AdminID`, `MY` DESC) ordered
     GROUP BY `AdminID`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) grouped
     WHERE rank = 1
-		AND NOT `AdminID` IS NULL
+		AND `AdminID` <> ''
     ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Asst. Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', ''), `Area`, `Region`, `LastName`;
 
 DROP TABLE IF EXISTS `1.AdminLicenseGrade`;

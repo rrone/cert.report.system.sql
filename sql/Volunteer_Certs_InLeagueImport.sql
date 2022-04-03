@@ -58,6 +58,8 @@ CHANGE COLUMN `Area` `Area` TEXT AFTER `Section`,
 CHANGE COLUMN `Region` `Region` TEXT AFTER `Area`,
 ADD COLUMN `SafeSport_Date` TEXT NULL AFTER `SCA_Date`,
 ADD COLUMN `LiveScan_Date` TEXT NULL AFTER `SafeSport_Date`;
+
+UPDATE `1.Volunteer_Certs_VolunteerReport_InLeague` SET `Section` = SPLIT_STRING(`SAR`,'/',1), `Area` = SPLIT_STRING(`SAR`,'/',2), `Region` = ExtractNumber(SPLIT_STRING(`SAR`,'/',3));
     
 UPDATE `1.Volunteer_Certs_VolunteerReport_InLeague` SET `Ref_Cert_Desc` = SUBSTRING_INDEX(`Ref_Cert_Desc`,'---',1), `Ref_Cert_Date` = SUBSTRING_INDEX(`Ref_Cert_Date`,'---',1);
 

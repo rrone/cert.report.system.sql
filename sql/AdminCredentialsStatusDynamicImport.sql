@@ -16,6 +16,7 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
     `CORIRegDate1` TEXT,
     `AdminID` VARCHAR(20),
     `AYSOID` VARCHAR(20),
+    `RegDate` TEXT,
     `FirstName` TEXT,
     `LastName` VARCHAR(60),
     `DOB` VARCHAR(20),
