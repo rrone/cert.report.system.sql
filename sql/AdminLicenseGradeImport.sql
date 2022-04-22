@@ -20,6 +20,7 @@ CREATE TABLE `1.AdminLicenseGrade` SELECT `AYSOID`,
 FROM 
 	`AdminCredentialsStatusDynamic`;
 
+CREATE INDEX `idx_1.AdminLicenseGrade_AdminID`  ON `1.AdminLicenseGrade` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 CREATE INDEX `idx_1.AdminLicenseGrade_AYSOID_AdminID`  ON `1.AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DELETE FROM `1.AdminLicenseGrade` 

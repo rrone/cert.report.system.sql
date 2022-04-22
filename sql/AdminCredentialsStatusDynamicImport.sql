@@ -87,6 +87,10 @@ DELETE FROM `AdminCredentialsStatusDynamic` WHERE `League` IS NULL;
 /* Rich Fichtelman duplicate registration */
 DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
 
+/* Dave Story 1/P/20 */
+UPDATE `AdminCredentialsStatusDynamic` SET `AYSOID` = '58019756' WHERE `AdminID`='11142-092128';
+UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '11142-092128' WHERE `AdminID`='42518-133787';
+
 DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 
 CREATE TABLE `1.AdminCredentialsStatusDynamic` (

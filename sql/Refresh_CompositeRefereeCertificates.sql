@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS `1.CompositeRefereeCertificates`;
 CREATE TABLE `1.CompositeRefereeCertificates` SELECT * FROM
     `1.AdminLicenseGradeRefereeHighest`;
     
+CREATE INDEX `idx_1.CompositeRefereeCertificates_AdminID`  ON `1.CompositeRefereeCertificates` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 CREATE INDEX `idx_1.CompositeRefereeCertificates_AYSOID_AdminID_Email`  ON `1.CompositeRefereeCertificates` (AYSOID, AdminID, Email) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 ALTER TABLE `1.CompositeRefereeCertificates` 
