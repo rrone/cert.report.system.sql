@@ -28,6 +28,8 @@ SELECT
 FROM
     `VCI`;
  
+INSERT INTO `VCI` SELECT DISTINCT * FROM `1.Volunteer_Contact_Information`;
+
 DROP TABLE IF EXISTS `1.Volunteer_Contact_Information`;
 
 CREATE TABLE `1.Volunteer_Contact_Information` SELECT DISTINCT * FROM `VCI`;

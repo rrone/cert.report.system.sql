@@ -131,13 +131,13 @@ ORDER BY FIELD(`CertificationDesc`,
         'Z-Online 8U Official',
         '') , `Area` , `Region` , `LastName` , `MY`;
 
-/* save as alg_new.csv */
-SELECT 
-    alg.*
-FROM
-    `1.AdminLicenseGrade` alg
-        LEFT JOIN
-    `1.Volunteer_Certs_AdminLicenseGrade` vc ON alg.`AdminID` = vc.`AdminID`
-WHERE
-    alg.`AYSOID` <> ''
-        AND vc.`AdminID` IS NULL;
+-- /* save as alg_new.csv */
+-- SELECT 
+--     alg.*
+-- FROM
+--     `1.AdminLicenseGrade` alg
+--         LEFT JOIN
+--     `1.Volunteer_Certs_AdminLicenseGrade` vc ON alg.`AdminID` = vc.`AdminID`
+-- WHERE
+--     alg.`AYSOID` <> ''
+--         AND vc.`AdminID` IS NULL;
