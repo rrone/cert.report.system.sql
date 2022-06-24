@@ -44,6 +44,13 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
 )  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
 
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2022.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
@@ -74,15 +81,15 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminCredentialsStatusDy
     
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
-
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
-        
+
 UPDATE `AdminCredentialsStatusDynamic` SET `MY` = RIGHT(`MY`,6);
 
 DELETE FROM `AdminCredentialsStatusDynamic` WHERE `League` IS NULL;
+DELETE FROM `AdminCredentialsStatusDynamic` WHERE ExtractNumber(`League`) = -1;
 
 /* Rich Fichtelman duplicate registration */
 DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
@@ -312,7 +319,7 @@ WHERE
         `AdminID`
     FROM
         `tmp_dup_AdminCredentialsStatusDynamic`);   
-        
+
 DROP TABLE IF EXISTS `tmp_AdminCredentialsStatusDynamic`;
 
 CREATE TABLE `tmp_AdminCredentialsStatusDynamic` SELECT `AYSOID`,

@@ -111,36 +111,36 @@ FROM
     `tmp_risk_cert` risk ON c.`AdminID` = risk.`AdminID`;
 
 -- Add InLeague certs
-INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
-  '' AS `AdminID`,
-  vcv.`MY`,
-  REPLACE(REPLACE(REPLACE(vcv.`SAR`, '/0','/'), '/0','/'), '/0','/') AS `SAR`,
-  vcv.`Section`,
-  vcv.`Area`,
-  vcv.`Region`,
-  `FirstName` AS `First_Name`,
-  `LastName` AS `Last_Name`,
-  `Street` AS `Address`,
-  vcv.`City`,
-  vcv.`State`,
-  `Zip` AS `Zipcode`,
-  `CellPhone` AS `Cell_Phone`,
-  vcv.`Gender`,
-  vcv.`Email`,
-  `Ref_Cert_Desc` AS `CertificationDesc`,
-  `Ref_Cert_Date` AS `CertificationDate`,
-  vcv.`Safe_Haven_Date`,
-  `CDC_Date` AS `Concussion_Awareness_Date`,
-  `SCA_Date` AS `Sudden_Cardiac_Arrest_Date`,
-  vcv.`SafeSport_Date` AS `SafeSport_Date`,
-  vcv.`LiveScan_Date` AS `LiveScan_Date`,
-  'InLeague' AS `RiskStatus`,
-  CONCAT(CAST(RIGHT(vcv.`MY`,4) AS UNSIGNED) + 1, '-07-31') AS `RiskExpireDate` 
-FROM
-    `1.Volunteer_Certs_VolunteerReport_InLeague` vcv
-        LEFT JOIN
-    crs_rpt_ref_certs rc ON vcv.AYSOID = rc.AYSOID
-WHERE vcv.`MY` > rc.`MY`;
+-- INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
+--   '' AS `AdminID`,
+--   vcv.`MY`,
+--   REPLACE(REPLACE(REPLACE(vcv.`SAR`, '/0','/'), '/0','/'), '/0','/') AS `SAR`,
+--   vcv.`Section`,
+--   vcv.`Area`,
+--   vcv.`Region`,
+--   `FirstName` AS `First_Name`,
+--   `LastName` AS `Last_Name`,
+--   `Street` AS `Address`,
+--   vcv.`City`,
+--   vcv.`State`,
+--   `Zip` AS `Zipcode`,
+--   `CellPhone` AS `Cell_Phone`,
+--   vcv.`Gender`,
+--   vcv.`Email`,
+--   `Ref_Cert_Desc` AS `CertificationDesc`,
+--   `Ref_Cert_Date` AS `CertificationDate`,
+--   vcv.`Safe_Haven_Date`,
+--   `CDC_Date` AS `Concussion_Awareness_Date`,
+--   `SCA_Date` AS `Sudden_Cardiac_Arrest_Date`,
+--   vcv.`SafeSport_Date` AS `SafeSport_Date`,
+--   vcv.`LiveScan_Date` AS `LiveScan_Date`,
+--   'InLeague' AS `RiskStatus`,
+--   CONCAT(CAST(RIGHT(vcv.`MY`,4) AS UNSIGNED) + 1, '-07-31') AS `RiskExpireDate` 
+-- FROM
+--     `1.Volunteer_Certs_VolunteerReport_InLeague` vcv
+--         LEFT JOIN
+--     crs_rpt_ref_certs rc ON vcv.AYSOID = rc.AYSOID
+-- WHERE vcv.`MY` > rc.`MY`;
 
 /* 2021-01-03: Add InLeague volunteers to crs_rpt_ref_certs */
 UPDATE `crs_rpt_ref_certs` crs

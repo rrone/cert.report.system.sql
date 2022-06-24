@@ -120,9 +120,6 @@ INSERT INTO `tmpAdminLicenseGradeRefereeHighest` SELECT *
 FROM `1.AdminLicenseGradeRefereeHighest`
 WHERE `AYSOID` = '';
 
-ALTER TABLE `tmpAdminLicenseGradeRefereeHighest` 
-DROP COLUMN `DOB`;
-
 DROP TABLE IF EXISTS `1.AdminLicenseGradeRefereeHighest`;
 
 ALTER TABLE `tmpAdminLicenseGradeRefereeHighest` 
