@@ -12,8 +12,8 @@ CREATE INDEX `idx_1.CompositeRefereeCertificates_AYSOID_AdminID_Email`  ON `1.Co
 
 ALTER TABLE `1.CompositeRefereeCertificates` 
 ADD COLUMN `SAR` TEXT NULL AFTER `MY`,
-ADD COLUMN `Address` TEXT NULL AFTER `Last_Name`,
-ADD COLUMN `City` TEXT NULL AFTER `Address`,
+-- ADD COLUMN `Address` TEXT NULL AFTER `Last_Name`,
+ADD COLUMN `City` TEXT NULL AFTER `Last_Name`,
 ADD COLUMN `State` TEXT NULL AFTER `City`,
 ADD COLUMN `Zipcode` TEXT NULL AFTER `State`,
 ADD COLUMN `Cell_Phone` TEXT NULL AFTER `Zipcode`;
@@ -24,61 +24,56 @@ UPDATE `1.CompositeRefereeCertificates` c SET `SAR` = CONCAT(`SAR`, '/', `Region
 
 UPDATE `1.CompositeRefereeCertificates` c
         INNER JOIN
-    `1.VolunteerReportExport` vre ON c.`AYSOID` = vre.`AYSOID` 
+    `1.AdminInfo` ai ON c.`AdminID` = ai.`AdminID` 
 SET 
-    c.`Address` = vre.`Street`,
-    c.`City` = vre.`City`,
-    c.`State` = vre.`State`,
-    c.`Zipcode` = vre.`Zip`,
-    c.`Cell_Phone` = vre.`CellPhone`;
-    
+--     c.`Address` = ai.`Address`,
+    c.`City` = ai.`City`,
+    c.`State` = `zipcode`(ai.`PostalCode`),
+    c.`Zipcode` = IF(LENGTH(ai.`PostalCode`)>5,CONCAT(LEFT(ai.`PostalCode`, 5),"-",RIGHT(ai.`PostalCode`, 4)),ai.`PostalCode`);
+
 UPDATE `1.CompositeRefereeCertificates` c
         INNER JOIN
-    `1.Volunteer_Contact_Information` vci ON c.`Email` = vci.`Email` 
+    `1.VolunteerReportExport` vre ON c.`AYSOID` = vre.`AYSOID` 
 SET 
-    c.`Address` = vci.`Address`,
-    c.`City` = vci.`City`,
-    c.`State` = vci.`State`,
-    c.`Zipcode` = vci.`Zip_Code`,
-    c.`Cell_Phone` = vci.`Cell_Phone`;
+    c.`Cell_Phone` = vre.`CellPhone`;
     
 DROP TABLE IF EXISTS `tmp_sh_cert`;
-CREATE TEMPORARY TABLE `tmp_sh_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_sh_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Safe Haven';
 CREATE INDEX `idx_tmp_sh_cert_AdminID`  ON `tmp_sh_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_cdc_cert`;
-CREATE TEMPORARY TABLE `tmp_cdc_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_cdc_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Concussion%';
 CREATE INDEX `idx_tmp_cdc_cert_AdminID`  ON `tmp_cdc_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_sca_cert`;
-CREATE TEMPORARY TABLE `tmp_sca_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_sca_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Cardiac%';
 CREATE INDEX `idx_tmp_sca_cert_AdminID`  ON `tmp_sca_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_ss_cert`;
-CREATE TEMPORARY TABLE `tmp_ss_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_ss_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%SafeSport%';
 CREATE INDEX `idx_tmp_ss_cert_AdminID`  ON `tmp_ss_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_ls_cert`;
-CREATE TEMPORARY TABLE `tmp_ls_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `CertificateName`, `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_ls_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Fingerprinting';
 CREATE INDEX `idx_tmp_ls_cert_AdminID`  ON `tmp_ls_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_risk_cert`;
-CREATE TEMPORARY TABLE `tmp_risk_cert` SELECT DISTINCT `AYSOID`, `AdminID`, `RiskStatus` AS `CertificateName`, `RiskExpireDate` AS `CertificateDate` FROM
+CREATE TEMPORARY TABLE `tmp_risk_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `RiskStatus` AS `CertificateName`, `RiskExpireDate` AS `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`;
 CREATE INDEX `idx_tmp_risk_cert_AdminID`  ON .`tmp_risk_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
@@ -110,39 +105,6 @@ FROM
         LEFT JOIN
     `tmp_risk_cert` risk ON c.`AdminID` = risk.`AdminID`;
 
--- Add InLeague certs
--- INSERT INTO `crs_rpt_ref_certs` SELECT vcv.`AYSOID`,
---   '' AS `AdminID`,
---   vcv.`MY`,
---   REPLACE(REPLACE(REPLACE(vcv.`SAR`, '/0','/'), '/0','/'), '/0','/') AS `SAR`,
---   vcv.`Section`,
---   vcv.`Area`,
---   vcv.`Region`,
---   `FirstName` AS `First_Name`,
---   `LastName` AS `Last_Name`,
---   `Street` AS `Address`,
---   vcv.`City`,
---   vcv.`State`,
---   `Zip` AS `Zipcode`,
---   `CellPhone` AS `Cell_Phone`,
---   vcv.`Gender`,
---   vcv.`Email`,
---   `Ref_Cert_Desc` AS `CertificationDesc`,
---   `Ref_Cert_Date` AS `CertificationDate`,
---   vcv.`Safe_Haven_Date`,
---   `CDC_Date` AS `Concussion_Awareness_Date`,
---   `SCA_Date` AS `Sudden_Cardiac_Arrest_Date`,
---   vcv.`SafeSport_Date` AS `SafeSport_Date`,
---   vcv.`LiveScan_Date` AS `LiveScan_Date`,
---   'InLeague' AS `RiskStatus`,
---   CONCAT(CAST(RIGHT(vcv.`MY`,4) AS UNSIGNED) + 1, '-07-31') AS `RiskExpireDate` 
--- FROM
---     `1.Volunteer_Certs_VolunteerReport_InLeague` vcv
---         LEFT JOIN
---     crs_rpt_ref_certs rc ON vcv.AYSOID = rc.AYSOID
--- WHERE vcv.`MY` > rc.`MY`;
-
-/* 2021-01-03: Add InLeague volunteers to crs_rpt_ref_certs */
 UPDATE `crs_rpt_ref_certs` crs
         INNER JOIN
     `1.Volunteer_Certs_VolunteerReport_InLeague` vc ON crs.`AYSOID` = vc.`AYSOID` AND crs.`AdminID` = ''
@@ -162,6 +124,8 @@ UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `crs_rpt_ref_certs` SET `CertificationDesc`='Intermediate Referee', `CertificationDate`='2022-02-22' WHERE AdminID='69526-398429';
 /* fix Richard Bronshvag */
 UPDATE `crs_rpt_ref_certs` SET `AYSOID` = '69026725' WHERE `AdminID` = '52423-428440';
+/* rename Rick Roberts */
+UPDATE `crs_rpt_ref_certs` SET `First_Name` = 'Rick' WHERE `AdminID` = '27134-804043';
 /* end fixes */
 
 -- Update Tables for Referee Scheduler
@@ -218,3 +182,10 @@ SELECT
 FROM
     `crs_rpt_ref_certs`
 ORDER BY `RiskExpireDate` , `AYSOID` , `AdminID` DESC;
+
+CALL `RefreshRefereeInstructors`();
+
+CALL `RefreshRefereeInstructorEvaluators`();
+
+CALL `RefreshRefereeAssessors`();
+

@@ -4,8 +4,8 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 DROP TABLE IF EXISTS `1.AdminLicenseGradeRefereeHighest`;
 
-CREATE TABLE `1.AdminLicenseGradeRefereeHighest` SELECT DISTINCT `AYSOID`,
-    `AdminID`,
+CREATE TABLE `1.AdminLicenseGradeRefereeHighest` SELECT DISTINCT `AdminID`,
+    `AYSOID`,
     `MY`,
     `Section`,
     `Area`,
@@ -14,7 +14,7 @@ CREATE TABLE `1.AdminLicenseGradeRefereeHighest` SELECT DISTINCT `AYSOID`,
     `LastName` AS `Last_Name`,
     `DOB`,
     `Gender`,
-    `Email`,
+    LOWER(`Email`) AS `Email`,
     `CertificationDesc`,
     `CertificationDate` FROM
     `1.AdminLicenseGrade`
@@ -88,8 +88,8 @@ CREATE INDEX `idx_1.AdminLicenseGradeRefereeHighest_Last_Name_DOB`  ON `1.AdminL
 DROP TABLE IF EXISTS `tmpAdminLicenseGradeRefereeHighest`;
 
 CREATE TABLE `tmpAdminLicenseGradeRefereeHighest` SELECT 
-        `AYSOID`, 
         `AdminID`, 
+        `AYSOID`, 
         `MY`, 
         `Section`, 
         `Area`,
@@ -98,7 +98,7 @@ CREATE TABLE `tmpAdminLicenseGradeRefereeHighest` SELECT
         `Last_Name`, 
         `DOB`, 
         `Gender`, 
-        `Email`, 
+        LOWER(`Email`) AS `Email`, 
         `CertificationDesc`, 
         `CertificationDate`
         FROM (SELECT *,

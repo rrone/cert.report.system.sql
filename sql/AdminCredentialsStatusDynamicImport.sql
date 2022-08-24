@@ -98,6 +98,10 @@ DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
 UPDATE `AdminCredentialsStatusDynamic` SET `AYSOID` = '58019756' WHERE `AdminID`='11142-092128';
 UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '11142-092128' WHERE `AdminID`='42518-133787';
 
+/* Nichole Wade 1/P/1031 */
+UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '14448-208552' WHERE `AdminID`='85599-760850';
+
+
 DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 
 CREATE TABLE `1.AdminCredentialsStatusDynamic` (
