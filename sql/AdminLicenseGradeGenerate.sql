@@ -4,21 +4,20 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
 
-CREATE TABLE `1.AdminLicenseGrade` SELECT `AYSOID`,
-    `AdminID`,
-	`MY`,
-	ExtractNumber(`League`) AS `Section`,
-	RIGHT(`League`, 1) AS `Area`,
-	ExtractNumber(`Club`) AS `Region`,
+CREATE TABLE `1.AdminLicenseGrade` SELECT `AdminID`,
+    `AYSOID`,
+    `MY`,
+    EXTRACTNUMBER(`League`) AS `Section`,
+    RIGHT(`League`, 1) AS `Area`,
+    EXTRACTNUMBER(`Club`) AS `Region`,
     `FirstName`,
     `LastName`,
-    format_date(`DOB`) AS `DOB`,
+    FORMAT_DATE(`DOB`) AS `DOB`,
     `GenderCode` AS `Gender`,
     `Email`,
     `refGrade1` AS `CertificationDesc`,
-    format_date(`refObtainDate1`) AS `CertificationDate`
-FROM 
-	`AdminCredentialsStatusDynamic`;
+    FORMAT_DATE(`refObtainDate1`) AS `CertificationDate` FROM
+    `AdminCredentialsStatusDynamic`;
 
 CREATE INDEX `idx_1.AdminLicenseGrade_AdminID`  ON `1.AdminLicenseGrade` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 CREATE INDEX `idx_1.AdminLicenseGrade_AYSOID_AdminID`  ON `1.AdminLicenseGrade` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
@@ -41,7 +40,23 @@ WHERE
     `AdminID` = '55599-730572';   
     
 /* Nichole Wade 1/P/1031 */
-UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2022' WHERE `AdminID` = '14448-208552';
+UPDATE `1.AdminLicenseGrade` 
+SET 
+    `MY` = 'MY2022'
+WHERE
+    `AdminID` = '14448-208552';
+
+/*Ricardo Gonzalez Jr duplicate */
+UPDATE `1.AdminLicenseGrade` 
+SET
+    `AdminID` = '11844-920039'
+WHERE 
+`AdminID` IN ('53239-880774', '74625-322435', '42548-339555');
+
+/* Al Prado test account */
+DELETE FROM `1.AdminLicenseGrade`
+WHERE 
+	`AdminID` = '89820-005656';
     
 DELETE FROM `1.AdminLicenseGrade` 
 WHERE NOT `CertificationDesc` LIKE '%Referee%'
@@ -56,8 +71,8 @@ UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '10/29/1997' WHERE `Admi
 
 DROP TABLE IF EXISTS `AdminLicenseGrade`;
 
-CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
-    `AdminID`,
+CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AdminID`,
+	`AYSOID`,
     `Section`,
     `Area`,
     `Region`,
@@ -71,8 +86,9 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AYSOID`,
     `MY` FROM
     (SELECT 
         *,
-            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
-            @id:=`AdminID`
+            @rank:=IF(@id = `AdminID` AND `MY` < `AdminID` = @my, @rank + 1, 1) AS rank,
+            @id:=`AdminID`,
+            @my:=`MY`
     FROM
         (SELECT 
         *
@@ -88,33 +104,6 @@ DROP TABLE IF EXISTS `1.AdminLicenseGrade`;
 
 ALTER TABLE `AdminLicenseGrade` 
 RENAME TO  `1.AdminLicenseGrade`;
-
-DROP TABLE IF EXISTS `tmp_dup_AdminLicenseGrade`;
-
-CREATE TEMPORARY TABLE `tmp_dup_AdminLicenseGrade` SELECT `AdminID` FROM
-    (SELECT 
-        *,
-            @rank:=IF(@id = `AYSOID`, @rank + 1, 1) AS rank,
-            @id:=`AYSOID`
-    FROM
-        (SELECT 
-        *
-    FROM
-        `1.AdminLicenseGrade`
-    ORDER BY `MY` DESC) ordered
-    GROUP BY `AYSOID`) grouped
-WHERE
-    `rank` = 1 AND `AYSOID` <> '';
-
-CREATE INDEX `idx_tmp_dup_AdminLicenseGrade`  ON `tmp_dup_AdminLicenseGrade` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
-
-DELETE FROM `1.AdminLicenseGrade` 
-WHERE
-    `AYSOID` <> ''
-    AND `AdminID` NOT IN (SELECT 
-        `AdminID`
-    FROM
-        `tmp_dup_AdminLicenseGrade`);   
 
 SELECT 
     *
@@ -133,14 +122,3 @@ ORDER BY FIELD(`CertificationDesc`,
         'U-8 Official & Safe Haven Referee',
         'Z-Online 8U Official',
         '') , `Area` , `Region` , `LastName` , `MY`;
-
--- /* save as alg_new.csv */
--- SELECT 
---     alg.*
--- FROM
---     `1.AdminLicenseGrade` alg
---         LEFT JOIN
---     `1.Volunteer_Certs_AdminLicenseGrade` vc ON alg.`AdminID` = vc.`AdminID`
--- WHERE
---     alg.`AYSOID` <> ''
---         AND vc.`AdminID` IS NULL;

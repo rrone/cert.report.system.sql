@@ -105,8 +105,8 @@ UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '14448-208552' WHERE `Adm
 DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 
 CREATE TABLE `1.AdminCredentialsStatusDynamic` (
-  `AYSOID` VARCHAR(20),
   `AdminID` VARCHAR(20),
+  `AYSOID` VARCHAR(20),
   `MY` text,
   `CertificateName` text,
   `CertificateDate` text,
@@ -125,8 +125,8 @@ CREATE TABLE `1.AdminCredentialsStatusDynamic` (
 CREATE INDEX `idx_AdminCredentialsStatusDynamic_AYSOID_AdminID`  ON `1.AdminCredentialsStatusDynamic` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
-  `AYSOID`,
   `AdminID`,
+  `AYSOID`,
   `MY`,
   `CertificateName` AS `CertificateDesc`,
   `ccVerifyDate` AS `CertificateDate`,
@@ -159,8 +159,8 @@ WHERE
 ORDER BY `Area` , `Region` , `LastName`);
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
-  `AYSOID`,
   `AdminID`,
+  `AYSOID`,
   `MY`,
   `CertificateName` AS `CertificateDesc`,
   `ccVerifyDate` AS `CertificateDate`,
@@ -193,8 +193,8 @@ WHERE
 ORDER BY `Area` , `Region` , `LastName`);
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
-  `AYSOID`,
   `AdminID`,
+  `AYSOID`,
   `MY`,
   `CertificateName` AS `CertificateDesc`,
   `ccVerifyDate` AS `CertificateDate`,
@@ -227,8 +227,8 @@ WHERE
 ORDER BY `Area` , `Region` , `LastName`);
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
-  `AYSOID`,
   `AdminID`,
+  `AYSOID`,
   `MY`,
   `CertificateName` AS `CertificateDesc`,
   `ccVerifyDate` AS `CertificateDate`,
@@ -261,8 +261,8 @@ WHERE
 ORDER BY `Area` , `Region` , `LastName`);
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
-  `AYSOID`,
   `AdminID`,
+  `AYSOID`,
   `MY`,
   `CertificateName` AS `CertificateDesc`,
   `ccVerifyDate` AS `CertificateDate`,
@@ -326,8 +326,8 @@ WHERE
 
 DROP TABLE IF EXISTS `tmp_AdminCredentialsStatusDynamic`;
 
-CREATE TABLE `tmp_AdminCredentialsStatusDynamic` SELECT `AYSOID`,
-    `AdminID`,
+CREATE TABLE `tmp_AdminCredentialsStatusDynamic` SELECT `AdminID`,
+    `AYSOID`,
     `MY`,
     `CertificateName`,
     `CertificateDate`,
@@ -343,15 +343,15 @@ CREATE TABLE `tmp_AdminCredentialsStatusDynamic` SELECT `AYSOID`,
     `RiskExpireDate` FROM
     (SELECT 
         *,
-            @rank:=IF(@id = CONCAT(`AdminID`,`CertificateName`), @rank + 1, 1) AS rank,
-            @id:=CONCAT(`AdminID`,`CertificateName`)
+            @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`), @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`, `CertificateName`)
     FROM
         (SELECT 
         *
     FROM
         `1.AdminCredentialsStatusDynamic`
     ORDER BY `AYSOID` , `MY` DESC) ordered
-    GROUP BY `AdminID`, `CertificateName`) grouped
+    GROUP BY `AdminID` , `CertificateName`) grouped
 WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `LastName`;
