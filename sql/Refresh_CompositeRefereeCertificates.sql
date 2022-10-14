@@ -28,7 +28,7 @@ UPDATE `1.CompositeRefereeCertificates` c
 SET 
 --     c.`Address` = ai.`Address`,
     c.`City` = ai.`City`,
-    c.`State` = `zipcode`(ai.`PostalCode`),
+    c.`State` = STATE(ai.`PostalCode`),
     c.`Zipcode` = IF(LENGTH(ai.`PostalCode`)>5,CONCAT(LEFT(ai.`PostalCode`, 5),"-",RIGHT(ai.`PostalCode`, 4)),ai.`PostalCode`);
 
 UPDATE `1.CompositeRefereeCertificates` c
@@ -180,8 +180,16 @@ ALTER TABLE crs_rpt_lastUpdate ADD UNIQUE (`timestamp`);
 SELECT 
     *
 FROM
+    `crs_rpt_ref_certs`;
+
+SELECT 
+    *
+FROM
     `crs_rpt_ref_certs`
-ORDER BY `RiskExpireDate` , `AYSOID` , `AdminID` DESC;
+WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+	AND `CertificationDate` <= NOW()
+	AND `CertificationDesc` IN ('National Referee', 'Advanced Referee', 'Intermediate Referee')
+ORDER BY `CertificationDate` , `AYSOID` , `AdminID` DESC;
 
 CALL `RefreshRefereeInstructors`();
 

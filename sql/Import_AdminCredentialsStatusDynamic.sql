@@ -36,6 +36,7 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
     `refGrade1` TEXT,
     `refObtainDate1` TEXT,
     `refExpDate1` TEXT,
+    `rosteredYN` TEXT,
     `ccInDate` TEXT,
     `ccVerified` TEXT,
     `ccVerifyBy` TEXT,
@@ -44,14 +45,14 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
 )  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
 
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2022.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2022.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2021.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -101,6 +102,8 @@ UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '11142-092128' WHERE `Adm
 /* Nichole Wade 1/P/1031 */
 UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '14448-208552' WHERE `AdminID`='85599-760850';
 
+/* Yui-Bin Chen registration in Region 779 */
+DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '82221-973180' AND `Club` LIKE '%779';
 
 DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 

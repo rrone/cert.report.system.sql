@@ -8,63 +8,66 @@ CREATE TEMPORARY TABLE `1.upgradesInProgress` (
   `First_Name` text,
   `Last_Name` text,
   `AdminID` VARCHAR(100),
-  `Email` text,
-  `Region` text,
   `Training` text,
   `TrainingStatus` text,
-  `TrainingDate` text
+  `AccessDate` text,
+  `TrainingDate` text,
+  `Course Expiry Date` text,
+  `AccreditationExpiryDate` text,
+  `Email` text,
+  `Region` text  
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/NationalReferee.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/NationalReferee.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/AdvancedReferee.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/AdvancedReferee.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/IntermediateReferee.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/IntermediateReferee.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RegionalRefereeInstructor.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RegionalRefereeInstructor.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/AdvancedRefereeInstructor.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/AdvancedRefereeInstructor.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RefereeInstructorEvaluator.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RefereeInstructorEvaluator.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RefereeAssessor.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RefereeAssessor.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/NationalRefereeAssessor.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/NationalRefereeAssessor.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
@@ -73,6 +76,9 @@ LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_conn
     
 ALTER TABLE `1.upgradesInProgress` 
 CHANGE COLUMN `AdminID` `AdminID` VARCHAR(100) NULL DEFAULT NULL FIRST,
+DROP COLUMN `AccessDate`,
+DROP COLUMN `Course Expiry Date`,
+DROP COLUMN `AccreditationExpiryDate`,
 DROP COLUMN `Region`,
 DROP COLUMN `Email`;
 
@@ -142,8 +148,10 @@ FROM
 	`crs_rpt_ra` ra ON ra.`AdminID` = up.`AdminID`
 
 WHERE
-    NOT `Training` IS NULL
+	NOT `Training` IS NULL 
+    AND NOT `TrainingDate` = ""
     AND NOT ref.`CertificationDesc` LIKE '8U%'
+    AND `TrainingDate` >= DATE_SUB(NOW(), INTERVAL 8 YEAR)
     AND (
 		(`Training` = 'Intermediate Referee Course' AND ref.`CertificationDesc` = 'Regional Referee')
 		OR (`Training` = 'Advanced Referee Course' AND ref.`CertificationDesc` = 'Intermediate Referee')
@@ -158,7 +166,8 @@ WHERE
 DROP TABLE IF EXISTS `crs_rpt_ref_upgrades`;
 
 CREATE TABLE `crs_rpt_ref_upgrades` SELECT DISTINCT * FROM
-    `tmp_ref_upgrades`;    
+    `tmp_ref_upgrades`
+WHERE `Section` = 1;    
         
 SELECT 
     *

@@ -12,7 +12,7 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 -- ALTER TABLE `ayso1ref_services`.`1.Completed_Upgrades` 
 -- CHANGE COLUMN `AYSO_ID` `AdminID` TEXT NULL DEFAULT NULL ;
 
-LOAD DATA LOCAL INFILE '~/.CMVolumes/ayso1sra/s1/upgrades/__database/upgrade.labels.csv'
+LOAD DATA LOCAL INFILE '~/.CMVolumes/ayso.1sra/s1/upgrades/__database/upgrade.labels.csv'
 	INTO TABLE `1.Completed_Upgrades`
 	FIELDS TERMINATED BY ','   
 	OPTIONALLY ENCLOSED BY '"'  

@@ -65,10 +65,6 @@ WHERE NOT `CertificationDesc` LIKE '%Referee%'
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDesc` = 'Assistant Referee' WHERE `CertificationDesc` = 'Asst. Referee';
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDesc` = '8U Official' WHERE `CertificationDesc` = 'U-8 Official';
 
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '01/05/2018' WHERE `AdminID` = '56070-301841';
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '09/04/2018' WHERE `AdminID` = '56070-301841';
-UPDATE `1.AdminLicenseGrade`  SET `CertificationDate` = '10/29/1997' WHERE `AdminID` = '10177-661663';
-
 DROP TABLE IF EXISTS `AdminLicenseGrade`;
 
 CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AdminID`,
@@ -86,7 +82,7 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AdminID`,
     `MY` FROM
     (SELECT 
         *,
-            @rank:=IF(@id = `AdminID` AND `MY` < `AdminID` = @my, @rank + 1, 1) AS rank,
+            @rank:=IF(@id = `AdminID` AND `MY` < @my, @rank + 1, 1) AS rank,
             @id:=`AdminID`,
             @my:=`MY`
     FROM

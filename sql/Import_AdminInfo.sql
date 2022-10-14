@@ -27,42 +27,42 @@ CREATE TEMPORARY TABLE `tmp.AdminInfo` (
   `Risk_Submit_Date` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2022.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2022.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2021.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2020.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2019.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2018.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2017.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
@@ -70,23 +70,19 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminLicenseGrade.csv'
 	IGNORE 1 ROWS;  
     
 ALTER TABLE `tmp.AdminInfo` 
-DROP COLUMN `Risk_Submit_Date`,
-DROP COLUMN `LicenseLevel`,
 DROP COLUMN `Admin_ID`,
+DROP COLUMN `AdminAltID`,
 DROP COLUMN `Textbox17`,
 DROP COLUMN `Textbox9`,
 DROP COLUMN `Textbox80`,
 DROP COLUMN `﻿Textbox7`,
-DROP COLUMN `Section`,
-DROP COLUMN `Area`,
-DROP COLUMN `Club_ID`,
-CHANGE COLUMN `AdminAltID` `AYSOID` VARCHAR(20) NULL DEFAULT NULL ,
+CHANGE COLUMN `Club_ID` `Region` TEXT NULL DEFAULT NULL,
+ADD COLUMN `State` TEXT NULL AFTER `City`,
+CHANGE COLUMN `Risk_Submit_Date` `CertificationDate` TEXT NULL DEFAULT NULL,
+CHANGE COLUMN `LicenseLevel` `CertificationDesc` TEXT NULL DEFAULT NULL,
 CHANGE COLUMN `First_Name` `FirstName` TEXT NULL DEFAULT NULL ,
 CHANGE COLUMN `Last_Name` `LastName` TEXT NULL DEFAULT NULL,
 CHANGE COLUMN `AdminID` `AdminID` VARCHAR(20) NULL DEFAULT NULL FIRST;
-
-ALTER TABLE `tmp.AdminInfo` 
-CHANGE COLUMN `AYSOID` `AYSOID` VARCHAR(20) NULL DEFAULT NULL AFTER `AdminID`;
 
 DROP TABLE IF EXISTS `1.AdminInfo`;
 
@@ -94,13 +90,22 @@ CREATE TABLE `1.AdminInfo` SELECT DISTINCT * FROM
     `tmp.AdminInfo`
 ORDER BY `AdminID`;
 
+CREATE INDEX `idx_1.AdminInfo_AdminID`  ON `1.AdminInfo` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+
 UPDATE `1.AdminInfo` 
 SET 
-    `DOB` = format_date(`DOB`);  
-
-CREATE INDEX `idx_1.AdminInfo_AYSOID_AdminID`  ON `1.AdminInfo` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+    `Section` = EXTRACTNUMBER(`Section`),
+    `Area` = RIGHT(`Area`, 1),
+    `Region` = EXTRACTNUMBER(`Region`),
+    `DOB` = format_date(`DOB`),
+    `State` = STATE(`PostalCode`),
+    `CertificationDate` = format_date(`CertificationDate`);  
 
 SELECT 
-    *
+    `Section`, `Area`, `Region`, `FirstName`, `LastName`, `Gender`, `Email`, `Address`, `City`, `State`, `PostalCode`, `CertificationDesc`, `CertificationDate`
 FROM
-    `1.AdminInfo`;
+    `1.AdminInfo`    
+WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+	AND `CertificationDesc` LIKE '%Referee'
+	AND `CertificationDesc` IN ('National Referee', 'Advanced Referee', 'Intermediate Referee')
+ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'Advanced Referee', 'Intermediate Referee'),`CertificationDate` DESC, `AdminID` DESC;
