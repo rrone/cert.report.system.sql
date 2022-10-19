@@ -27,42 +27,42 @@ CREATE TEMPORARY TABLE `tmp.AdminInfo` (
   `Risk_Submit_Date` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2022.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2022.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2021.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2020.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2019.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2018.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2017.AdminLicenseGrade.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
