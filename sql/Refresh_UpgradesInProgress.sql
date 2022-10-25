@@ -18,56 +18,56 @@ CREATE TEMPORARY TABLE `1.upgradesInProgress` (
   `Region` text  
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/NationalReferee.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/NationalReferee.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/AdvancedReferee.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/AdvancedReferee.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/IntermediateReferee.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/IntermediateReferee.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RegionalRefereeInstructor.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RegionalRefereeInstructor.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/AdvancedRefereeInstructor.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/AdvancedRefereeInstructor.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RefereeInstructorEvaluator.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RefereeInstructorEvaluator.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RefereeAssessor.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/RefereeAssessor.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso.1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/NationalRefereeAssessor.TrainingStatusReport.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/NationalRefereeAssessor.TrainingStatusReport.csv'
 	INTO TABLE `1.upgradesInProgress`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY '"'  
@@ -87,20 +87,20 @@ CREATE INDEX `idx_1.upgradesInProgress`  ON `1.upgradesInProgress` (AdminID) COM
 UPDATE `1.upgradesInProgress` SET `AdminID` = MID(`AdminID`, 6, 12);
 UPDATE `1.upgradesInProgress` SET `First_Name` = PROPER_CASE(`First_Name`);
 UPDATE `1.upgradesInProgress` SET `Last_Name` = PROPER_CASE(`Last_Name`);
-UPDATE `1.upgradesInProgress` SET `TrainingDate` = format_date(`TrainingDate`);
+UPDATE `1.upgradesInProgress` SET `TrainingDate` = format_date(LEFT(`TrainingDate`,10));
 UPDATE `1.upgradesInProgress` SET `Training` = TRIM(`Training`);
 
 -- Noah Gallo / 1/D/17 Youth
 DELETE FROM `1.upgradesInProgress` WHERE `AdminID` = '55842-664119' AND NOT `Training` LIKE '%Intermediate Referee%';
 
-UPDATE `1.upgradesInProgress` SET `Training` = 'National Referee Course' WHERE `Training` LIKE '%National Referee Course';
-UPDATE `1.upgradesInProgress` SET `Training` = 'Advanced Referee Course' WHERE `Training` LIKE '%Advanced Referee Training';
-UPDATE `1.upgradesInProgress` SET `Training` = 'Intermediate Referee Course' WHERE `Training` LIKE '%Intermediate Referee';
-UPDATE `1.upgradesInProgress` SET `Training` = 'Referee Instructor Course' WHERE `Training` LIKE '%Referee Instructor Course';
-UPDATE `1.upgradesInProgress` SET `Training` = 'Advanced Referee Instructor Course' WHERE `Training` LIKE '%Advanced Referee Instructor Course';
+UPDATE `1.upgradesInProgress` SET `Training` = 'National Referee Course' WHERE `Training` LIKE '%National Referee Course%';
+UPDATE `1.upgradesInProgress` SET `Training` = 'Advanced Referee Course' WHERE `Training` LIKE '%Advanced Referee Training%';
+UPDATE `1.upgradesInProgress` SET `Training` = 'Intermediate Referee Course' WHERE `Training` LIKE '%Intermediate Referee%';
+UPDATE `1.upgradesInProgress` SET `Training` = 'Referee Instructor Course' WHERE `Training` LIKE '%Referee Instructor Course%';
+UPDATE `1.upgradesInProgress` SET `Training` = 'Advanced Referee Instructor Course' WHERE `Training` LIKE '%Advanced Referee Instructor Course%';
 UPDATE `1.upgradesInProgress` SET `Training` = 'Referee Instructor Evaluator Course' WHERE `Training` LIKE '%Referee Instructor Evaluator Course%';
-UPDATE `1.upgradesInProgress` SET `Training` = 'National Referee Assessor Course' WHERE `Training` LIKE '%National Referee Assessor';
-UPDATE `1.upgradesInProgress` SET `Training` = 'Referee Assessor Course' WHERE `Training` LIKE '%Referee Assessor Course';
+UPDATE `1.upgradesInProgress` SET `Training` = 'National Referee Assessor Course' WHERE `Training` LIKE '%National Referee Assessor%';
+UPDATE `1.upgradesInProgress` SET `Training` = 'Referee Assessor Course' WHERE `Training` LIKE '%Referee Assessor Course%';
 
 INSERT INTO `1.upgradesInProgress` SELECT `AdminID`,
 	`First Name` AS `First_Name`,

@@ -105,7 +105,7 @@ SELECT
     `Section`, `Area`, `Region`, `FirstName`, `LastName`, `Gender`, `Email`, `Address`, `City`, `State`, `PostalCode`, `CertificationDesc`, `CertificationDate`
 FROM
     `1.AdminInfo`    
-WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 60 DAY)
+WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 30 DAY)
 	AND `CertificationDesc` LIKE '%Referee'
 	AND `CertificationDesc` IN ('National Referee', 'Advanced Referee', 'Intermediate Referee')
 ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'Advanced Referee', 'Intermediate Referee'),`CertificationDate` DESC, `AdminID` DESC;
