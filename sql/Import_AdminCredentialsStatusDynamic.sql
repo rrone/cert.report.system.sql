@@ -93,14 +93,20 @@ DELETE FROM `AdminCredentialsStatusDynamic` WHERE `League` IS NULL;
 DELETE FROM `AdminCredentialsStatusDynamic` WHERE ExtractNumber(`League`) = -1;
 
 /* Rich Fichtelman duplicate registration */
-DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '55599-730572';
+DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` IN ('55599-730572');
+
+/* James Lacey duplicate registration */
+UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '56536-451818' WHERE `AdminID` IN ('11602-268939');
+
+/* Greg Olson duplicate registration */
+UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '16220-331952' WHERE `AdminID` IN ('25501-727637');
 
 /* Dave Story 1/P/20 */
-UPDATE `AdminCredentialsStatusDynamic` SET `AYSOID` = '58019756' WHERE `AdminID`='11142-092128';
-UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '11142-092128' WHERE `AdminID`='42518-133787';
+UPDATE `AdminCredentialsStatusDynamic` SET `AYSOID` = '58019756' WHERE `AdminID` IN ('11142-092128');
+UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '11142-092128' WHERE `AdminID` IN ('42518-133787');
 
 /* Nichole Wade 1/P/1031 */
-UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '14448-208552' WHERE `AdminID`='85599-760850';
+UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '14448-208552' WHERE `AdminID` IN ('85599-760850');
 
 /* Yui-Bin Chen registration in Region 779 */
 DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '82221-973180' AND `Club` LIKE '%779';

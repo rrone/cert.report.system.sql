@@ -173,7 +173,7 @@ SELECT
     *
 FROM
     `crs_rpt_ref_upgrades`
-ORDER BY LEFT(`SAR`,3) , FIELD(`Training`,
+ORDER BY LEFT(`SAR`,3), `Region`, FIELD(`Training`,
         'National Referee Course',
         'Advanced Referee Course',
         'Intermediate Referee Course',
@@ -182,4 +182,4 @@ ORDER BY LEFT(`SAR`,3) , FIELD(`Training`,
         'Referee Instructor Evaluator Course',
         'National Referee Assessor Course',
         'Referee Assessor Course',
-        '') , `Last_Name` , `TrainingDate`;     
+        ''),  `Last_Name` , `TrainingDate`;     

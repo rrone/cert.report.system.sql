@@ -132,7 +132,7 @@ UPDATE `crs_rpt_ref_certs` SET `First_Name` = 'Rick' WHERE `AdminID` = '27134-80
 DROP TABLE IF EXISTS `rs_refs`;
 CREATE TABLE `rs_refs` SELECT * FROM
     `crs_rpt_ref_certs`;
-ALTER TABLE `rs_refs` ADD INDEX (`AYSOID`);
+ALTER TABLE `rs_refs` ADD INDEX (`AdminID`);
 
 ALTER TABLE `rs_refs` 
 ADD COLUMN `Name` TEXT NULL AFTER `Region`;
@@ -151,21 +151,21 @@ FROM
 		r.*
 	FROM
 		rs_refs r
-	LEFT JOIN `rs_refNicknames` n ON r.AYSOID = n.AYSOID
+	LEFT JOIN `rs_refNicknames` n ON r.AdminID = n.AdminID
 	WHERE
-		n.AYSOID IS NULL) new;
+		n.AdminID IS NULL) new;
 				
-INSERT INTO `rs_refNicknames` (`AYSOID`, `Name`, `Nickname`)
-SELECT DISTINCT `AYSOID`, `Name`, `Name` FROM tmp_refUpdate;
+INSERT INTO `rs_refNicknames` (`AdminID`, `AYSOID`, `Name`, `Nickname`)
+SELECT DISTINCT `AdminID`, `AYSOID`, `Name`, `Name` FROM tmp_refUpdate;
 
 /* remove duplicates from `rs_refNicknames` */
 DROP TABLE IF EXISTS tmp_refNicknames;
-CREATE TABLE tmp_refNicknames SELECT DISTINCT `AYSOID`, `Name`, `Nickname` FROM `rs_refNicknames`;
+CREATE TABLE tmp_refNicknames SELECT DISTINCT `AdminID`, `AYSOID`, `Name`, `Nickname` FROM `rs_refNicknames`;
 
 TRUNCATE TABLE `rs_refNicknames`;
 ALTER TABLE `rs_refNicknames` AUTO_INCREMENT=0;
-INSERT INTO `rs_refNicknames` (`AYSOID`, `Name`, `Nickname`)
-SELECT `AYSOID`, `Name`, `Nickname` FROM tmp_refNicknames;
+INSERT INTO `rs_refNicknames` (`AdminID`, `AYSOID`, `Name`, `Nickname`)
+SELECT `AdminID`, `AYSOID`, `Name`, `Nickname` FROM tmp_refNicknames;
 DROP TABLE IF EXISTS tmp_refNicknames;
 /* end remove */
 
@@ -189,7 +189,7 @@ FROM
 WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 60 DAY)
 	AND `CertificationDate` <= NOW()
 	AND `CertificationDesc` IN ('National Referee', 'Advanced Referee', 'Intermediate Referee')
-ORDER BY `CertificationDate` , `AYSOID` , `AdminID` DESC;
+ORDER BY `CertificationDate`, `AdminID` DESC;
 
 CALL `RefreshRefereeInstructors`();
 
