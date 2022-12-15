@@ -45,21 +45,21 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
 )  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
 
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2022.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2022.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2021.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2021.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2020.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
