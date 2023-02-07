@@ -105,7 +105,47 @@ SELECT
     `Section`, `Area`, `Region`, `FirstName`, `LastName`, `Gender`, `Email`, `Address`, `City`, `State`, `PostalCode`, `CertificationDesc`, `CertificationDate`
 FROM
     `1.AdminInfo`    
-WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 35 DAY)
 	AND `CertificationDesc` LIKE '%Referee'
 	AND `CertificationDesc` IN ('National Referee', 'Advanced Referee', 'Intermediate Referee')
 ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'Advanced Referee', 'Intermediate Referee'),`CertificationDate` DESC, `AdminID` DESC;
+
+/*
+SET @date = '20230118.all.AdminInfo';
+
+DROP TABLE IF EXISTS `@date`;
+
+CREATE TABLE `@date` SELECT * FROM
+    `1.AdminInfo`
+WHERE
+    `CertificationDate` >= '2022-08-01'
+        AND (`CertificationDesc` LIKE '%Referee' OR `CertificationDesc` LIKE '%Official')
+        AND `CertificationDesc` IN ('National Referee' , 'Advanced Referee',
+        'Intermediate Referee',
+        'Regional Referee',
+		'Assistant Referee',
+        '8U Official')
+ORDER BY FIELD(`CertificationDesc`,
+        'National Referee',
+        'Advanced Referee',
+        'Intermediate Referee',
+        'Regional Referee',
+        'Assistant Referee',
+        '8U Official') , `Section`, `Area`, `CertificationDate` DESC , `AdminID` DESC;
+
+SELECT DISTINCT 
+   `Section`,
+    `Area`,
+    `FirstName`,
+    `LastName`,
+    `Gender`,
+    `Email`,
+    `Address`,
+    `City`,
+    `State`,
+    `PostalCode`,
+    `CertificationDesc`,
+    `CertificationDate` 
+FROM
+    `@date`;
+*/

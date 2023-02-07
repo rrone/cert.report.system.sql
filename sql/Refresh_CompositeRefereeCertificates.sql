@@ -51,7 +51,7 @@ WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%Concussion%';
 CREATE INDEX `idx_tmp_cdc_cert_AdminID`  ON `tmp_cdc_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
-DROP TABLE IF EXISTS `tmp_sca_cert`;
+DROP TEMPORARY TABLE IF EXISTS `tmp_sca_cert`;
 CREATE TEMPORARY TABLE `tmp_sca_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `CertificateName`, `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
@@ -59,7 +59,7 @@ WHERE
 CREATE INDEX `idx_tmp_sca_cert_AdminID`  ON `tmp_sca_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DROP TABLE IF EXISTS `tmp_ss_cert`;
-CREATE TEMPORARY TABLE `tmp_ss_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `CertificateName`, `CertificateDate` FROM
+CREATE  TABLE `tmp_ss_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `CertificateName`, `CertificateDate`, `SafeSportExpireDate` FROM
     `1.AdminCredentialsStatusDynamic`
 WHERE
     `1.AdminCredentialsStatusDynamic`.`CertificateName` LIKE '%SafeSport%';
@@ -86,8 +86,8 @@ CREATE TABLE `crs_rpt_ref_certs` SELECT
     sh.`CertificateDate` AS `Safe_Haven_Date`,
     cdc.`CertificateDate` AS `Concussion_Awareness_Date`,
     sca.`CertificateDate` AS `Sudden_Cardiac_Arrest_Date`,
-    ss.`CertificateDate` AS `SafeSport_Date`,
     ls.`CertificateDate` AS `LiveScan_Date`,
+    IF(ISNULL(ss.`CertificateDate`), '', IF(format_date(ss.`SafeSportExpireDate`) >= NOW(), ss.`CertificateDate`, 'Expired')) AS `SafeSport_Date`,
     risk.`CertificateName` AS `RiskStatus`,
     risk.`CertificateDate` AS `RiskExpireDate`
 FROM
@@ -196,4 +196,7 @@ CALL `RefreshRefereeInstructors`();
 CALL `RefreshRefereeInstructorEvaluators`();
 
 CALL `RefreshRefereeAssessors`();
+
+CALL `RefreshRefereeSafeSportExpiration`();
+
 

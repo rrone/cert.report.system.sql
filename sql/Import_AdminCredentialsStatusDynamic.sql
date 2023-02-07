@@ -128,7 +128,8 @@ CREATE TABLE `1.AdminCredentialsStatusDynamic` (
   `Gender` text,
   `email` VARCHAR(60),
   `RiskStatus` text,
-  `RiskExpireDate` text
+  `RiskExpireDate` text,
+  `SafeSportExpireDate` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE INDEX `idx_AdminCredentialsStatusDynamic_AYSOID_AdminID`  ON `1.AdminCredentialsStatusDynamic` (AYSOID, AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
@@ -148,7 +149,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `GenderCode`,
   `email`,
   `RiskStatus`,
-  `RiskExpireDate`
+  `RiskExpireDate`,
+  '' AS `SafeSportExpireDate`
 FROM 
     (SELECT 
         *,
@@ -182,7 +184,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `GenderCode`,
   `email`,
   `RiskStatus`,
-  `RiskExpireDate`
+  `RiskExpireDate`,
+  '' AS `SafeSportExpireDate`
 FROM 
     (SELECT 
         *,
@@ -216,7 +219,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `GenderCode`,
   `email`,
   `RiskStatus`,
-  `RiskExpireDate`
+  `RiskExpireDate`,
+  '' AS `SafeSportExpireDate`
 FROM 
     (SELECT 
         *,
@@ -250,7 +254,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `GenderCode`,
   `email`,
   `RiskStatus`,
-  `RiskExpireDate`
+  `RiskExpireDate`,
+  format_date(`ExpirationDateC`) AS `SafeSportExpireDate`
 FROM 
     (SELECT 
         *,
@@ -284,7 +289,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `GenderCode`,
   `email`,
   `RiskStatus`,
-  `RiskExpireDate`
+  `RiskExpireDate`,
+  '' AS `SafeSportExpireDate`
 FROM 
     (SELECT 
         *,
@@ -349,7 +355,9 @@ CREATE TABLE `tmp_AdminCredentialsStatusDynamic` SELECT `AdminID`,
     `Gender`,
     `email`,
     `RiskStatus`,
-    `RiskExpireDate` FROM
+    `RiskExpireDate`,
+    `SafeSportExpireDate`
+    FROM
     (SELECT 
         *,
             @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`), @rank + 1, 1) AS rank,
@@ -374,3 +382,15 @@ SELECT
     *
 FROM
     `1.AdminCredentialsStatusDynamic`;
+  
+/*
+SET @date = REPLACE(Now(),'-','').',all.AdminCredentialsStatusDynamic';
+
+DROP TABLE IF EXISTS ` @date`;
+
+CREATE TABLE ` @date` SELECT * FROM
+    `1.AdminCredentialsStatusDynamic`; 
+    
+SELECT * FROM ` @date`;
+*/
+

@@ -105,9 +105,9 @@ UPDATE `1.upgradesInProgress` SET `Training` = 'Referee Assessor Course' WHERE `
 INSERT INTO `1.upgradesInProgress` SELECT `AdminID`,
 	`First Name` AS `First_Name`,
     `Last Name` AS `Last_Name`,
-    `CertificationDesc` AS `Training`,
+    `Training`,
     '' AS `TrainingStatus`,
-    `CertDate` AS `TrainingDate`
+    `TrainingDate`
 FROM `1.RefUpgradeCandidates.20220822`
 WHERE `AYSOID` <> '';
 
@@ -151,7 +151,8 @@ WHERE
 	NOT `Training` IS NULL 
     AND NOT `TrainingDate` = ""
     AND NOT ref.`CertificationDesc` LIKE '8U%'
-    AND `TrainingDate` >= DATE_SUB(NOW(), INTERVAL 8 YEAR)
+-- 	AND `TrainingDate` >= DATE_SUB(NOW(), INTERVAL 8 YEAR)
+	AND ref.`MY` >= CONCAT('MY', YEAR(DATE_SUB(NOW(), INTERVAL 4 YEAR)))
     AND (
 		(`Training` = 'Intermediate Referee Course' AND ref.`CertificationDesc` = 'Regional Referee')
 		OR (`Training` = 'Advanced Referee Course' AND ref.`CertificationDesc` = 'Intermediate Referee')
