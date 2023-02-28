@@ -44,7 +44,13 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
     `ExpirationDateC` TEXT
 )  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
-
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2022.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2022.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
@@ -110,6 +116,9 @@ UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '14448-208552' WHERE `Adm
 
 /* Yui-Bin Chen registration in Region 779 */
 DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '82221-973180' AND `Club` LIKE '%779';
+
+/* Steve D'Amico duplicate registration 1/C/214 */
+UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '82957-613119' WHERE `AdminID` IN ('56268-618067');
 
 DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 

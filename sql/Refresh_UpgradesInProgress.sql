@@ -4,7 +4,7 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
 
 DROP TABLE IF EXISTS `1.upgradesInProgress`;
 
-CREATE TEMPORARY TABLE `1.upgradesInProgress` (
+CREATE TABLE `1.upgradesInProgress` (
   `First_Name` text,
   `Last_Name` text,
   `AdminID` VARCHAR(100),
@@ -76,7 +76,6 @@ LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_conn
     
 ALTER TABLE `1.upgradesInProgress` 
 CHANGE COLUMN `AdminID` `AdminID` VARCHAR(100) NULL DEFAULT NULL FIRST,
-DROP COLUMN `AccessDate`,
 DROP COLUMN `Course Expiry Date`,
 DROP COLUMN `AccreditationExpiryDate`,
 DROP COLUMN `Region`,
@@ -87,6 +86,7 @@ CREATE INDEX `idx_1.upgradesInProgress`  ON `1.upgradesInProgress` (AdminID) COM
 UPDATE `1.upgradesInProgress` SET `AdminID` = MID(`AdminID`, 6, 12);
 UPDATE `1.upgradesInProgress` SET `First_Name` = PROPER_CASE(`First_Name`);
 UPDATE `1.upgradesInProgress` SET `Last_Name` = PROPER_CASE(`Last_Name`);
+UPDATE `1.upgradesInProgress` SET `AccessDate` = format_date(LEFT(`AccessDate`,10));
 UPDATE `1.upgradesInProgress` SET `TrainingDate` = format_date(LEFT(`TrainingDate`,10));
 UPDATE `1.upgradesInProgress` SET `Training` = TRIM(`Training`);
 
@@ -107,13 +107,14 @@ INSERT INTO `1.upgradesInProgress` SELECT `AdminID`,
     `Last Name` AS `Last_Name`,
     `Training`,
     '' AS `TrainingStatus`,
+    '' AS `AccessDate`,
     `TrainingDate`
 FROM `1.RefUpgradeCandidates.20220822`
 WHERE `AYSOID` <> '';
 
 DROP TABLE IF EXISTS `tmp_ref_upgrades`;
 
-CREATE TEMPORARY TABLE `tmp_ref_upgrades` SELECT 
+CREATE  TABLE `tmp_ref_upgrades` SELECT 
     ref.`AdminID`,
     ref.`AYSOID`,
     ref.`MY`,
@@ -127,6 +128,7 @@ CREATE TEMPORARY TABLE `tmp_ref_upgrades` SELECT
     ref.`Gender`,
     ref.`Email`,
     `Training`,
+    `AccessDate`,
     `TrainingDate`,
     ref.`CertificationDesc` AS `RefereeCert`,
     ref.`CertificationDate` AS `RefereeDate`,
@@ -149,9 +151,9 @@ FROM
 
 WHERE
 	NOT `Training` IS NULL 
-    AND NOT `TrainingDate` = ""
+--     AND NOT `TrainingDate` = ""
     AND NOT ref.`CertificationDesc` LIKE '8U%'
--- 	AND `TrainingDate` >= DATE_SUB(NOW(), INTERVAL 8 YEAR)
+--  	AND `AccessDate` >= DATE_SUB(NOW(), INTERVAL 8 YEAR)
 	AND ref.`MY` >= CONCAT('MY', YEAR(DATE_SUB(NOW(), INTERVAL 4 YEAR)))
     AND (
 		(`Training` = 'Intermediate Referee Course' AND ref.`CertificationDesc` = 'Regional Referee')
@@ -162,7 +164,8 @@ WHERE
 		OR (`Training` = 'Referee Instructor Evaluator Course' AND ref.`CertificationDesc` IN ('Advanced Referee', 'National Referee') AND ri.`CertificationDesc` = 'Advanced Referee Instructor' AND rie.`CertificationDesc` IS NULL)
 		OR (`Training` = 'Referee Assessor Course' AND ref.`CertificationDesc` IN ('Advanced Referee', 'National Referee') AND NOT ra.`CertificationDesc` IN ('National Referee Assessor', 'Referee Assessor'))
 		OR (`Training` = 'National Referee Assessor Course' AND ref.`CertificationDesc` IN ('National Referee') AND NOT ra.`CertificationDesc` = 'National Referee Assessor')
-	);
+	)
+;
         
 DROP TABLE IF EXISTS `crs_rpt_ref_upgrades`;
 
