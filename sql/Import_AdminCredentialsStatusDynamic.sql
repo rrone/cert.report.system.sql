@@ -44,6 +44,20 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
     `ExpirationDateC` TEXT
 )  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2023.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2023.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2022.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
