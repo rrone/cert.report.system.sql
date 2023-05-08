@@ -44,13 +44,6 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
     `ExpirationDateC` TEXT
 )  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2023.AdminCredentialsStatusDynamic.csv'
-	INTO TABLE `AdminCredentialsStatusDynamic`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY ''  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2023.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
@@ -58,7 +51,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2023.AdminCredentialsStatusDy
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2022.AdminCredentialsStatusDynamic.csv'
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2023.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  
@@ -66,6 +59,13 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2022.AdminCredentialsStatusD
 	IGNORE 1 ROWS;  
     
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2022.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2022.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
 	ENCLOSED BY ''  

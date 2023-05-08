@@ -29,11 +29,11 @@ WHERE
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2017' WHERE `MY` IS NULL;
 
 /* Bocanegra erroneous cert */ 
-DELETE FROM `1.AdminLicenseGrade` 
-WHERE
-    `AdminID` = '68354-528194'
-    AND `CertificationDesc` = 'National Referee';
-    
+-- DELETE FROM `1.AdminLicenseGrade` 
+-- WHERE
+--     `AdminID` = '68354-528194'
+--     AND `CertificationDesc` = 'National Referee';
+     
 /*Fichtelman duplicate */
 DELETE FROM `1.AdminLicenseGrade` 
 WHERE
