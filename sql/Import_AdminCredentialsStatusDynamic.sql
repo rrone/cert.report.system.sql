@@ -134,6 +134,12 @@ DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '82221-973180' AND
 /* Steve D'Amico duplicate registration 1/C/214 */
 UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '82957-613119' WHERE `AdminID` IN ('56268-618067');
 
+UPDATE `AdminCredentialsStatusDynamic` 
+SET 
+    `LastName` = REPLACE(`LastName`, '-merged', '')
+WHERE
+    INSTR(`LastName`, '-merged') > 0;
+
 DROP TABLE IF EXISTS `1.AdminCredentialsStatusDynamic`;
 
 CREATE TABLE `1.AdminCredentialsStatusDynamic` (

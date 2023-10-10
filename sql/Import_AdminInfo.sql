@@ -108,14 +108,20 @@ SET
     `State` = STATE(`PostalCode`),
     `CertificationDate` = format_date(`CertificationDate`);  
 
+UPDATE `1.AdminInfo` 
+SET 
+    `LastName` = REPLACE(`LastName`, '-merged', '')
+WHERE
+    INSTR(`LastName`, '-merged') > 0;
+
 SELECT 
     `Section`, `Area`, `Region`, `FirstName`, `LastName`, `Gender`, `Email`, `Address`, `City`, `State`, `PostalCode`, `CertificationDesc`, `CertificationDate`
 FROM
     `1.AdminInfo`    
-WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 35 DAY)
+WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 60 DAY)
 	AND `CertificationDesc` LIKE '%Referee'
 	AND `CertificationDesc` IN ('National Referee', 'Advanced Referee', 'Intermediate Referee')
-ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'Advanced Referee', 'Intermediate Referee'),`CertificationDate` DESC, `AdminID` DESC;
+ORDER BY CAST(`Section` AS unsigned), `Area`, CAST(`Region` AS unsigned), FIELD(`CertificationDesc`, 'National Referee', 'Advanced Referee', 'Intermediate Referee'),`CertificationDate` DESC, `AdminID` DESC;
 
 /*
 SET @date = '20230118.all.AdminInfo';

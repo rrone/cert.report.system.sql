@@ -83,13 +83,13 @@ DROP TABLE IF EXISTS `crs_rpt_ref_certs`;
 
 CREATE TABLE `crs_rpt_ref_certs` SELECT 
     c.*,
-    sh.`CertificateDate` AS `Safe_Haven_Date`,
-    cdc.`CertificateDate` AS `Concussion_Awareness_Date`,
-    sca.`CertificateDate` AS `Sudden_Cardiac_Arrest_Date`,
-    ls.`CertificateDate` AS `LiveScan_Date`,
+    IFNULL(sh.`CertificateDate`,'') AS `Safe_Haven_Date`,
+    IFNULL(cdc.`CertificateDate`,'') AS `Concussion_Awareness_Date`,
+    IFNULL(sca.`CertificateDate`,'') AS `Sudden_Cardiac_Arrest_Date`,
+    IFNULL(ls.`CertificateDate`,'') AS `LiveScan_Date`,
     IF(ISNULL(ss.`CertificateDate`), '', IF(format_date(ss.`SafeSportExpireDate`) >= NOW(), ss.`CertificateDate`, 'Expired')) AS `SafeSport_Date`,
-    risk.`CertificateName` AS `RiskStatus`,
-    risk.`CertificateDate` AS `RiskExpireDate`
+    IFNULL(risk.`CertificateName`,'') AS `RiskStatus`,
+    IFNULL(risk.`CertificateDate`,'') AS `RiskExpireDate`
 FROM
     `1.CompositeRefereeCertificates` c
         LEFT JOIN
@@ -178,25 +178,15 @@ CHANGE COLUMN `timestamp` `timestamp` DATETIME NOT NULL DEFAULT '1901-01-01 00:0
 ALTER TABLE crs_rpt_lastUpdate ADD UNIQUE (`timestamp`);
         
 SELECT 
-    *
-FROM
-    `crs_rpt_ref_certs`;
-
-SELECT 
-    *
+    *, HealthSafetyComplete(`Safe_Haven_Date`,`Concussion_Awareness_Date`,`Sudden_Cardiac_Arrest_Date`,`SafeSport_Date`,`RiskStatus`) AS 'Health & Safety'
 FROM
     `crs_rpt_ref_certs`
-WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 60 DAY)
-	AND `CertificationDate` <= NOW()
-	AND `CertificationDesc` IN ('National Referee', 'Advanced Referee', 'Intermediate Referee')
-ORDER BY `CertificationDate`, `AdminID` DESC;
+WHERE `MY` >= 'MY2018';
 
-CALL `RefreshRefereeInstructors`();
+CALL `RefreshRefereeInstructors`('MY2023');
 
-CALL `RefreshRefereeInstructorEvaluators`();
+CALL `RefreshRefereeInstructorEvaluators`('MY2023');
 
-CALL `RefreshRefereeAssessors`();
+CALL `RefreshRefereeAssessors`('MY2023');
 
 CALL `RefreshRefereeSafeSportExpiration`();
-
-

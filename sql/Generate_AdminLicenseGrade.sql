@@ -28,6 +28,9 @@ WHERE
     
 UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2017' WHERE `MY` IS NULL;
 
+-- SELECT * FROM `1.AdminLicenseGrade`
+-- WHERE `AdminID` IN ('27448-971078');
+
 /* Bocanegra erroneous cert */ 
 -- DELETE FROM `1.AdminLicenseGrade` 
 -- WHERE
@@ -35,28 +38,34 @@ UPDATE `1.AdminLicenseGrade` SET `MY` = 'MY2017' WHERE `MY` IS NULL;
 --     AND `CertificationDesc` = 'National Referee';
      
 /*Fichtelman duplicate */
-DELETE FROM `1.AdminLicenseGrade` 
-WHERE
-    `AdminID` = '55599-730572';   
+-- DELETE FROM `1.AdminLicenseGrade` 
+-- WHERE
+--     `AdminID` = '55599-730572';   
     
 /* Nichole Wade 1/P/1031 */
-UPDATE `1.AdminLicenseGrade` 
-SET 
-    `MY` = 'MY2022'
-WHERE
-    `AdminID` = '14448-208552';
+-- UPDATE `1.AdminLicenseGrade` 
+-- SET 
+--     `MY` = 'MY2022'
+-- WHERE
+--     `AdminID` = '14448-208552';
 
 /*Ricardo Gonzalez Jr duplicate */
-UPDATE `1.AdminLicenseGrade` 
-SET
-    `AdminID` = '11844-920039'
-WHERE 
-`AdminID` IN ('53239-880774', '74625-322435', '42548-339555');
+-- UPDATE `1.AdminLicenseGrade` 
+-- SET
+--     `AdminID` = '11844-920039'
+-- WHERE 
+-- `AdminID` IN ('53239-880774', '74625-322435', '42548-339555');
 
 /* Al Prado test account */
-DELETE FROM `1.AdminLicenseGrade`
-WHERE 
-	`AdminID` = '89820-005656';
+-- DELETE FROM `1.AdminLicenseGrade`
+-- WHERE 
+-- 	`AdminID` = '89820-005656';
+    
+/* Jeffrey Garner */
+-- UPDATE `1.AdminLicenseGrade` SET CertificationDesc = 'Advanced Referee', CertificationDate='2018-11-28' WHERE AdminID = '27448-971078';     
+    
+/* Jason Jimenez */
+-- UPDATE `1.AdminLicenseGrade` SET CertificationDesc = 'Intermediate Referee', CertificationDate='2023-05-23' WHERE AdminID = '24651-567375';     
     
 DELETE FROM `1.AdminLicenseGrade` 
 WHERE NOT `CertificationDesc` LIKE '%Referee%'
@@ -64,6 +73,12 @@ WHERE NOT `CertificationDesc` LIKE '%Referee%'
 	
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDesc` = 'Assistant Referee' WHERE `CertificationDesc` = 'Asst. Referee';
 UPDATE `1.AdminLicenseGrade`  SET `CertificationDesc` = '8U Official' WHERE `CertificationDesc` = 'U-8 Official';
+
+UPDATE `1.AdminLicenseGrade` 
+SET 
+    `LastName` = REPLACE(`LastName`, '-merged', '')
+WHERE
+    INSTR(`LastName`, '-merged') > 0;
 
 DROP TABLE IF EXISTS `AdminLicenseGrade`;
 
