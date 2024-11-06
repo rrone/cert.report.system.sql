@@ -8,7 +8,6 @@ SELECT
 FROM
     (SELECT 
         alg.`AdminID`,
-            `AYSOID`,
             `SAR`,
             `First_Name`,
             `Last_Name`,
@@ -21,11 +20,8 @@ FROM
             alg.`CertificationDate` AS `AS_CertificationDate`
     FROM
         `1.Completed_Upgrades` cu
-    RIGHT JOIN `1.AdminLicenseGrade` alg ON cu.`AdminID` = alg.`AdminID`) j
-WHERE
-    `CertificationDesc` LIKE '%Referee'
-        AND `CertificationDesc` <> `AS_CertificationDesc`
-ORDER BY FIELD(`CertificationDesc`,
+    RIGHT JOIN `1.AdminLicenseGrade` alg ON cu.`AdminID` = alg.`AdminID` AND cu.`Certification_Desc` = alg.`CertificationDesc`
+    ORDER BY `CertificationDate`, FIELD(`CertificationDesc`,
         'National Referee',
         'National 2 Referee',
         'Advanced Referee',
@@ -38,4 +34,8 @@ ORDER BY FIELD(`CertificationDesc`,
         'U-8 Official & Safe Haven Referee',
         'Z-Online Regional Referee Course',
         'Z-Online 8U Official',
-        '') , `SAR` , `CertificationDate`;
+        '') , `SAR` ) j
+WHERE
+    `CertificationDesc` LIKE '%Referee'
+        AND `CertificationDesc` <> `AS_CertificationDesc`;
+

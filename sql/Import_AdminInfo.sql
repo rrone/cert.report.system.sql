@@ -27,6 +27,13 @@ CREATE TEMPORARY TABLE `tmp.AdminInfo` (
   `Risk_Submit_Date` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2024.AdminLicenseGrade.csv'
+	INTO TABLE `tmp.AdminInfo`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY '"'  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/all.2023.AdminLicenseGrade.csv'
 	INTO TABLE `tmp.AdminInfo`   
 	FIELDS TERMINATED BY ','   
@@ -55,26 +62,26 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminLicenseGrade.csv'
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminLicenseGrade.csv'
-	INTO TABLE `tmp.AdminInfo`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
+-- LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminLicenseGrade.csv'
+-- 	INTO TABLE `tmp.AdminInfo`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY '"'  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
     
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminLicenseGrade.csv'
-	INTO TABLE `tmp.AdminInfo`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminLicenseGrade.csv'
-	INTO TABLE `tmp.AdminInfo`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
+-- LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2018.AdminLicenseGrade.csv'
+-- 	INTO TABLE `tmp.AdminInfo`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY '"'  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
+-- LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminLicenseGrade.csv'
+-- 	INTO TABLE `tmp.AdminInfo`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY '"'  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
     
 ALTER TABLE `tmp.AdminInfo` 
 DROP COLUMN `Admin_ID`,
@@ -102,11 +109,19 @@ CREATE INDEX `idx_1.AdminInfo_AdminID`  ON `1.AdminInfo` (AdminID) COMMENT '' AL
 UPDATE `1.AdminInfo` 
 SET 
     `Section` = EXTRACTNUMBER(`Section`),
-    `Area` = RIGHT(`Area`, 1),
-    `Region` = EXTRACTNUMBER(`Region`),
+    `Area` = RIGHT(SUBSTRING_INDEX(SUBSTRING_INDEX(`Area`, ' ', 2), ' ', -1), 1),
+    `Region` = EXTRACTNUMBER(SUBSTRING_INDEX(SUBSTRING_INDEX(`Region`, ' ', 2), ' ', -1)),
     `DOB` = format_date(`DOB`),
     `State` = STATE(`PostalCode`),
     `CertificationDate` = format_date(`CertificationDate`);  
+
+DELETE FROM `1.AdminInfo` WHERE `Section` IN (-1, 80, 90);
+
+DELETE FROM `1.AdminInfo` WHERE `Region` IN (9695);
+
+DELETE FROM `1.AdminInfo` WHERE `Region` LIKE 'Archived';
+
+UPDATE `1.AdminInfo` SET `Region` = '' WHERE `Region` IN (-1);
 
 UPDATE `1.AdminInfo` 
 SET 
@@ -114,14 +129,27 @@ SET
 WHERE
     INSTR(`LastName`, '-merged') > 0;
 
+DROP TABLE IF EXISTS `crs_admin_info`;
+
+CREATE TABLE `crs_admin_info` SELECT DISTINCT * FROM
+    `1.AdminInfo`
+    WHERE `CertificationDesc` LIKE ('%Referee%') OR
+     `CertificationDesc` LIKE ('%Official%')
+ORDER BY `AdminID`;
+
 SELECT 
+    `Section`, `Area`, `Region`, `FirstName`, `LastName`, `Gender`, `Email`, `Address`, `City`, `State`, `PostalCode`, `CertificationDesc`, `CertificationDate`
+FROM
+    `1.AdminInfo`;    
+
+SELECT DISTINCT
     `Section`, `Area`, `Region`, `FirstName`, `LastName`, `Gender`, `Email`, `Address`, `City`, `State`, `PostalCode`, `CertificationDesc`, `CertificationDate`
 FROM
     `1.AdminInfo`    
 WHERE `CertificationDate` >= DATE_SUB(NOW(), INTERVAL 60 DAY)
 	AND `CertificationDesc` LIKE '%Referee'
 	AND `CertificationDesc` IN ('National Referee', 'Advanced Referee', 'Intermediate Referee')
-ORDER BY CAST(`Section` AS unsigned), `Area`, CAST(`Region` AS unsigned), FIELD(`CertificationDesc`, 'National Referee', 'Advanced Referee', 'Intermediate Referee'),`CertificationDate` DESC, `AdminID` DESC;
+ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'Advanced Referee', 'Intermediate Referee'),CAST(`Section` AS unsigned), `Area`, CAST(`Region` AS unsigned), `CertificationDate` DESC, `AdminID` DESC;
 
 /*
 SET @date = '20230118.all.AdminInfo';

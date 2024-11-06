@@ -19,83 +19,13 @@ CREATE TABLE `1.upgradesInProgress` (
   `Region` text  
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1B.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1C.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1D.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1F.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1G.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1H.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1N.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1P.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1R.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1S.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
-LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1U.TrainingStatusReport.csv'
-	INTO TABLE `1.upgradesInProgress`   
-	FIELDS TERMINATED BY ','   
-	ENCLOSED BY '"'  
-	LINES TERMINATED BY '\n'
-	IGNORE 1 ROWS;  
-    
+-- LOAD DATA LOCAL INFILE '/Users/rick/.CMVolumes/ayso1sra/s1/reports/__sports_connect_reports/_eTrainU_Reports/1U.TrainingStatusReport.csv'
+-- 	INTO TABLE `1.upgradesInProgress`   
+-- 	FIELDS TERMINATED BY ','   
+-- 	ENCLOSED BY '"'  
+-- 	LINES TERMINATED BY '\n'
+-- 	IGNORE 1 ROWS;  
+--     
 ALTER TABLE `1.upgradesInProgress` 
 CHANGE COLUMN `AdminID` `AdminID` VARCHAR(100) NULL DEFAULT NULL FIRST,
 DROP COLUMN `Course Expiry Date`,
@@ -142,7 +72,6 @@ DROP TABLE IF EXISTS `tmp_ref_upgrades`;
 
 CREATE  TABLE `tmp_ref_upgrades` SELECT 
     ref.`AdminID`,
-    ref.`AYSOID`,
     ref.`MY`,
     ref.`SAR`,
     ref.`Section`,

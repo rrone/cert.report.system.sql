@@ -18,7 +18,7 @@ CREATE TABLE `1.AdminLicenseGradeRefereeHighest` SELECT DISTINCT `AdminID`,
     `CertificationDesc`,
     `CertificationDate` FROM
     `1.AdminLicenseGrade`
-ORDER BY FIELD(`CertificationDesc`,
+ORDER BY MY DESC, FIELD(`CertificationDesc`,
         'National Referee',
         'National 2 Referee',
         'Advanced Referee',
@@ -57,7 +57,7 @@ CREATE TABLE `tmpAdminLicenseGradeRefereeHighest` SELECT
         `CertificationDesc`, 
         `CertificationDate`
         FROM (SELECT *,
-            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
+            @rank:=IF(@id = CONCAT(`AdminID`, `Region`), @rank + 1, 1) AS rank,
             @id:=`AdminID`
     FROM
         (SELECT 
@@ -65,8 +65,8 @@ CREATE TABLE `tmpAdminLicenseGradeRefereeHighest` SELECT
     FROM
         `1.AdminLicenseGradeRefereeHighest`
 	WHERE NOT `AYSOID` = ''
-    ORDER BY `AdminID` DESC) ordered
-    GROUP BY `AdminID`) grouped
+    ORDER BY `AdminID` DESC, `Region`) ordered
+    GROUP BY `AdminID`, `Region`) grouped
 WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `Last_Name`;

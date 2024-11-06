@@ -97,8 +97,8 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AdminID`,
     `MY` FROM
     (SELECT 
         *,
-            @rank:=IF(@id = `AdminID` AND `MY` < @my, @rank + 1, 1) AS rank,
-            @id:=`AdminID`,
+            @rank:=IF(@id = CONCAT(`AdminID`, `Region`) AND `MY` < @my, @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`, `Region`),
             @my:=`MY`
     FROM
         (SELECT 
@@ -106,7 +106,7 @@ CREATE TABLE `AdminLicenseGrade` SELECT DISTINCT `AdminID`,
     FROM
         `1.AdminLicenseGrade`
     ORDER BY `AdminID`, `MY` DESC) ordered
-    GROUP BY `AdminID`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) grouped
+    GROUP BY `AdminID`, `Region`, FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', '')) grouped
     WHERE rank = 1
 		AND `AdminID` <> ''
     ORDER BY FIELD(`CertificationDesc`, 'National Referee', 'National 2 Referee', 'Advanced Referee', 'Intermediate Referee', 'Regional Referee', 'Regional Referee & Safe Haven Referee', 'Assistant Referee', 'Asst. Referee', 'Assistant Referee & Safe Haven Referee', '8U Official', 'U-8 Official & Safe Haven Referee', 'Z-Online 8U Official', ''), `Area`, `Region`, `LastName`;
@@ -120,7 +120,7 @@ SELECT
     *
 FROM
     `1.AdminLicenseGrade`
-ORDER BY FIELD(`CertificationDesc`,
+ORDER BY `MY` DESC , FIELD(`CertificationDesc`,
         'National Referee',
         'National 2 Referee',
         'Advanced Referee',
@@ -132,4 +132,4 @@ ORDER BY FIELD(`CertificationDesc`,
         '8U Official',
         'U-8 Official & Safe Haven Referee',
         'Z-Online 8U Official',
-        '') , `Area` , `Region` , `LastName` , `MY`;
+        '') , `Area` , `Region` , `LastName`;

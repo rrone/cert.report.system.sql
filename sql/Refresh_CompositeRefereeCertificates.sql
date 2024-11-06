@@ -88,8 +88,9 @@ CREATE TABLE `crs_rpt_ref_certs` SELECT
     IFNULL(sca.`CertificateDate`,'') AS `Sudden_Cardiac_Arrest_Date`,
     IFNULL(ls.`CertificateDate`,'') AS `LiveScan_Date`,
     IF(ISNULL(ss.`CertificateDate`), '', IF(format_date(ss.`SafeSportExpireDate`) >= NOW(), ss.`CertificateDate`, 'Expired')) AS `SafeSport_Date`,
-    IFNULL(risk.`CertificateName`,'') AS `RiskStatus`,
-    IFNULL(risk.`CertificateDate`,'') AS `RiskExpireDate`
+    IF(ISNULL(ss.`SafeSportExpireDate`), '', format_date(ss.`SafeSportExpireDate`)) AS `SafeSport_Expire_Date`,
+    IFNULL(risk.`CertificateName`,'') AS `Risk_Status`,
+    IFNULL(risk.`CertificateDate`,'') AS `Risk_Expire_Date`
 FROM
     `1.CompositeRefereeCertificates` c
         LEFT JOIN
@@ -103,7 +104,8 @@ FROM
         LEFT JOIN
     `tmp_ls_cert` ls ON c.`AdminID` = ls.`AdminID`
         LEFT JOIN
-    `tmp_risk_cert` risk ON c.`AdminID` = risk.`AdminID`;
+    `tmp_risk_cert` risk ON c.`AdminID` = risk.`AdminID`
+ORDER BY `MY` DESC;
 
 UPDATE `crs_rpt_ref_certs` crs
         INNER JOIN
@@ -114,8 +116,8 @@ SET
     crs.`Sudden_Cardiac_Arrest_Date` = vc.`SCA_Date`,
     crs.`SafeSport_Date` = vc.`SafeSport_Date`,
     crs.`LiveScan_Date` = vc.`LiveScan_Date`,
-	crs.`RiskStatus` = 'InLeague',
-	crs.`RiskExpireDate`  = CONCAT(CAST(RIGHT(vc.`MY`,4) AS UNSIGNED) + 1, '-07-31');
+	crs.`Risk_Status` = 'InLeague',
+	crs.`Risk_Expire_Date`  = CONCAT(CAST(RIGHT(vc.`MY`,4) AS UNSIGNED) + 1, '-07-31');
     
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
 UPDATE `crs_rpt_ref_certs` SET `SAR` = REPLACE(`SAR`, '/0','/');
@@ -176,17 +178,20 @@ CREATE TABLE `crs_rpt_lastUpdate` SELECT NOW() AS timestamp;
 ALTER TABLE crs_rpt_lastUpdate
 CHANGE COLUMN `timestamp` `timestamp` DATETIME NOT NULL DEFAULT '1901-01-01 00:00:00' ;
 ALTER TABLE crs_rpt_lastUpdate ADD UNIQUE (`timestamp`);
+
+ALTER TABLE `crs_rpt_ref_certs`
+DROP COLUMN `AYSOID`;
         
 SELECT 
-    *, HealthSafetyComplete(`Safe_Haven_Date`,`Concussion_Awareness_Date`,`Sudden_Cardiac_Arrest_Date`,`SafeSport_Date`,`RiskStatus`) AS 'Health & Safety'
+    *, HealthSafetyComplete(`Safe_Haven_Date`,`Concussion_Awareness_Date`,`Sudden_Cardiac_Arrest_Date`,`SafeSport_Date`,`Risk_Status`) AS 'Health & Safety'
 FROM
     `crs_rpt_ref_certs`
-WHERE `MY` >= 'MY2018';
+WHERE `MY` >= 'MY2020';
 
-CALL `RefreshRefereeInstructors`('MY2023');
+CALL `RefreshRefereeInstructors`('MY2024');
 
-CALL `RefreshRefereeInstructorEvaluators`('MY2023');
+CALL `RefreshRefereeInstructorEvaluators`('MY2024');
 
-CALL `RefreshRefereeAssessors`('MY2023');
+CALL `RefreshRefereeAssessors`('MY2024');
 
 CALL `RefreshRefereeSafeSportExpiration`();

@@ -44,6 +44,90 @@ CREATE TABLE `AdminCredentialsStatusDynamic` (
     `ExpirationDateC` TEXT
 )  ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
+/* Add data for 2, 10, 11 */
+
+/*
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/2.2024.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/10.2024.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/11.2024.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/2.2023.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/10.2023.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+     
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/11.2023.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+     
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/2.2022.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/10.2022.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/11.2022.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+*/
+
+/* Section 1 data */
+
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2024.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
+LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/70.2024.AdminCredentialsStatusDynamic.csv'
+	INTO TABLE `AdminCredentialsStatusDynamic`   
+	FIELDS TERMINATED BY ','   
+	ENCLOSED BY ''  
+	LINES TERMINATED BY '\n'
+	IGNORE 1 ROWS;  
+    
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2023.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
@@ -85,7 +169,10 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2020.AdminCredentialsStatusDy
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
-    
+
+/* obsolete Section 1 data */
+
+/*    
 LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2019.AdminCredentialsStatusDynamic.csv'
 	INTO TABLE `AdminCredentialsStatusDynamic`   
 	FIELDS TERMINATED BY ','   
@@ -106,6 +193,7 @@ LOAD DATA LOCAL INFILE '/Users/rick/Soccer/_data/1.2017.AdminCredentialsStatusDy
 	ENCLOSED BY ''  
 	LINES TERMINATED BY '\n'
 	IGNORE 1 ROWS;  
+*/
 
 UPDATE `AdminCredentialsStatusDynamic` SET `MY` = RIGHT(`MY`,6);
 
@@ -133,6 +221,9 @@ DELETE FROM `AdminCredentialsStatusDynamic` WHERE `AdminID` = '82221-973180' AND
 
 /* Steve D'Amico duplicate registration 1/C/214 */
 UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '82957-613119' WHERE `AdminID` IN ('56268-618067');
+
+/* Luis Alonso Torres registration in Region before 18 */
+UPDATE `AdminCredentialsStatusDynamic` SET `AdminID` = '11115-271481' WHERE `AdminID` IN ('56622-357182');
 
 UPDATE `AdminCredentialsStatusDynamic` 
 SET 
@@ -183,8 +274,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
 FROM 
     (SELECT 
         *,
-            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
-            @id:=`AdminID`
+            @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`,`Club`), @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`, `CertificateName`,`Club`)
     FROM
         (SELECT 
         *
@@ -193,10 +284,10 @@ FROM
 	WHERE `CertificateName` IN ('AYSOs Safe Haven') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
-    GROUP BY `AdminID`, `MY`) grouped
+    GROUP BY `AdminID`,`Club`, `MY`) grouped
 WHERE
     rank = 1	
-ORDER BY `Area` , `Region` , `LastName`);
+ORDER BY `Area` , `Club` , `LastName`);
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AdminID`,
@@ -218,8 +309,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
 FROM 
     (SELECT 
         *,
-            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
-            @id:=`AdminID`
+            @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`,`Club`), @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`, `CertificateName`,`Club`)
     FROM
         (SELECT 
         *
@@ -228,10 +319,10 @@ FROM
 	WHERE `CertificateName` IN ('Concussion Awareness') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
-    GROUP BY `AdminID`, `MY`) grouped
+    GROUP BY `AdminID`, `Club`, `MY`) grouped
 WHERE
     rank = 1	
-ORDER BY `Area` , `Region` , `LastName`);
+ORDER BY `Area` , `Club` , `LastName`);
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AdminID`,
@@ -253,8 +344,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
 FROM 
     (SELECT 
         *,
-            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
-            @id:=`AdminID`
+            @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`,`Club`), @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`, `CertificateName`,`Club`)
     FROM
         (SELECT 
         *
@@ -263,10 +354,10 @@ FROM
 	WHERE `CertificateName` IN ('Sudden Cardiac Arrest') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
-    GROUP BY `AdminID`, `MY`) grouped
+    GROUP BY `AdminID`, `Club`, `MY`) grouped
 WHERE
     rank = 1	
-ORDER BY `Area` , `Region` , `LastName`);
+ORDER BY `Area` , `Club` , `LastName`);
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AdminID`,
@@ -288,8 +379,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
 FROM 
     (SELECT 
         *,
-            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
-            @id:=`AdminID`
+            @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`,`Club`), @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`, `CertificateName`,`Club`)
     FROM
         (SELECT 
         *
@@ -298,10 +389,10 @@ FROM
 	WHERE `CertificateName` IN ('SafeSport') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
-    GROUP BY `AdminID`, `MY`) grouped
+    GROUP BY `AdminID`, `Club`, `MY`) grouped
 WHERE
     rank = 1	
-ORDER BY `Area` , `Region` , `LastName`);
+ORDER BY `Area` , `Club` , `LastName`);
 
 INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
   `AdminID`,
@@ -323,8 +414,8 @@ INSERT INTO `1.AdminCredentialsStatusDynamic` (SELECT
 FROM 
     (SELECT 
         *,
-            @rank:=IF(@id = `AdminID`, @rank + 1, 1) AS rank,
-            @id:=`AdminID`
+            @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`,`Club`), @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`, `CertificateName`,`Club`)
     FROM
         (SELECT 
         *
@@ -333,10 +424,10 @@ FROM
 	WHERE `CertificateName` IN ('CA Mandated Fingerprinting') 
     AND NOT `ccVerifyDate` = ''
     ORDER BY `AdminID`) ordered
-    GROUP BY `AdminID`, `MY`) grouped
+    GROUP BY `AdminID`, `Club`, `MY`) grouped
 WHERE
     rank = 1	
-ORDER BY `Area` , `Region` , `LastName`);
+ORDER BY `Area` , `Club` , `LastName`);
  
 UPDATE `1.AdminCredentialsStatusDynamic` c SET `CertificateDate` = str_to_date(`CertificateDate`, '%m/%d/%Y');
 UPDATE `1.AdminCredentialsStatusDynamic` c SET `RiskExpireDate` = str_to_date(`RiskExpireDate`, '%m/%d/%Y') WHERE `RiskExpireDate` <> '';
@@ -357,7 +448,7 @@ CREATE TEMPORARY TABLE `tmp_dup_AdminCredentialsStatusDynamic` SELECT `AdminID` 
     GROUP BY `AYSOID`) grouped
 WHERE
     `rank` = 1 AND `AYSOID` <> '';
-
+    
 CREATE INDEX `idx_tmp_dup_AdminCredentialsStatusDynamic`  ON `tmp_dup_AdminCredentialsStatusDynamic` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 DELETE FROM `1.AdminCredentialsStatusDynamic` 
@@ -389,15 +480,15 @@ CREATE TABLE `tmp_AdminCredentialsStatusDynamic` SELECT `AdminID`,
     FROM
     (SELECT 
         *,
-            @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`), @rank + 1, 1) AS rank,
-            @id:=CONCAT(`AdminID`, `CertificateName`)
+            @rank:=IF(@id = CONCAT(`AdminID`, `CertificateName`,`Region`), @rank + 1, 1) AS rank,
+            @id:=CONCAT(`AdminID`, `CertificateName`,`Region`)
     FROM
         (SELECT 
         *
     FROM
         `1.AdminCredentialsStatusDynamic`
     ORDER BY `AYSOID` , `MY` DESC) ordered
-    GROUP BY `AdminID` , `CertificateName`) grouped
+    GROUP BY `AdminID` , `CertificateName`, `Region`) grouped
 WHERE
     rank = 1
 ORDER BY `Section` , `Area` , `Region` , `LastName`;
