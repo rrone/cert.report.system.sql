@@ -75,7 +75,7 @@ CREATE INDEX `idx_tmp_ls_cert_AdminID`  ON `tmp_ls_cert` (AdminID) COMMENT '' AL
 DROP TABLE IF EXISTS `tmp_risk_cert`;
 CREATE TEMPORARY TABLE `tmp_risk_cert` SELECT DISTINCT `AdminID`, `AYSOID`, `RiskStatus` AS `CertificateName`, `RiskExpireDate` AS `CertificateDate` FROM
     `1.AdminCredentialsStatusDynamic`;
-CREATE INDEX `idx_tmp_risk_cert_AdminID`  ON .`tmp_risk_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
+CREATE INDEX `idx_tmp_risk_cert_AdminID`  ON `tmp_risk_cert` (AdminID) COMMENT '' ALGORITHM DEFAULT LOCK DEFAULT;
 
 UPDATE `1.CompositeRefereeCertificates`  SET `CertificationDesc` = '8U Official' WHERE `CertificationDesc` LIKE 'U-8 Official%';
 
